@@ -59,7 +59,22 @@ ninja.data = [{
             window.open("https://medium.com/@al-folio/displaying-external-posts-on-your-al-folio-blog-b60a1d241a0a?source=rss-17feae71c3c4------2", "_blank");
           
         },
-      },{
+      },{id: "projects-sample-ai-project",
+          title: 'Sample AI Project',
+          description: "This is a sample AI project to test the filtering and tag chips.",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/sample_ai/";
+            },},{id: "projects-sample-commerce-nlp-project",
+          title: 'Sample Commerce NLP Project',
+          description: "This is a sample Commerce and NLP project to test the filtering and tag chips.",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/sample_commerce_nlp/";
+            },},{id: "projects-sample-healthcare-project",
+          title: 'Sample Healthcare Project',
+          description: "This is a sample Healthcare project to test the filtering and tag chips.",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/sample_healthcare/";
+            },},{
         id: 'social-cv',
         title: 'CV',
         section: 'Socials',
