@@ -55,3 +55,54 @@ body.sticky-bottom-footer {
 *****************************************************************************/
 
 // TODO: redefine projects layout.
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+
+  .title-container {
+    .post-title {
+      margin-bottom: 0;
+    }
+    .post-description {
+      margin-bottom: 0;
+    }
+  }
+
+  .header-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    margin-top: 10px;
+
+    .header-btn {
+      color: #000000;
+      font-size: 14px;
+      font-weight: 400;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+      border-bottom: 1px solid transparent;
+
+      &:hover {
+        opacity: 1;
+        border-bottom: 1px solid var(--global-text-color);
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .header-buttons {
+      align-items: flex-start;
+      margin-top: 0.5rem;
+    }
+  }
+}

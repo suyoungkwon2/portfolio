@@ -2,6 +2,11 @@
 layout: page
 title: Projects
 permalink: /projects/
+header_buttons:
+  - text: "View PDF Version ↗"
+    url: "https://drive.google.com/file/d/1lDeLOxsT6fF6G_9JCcFhWK6W6hKjy2tX/view?usp=sharing"
+  - text: "Design Portfolio (~2020) ↗"
+    url: "https://suyoungkwon.webflow.io/"
 #description: A growing collection of your cool projects.
 nav: true
 nav_order: 1
