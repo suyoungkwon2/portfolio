@@ -159,6 +159,31 @@ ul.task-list input[type="checkbox"] {
     margin-bottom: 1rem;
     text-align: right;
   }
+
+  .project-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    button.active {
+      background-color: var(--global-theme-color);
+      color: white;
+      border-color: var(--global-theme-color);
+    }
+  }
+
+  .project-item {
+    .tag-chip {
+      display: inline-block;
+      padding: 2px 8px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      background-color: var(--global-theme-color);
+      color: white;
+      border-radius: 12px;
+      font-size: 0.75rem;
+    }
+  }
 }
 
 // Repositories

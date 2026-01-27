@@ -5,61 +5,46 @@ permalink: /projects/
 description: A growing collection of your cool projects.
 nav: true
 nav_order: 1
-display_categories: [work, fun]
-horizontal: false
 ---
 
-<!-- pages/projects.md -->
+<!-- _pages/projects.md -->
 <div class="projects">
-{% if site.enable_project_categories and page.display_categories %}
-  <!-- Display categorized projects -->
-  {% for category in page.display_categories %}
-  <a id="{{ category }}" href=".#{{ category }}">
-    <h2 class="category">{{ category }}</h2>
-  </a>
-  {% assign categorized_projects = site.projects | where: "category", category %}
-  {% assign sorted_projects = categorized_projects | sort: "importance" %}
-  <!-- Generate cards for each project -->
-  {% if page.horizontal %}
-  <div class="container">
-    <div class="row row-cols-1 row-cols-md-2">
-    {% for project in sorted_projects %}
-      {% include projects_horizontal.liquid %}
-    {% endfor %}
-    </div>
+  <!-- Filter Buttons -->
+  <div class="project-filters mb-4">
+    <button class="btn btn-sm btn-outline-primary active" data-filter="all">All</button>
+    <button class="btn btn-sm btn-outline-primary" data-filter="AI">AI</button>
+    <button class="btn btn-sm btn-outline-primary" data-filter="Healthcare">Healthcare</button>
+    <button class="btn btn-sm btn-outline-primary" data-filter="NLP">NLP</button>
+    <button class="btn btn-sm btn-outline-primary" data-filter="Commerce">Commerce</button>
   </div>
-  {% else %}
-  <div class="row row-cols-1 row-cols-md-3">
+
+  {% assign sorted_projects = site.projects | sort: "year" | reverse %}
+
+  <div class="row row-cols-1 row-cols-md-3" id="project-grid">
     {% for project in sorted_projects %}
       {% include projects.liquid %}
     {% endfor %}
   </div>
-  {% endif %}
-  {% endfor %}
-
-{% else %}
-
-<!-- Display projects without categories -->
-
-{% assign sorted_projects = site.projects | sort: "importance" %}
-
-  <!-- Generate cards for each project -->
-
-{% if page.horizontal %}
-
-  <div class="container">
-    <div class="row row-cols-1 row-cols-md-2">
-    {% for project in sorted_projects %}
-      {% include projects_horizontal.liquid %}
-    {% endfor %}
-    </div>
-  </div>
-  {% else %}
-  <div class="row row-cols-1 row-cols-md-3">
-    {% for project in sorted_projects %}
-      {% include projects.liquid %}
-    {% endfor %}
-  </div>
-  {% endif %}
-{% endif %}
 </div>
+
+<script>
+  document.querySelectorAll('.project-filters button').forEach(button => {
+    button.addEventListener('click', () => {
+      const filter = button.getAttribute('data-filter');
+      
+      // Update active state
+      document.querySelectorAll('.project-filters button').forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      
+      // Filter projects
+      document.querySelectorAll('#project-grid .project-item').forEach(item => {
+        const tags = item.getAttribute('data-tags').split(',');
+        if (filter === 'all' || tags.includes(filter)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
