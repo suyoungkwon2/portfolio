@@ -2,7 +2,7 @@
 layout: page
 title: Sample AI Project
 description: This is a sample AI project to test the filtering and tag chips.
-img: assets/img/12.jpg
+img: assets/img/projects/sample_ai/12.jpg
 importance: 1
 category: work
 tags: [AI, NLP]

@@ -2,7 +2,7 @@
 layout: page
 title: Sample Healthcare Project
 description: This is a sample Healthcare project to test the filtering and tag chips.
-img: assets/img/7.jpg
+img: assets/img/projects/sample_healthcare/7.jpg
 importance: 2
 category: work
 tags: [Healthcare, AI]

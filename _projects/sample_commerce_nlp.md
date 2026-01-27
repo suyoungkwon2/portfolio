@@ -2,7 +2,7 @@
 layout: page
 title: Sample Commerce NLP Project
 description: This is a sample Commerce and NLP project to test the filtering and tag chips.
-img: assets/img/1.jpg
+img: assets/img/projects/sample_commerce_nlp/1.jpg
 importance: 3
 category: work
 tags: [Commerce, NLP]

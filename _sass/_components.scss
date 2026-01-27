@@ -166,6 +166,14 @@ ul.task-list input[type="checkbox"] {
       font-weight: 600;
       margin-top: 0;
       margin-bottom: 8px;
+
+      .card-year {
+        font-size: 12px;
+        font-weight: 400;
+        opacity: 0.55;
+        margin-left: 4px;
+        color: var(--global-text-color);
+      }
     }
 
     .card-text {
@@ -218,8 +226,9 @@ ul.task-list input[type="checkbox"] {
       outline: none !important;
       color: #000000 !important;
       opacity: 0.4;
-      font-weight: 500;
+      font-weight: 400;
       font-size: 16px;
+      font-family: "Kreon", serif !important;
       transition: opacity 0.2s ease;
 
       &:hover,
@@ -239,7 +248,7 @@ ul.task-list input[type="checkbox"] {
         border: none !important;
         box-shadow: none !important;
         opacity: 1;
-        font-weight: 700;
+        font-weight: 600;
       }
     }
   }
