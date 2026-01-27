@@ -2,7 +2,7 @@
 layout: page
 title: Projects
 permalink: /projects/
-description: A growing collection of your cool projects.
+#description: A growing collection of your cool projects.
 nav: true
 nav_order: 1
 ---
@@ -12,6 +12,7 @@ nav_order: 1
   <!-- Filter Buttons -->
   <div class="project-filters mb-4">
     <button class="btn btn-sm btn-outline-primary active" data-filter="all">All</button>
+    <button class="btn btn-sm btn-outline-primary" data-filter="AI">UX</button>
     <button class="btn btn-sm btn-outline-primary" data-filter="AI">AI</button>
     <button class="btn btn-sm btn-outline-primary" data-filter="Healthcare">Healthcare</button>
     <button class="btn btn-sm btn-outline-primary" data-filter="NLP">NLP</button>
@@ -20,7 +21,7 @@ nav_order: 1
 
   {% assign sorted_projects = site.projects | sort: "year" | reverse %}
 
-  <div class="row row-cols-1 row-cols-md-3" id="project-grid">
+  <div class="row row-cols-1 row-cols-md-2" id="project-grid">
     {% for project in sorted_projects %}
       {% include projects.liquid %}
     {% endfor %}
