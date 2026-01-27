@@ -5,7 +5,7 @@ description: Re-Engineering Clinical Workflow with GenAI
 img: assets/img/projects/MARS/MARS - 1.jpg
 importance: 1
 category: work
-tags: [AI, NLP, Healthcare]
+tags: [AI, NLP, Healthcare, Research]
 domain_tags: [Medical]
 problem_tags: [Clinical Documentation]
 tech_tags: [NLP, AI]

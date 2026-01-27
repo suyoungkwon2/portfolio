@@ -1,18 +1,28 @@
 <div class="project-file-viewer">
-  <div class="flipbook-container">
-    <div id="flipbook" class="flipbook">
-      <!-- Pages will be generated here -->
-      {% assign image_base = "assets/img/projects/" | append: include.project_folder %}
-      {% for i in (1..include.image_count) %}
-        <div class="page">
-          <div class="page-content">
-            {% capture img_name %}{{ include.project_folder }} - {{ i }}.jpg{% endcapture %}
-            {% capture img_path %}{{ image_base }}/{{ img_name }}{% endcapture %}
-            <img src="{{ img_path | relative_url | replace: ' ', '%20' }}" alt="Page {{ i }}">
+  <div class="flipbook-wrapper">
+    <button class="side-nav-btn prev" id="sidePrev" title="Previous Page">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <div class="flipbook-container">
+      <div id="flipbook" class="flipbook">
+        <!-- Pages will be generated here -->
+        {% assign image_base = "assets/img/projects/" | append: include.project_folder %}
+        {% for i in (1..include.image_count) %}
+          <div class="page">
+            <div class="page-content">
+              {% capture img_name %}{{ include.project_folder }} - {{ i }}.jpg{% endcapture %}
+              {% capture img_path %}{{ image_base }}/{{ img_name }}{% endcapture %}
+              <img src="{{ img_path | relative_url | replace: ' ', '%20' }}" alt="Page {{ i }}">
+            </div>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
+
+    <button class="side-nav-btn next" id="sideNext" title="Next Page">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
   </div>
 
   <div class="flipbook-controls">
@@ -57,19 +67,47 @@
     // load pages from existing HTML elements
     pageFlip.loadFromHTML(document.querySelectorAll(".page"));
 
-    // Update initial page number
-    document.getElementById("currentPage").innerText = pageFlip.getCurrentPageIndex() + 1;
+    const sidePrev = document.getElementById("sidePrev");
+    const sideNext = document.getElementById("sideNext");
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+    const currentPageSpan = document.getElementById("currentPage");
 
-    document.getElementById("prevPage").addEventListener("click", () => {
-      pageFlip.flipPrev();
-    });
+    function updateNavButtons() {
+      const index = pageFlip.getCurrentPageIndex();
+      const count = pageFlip.getPageCount();
+      
+      // Update text indicator
+      currentPageSpan.innerText = index + 1;
 
-    document.getElementById("nextPage").addEventListener("click", () => {
-      pageFlip.flipNext();
-    });
+      // Disable/Enable side buttons
+      if (index <= 0) {
+        sidePrev.classList.add("disabled");
+        prevBtn.disabled = true;
+      } else {
+        sidePrev.classList.remove("disabled");
+        prevBtn.disabled = false;
+      }
+
+      if (index >= count - 2) { // In 2-page mode, last index is count-2
+        sideNext.classList.add("disabled");
+        nextBtn.disabled = true;
+      } else {
+        sideNext.classList.remove("disabled");
+        nextBtn.disabled = false;
+      }
+    }
+
+    // Update initial page number and buttons
+    updateNavButtons();
+
+    sidePrev.addEventListener("click", () => pageFlip.flipPrev());
+    sideNext.addEventListener("click", () => pageFlip.flipNext());
+    prevBtn.addEventListener("click", () => pageFlip.flipPrev());
+    nextBtn.addEventListener("click", () => pageFlip.flipNext());
 
     pageFlip.on("flip", (e) => {
-      document.getElementById("currentPage").innerText = e.data + 1;
+      updateNavButtons();
     });
 
     // Keyboard navigation

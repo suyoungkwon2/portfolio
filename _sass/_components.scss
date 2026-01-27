@@ -427,6 +427,50 @@ ul.task-list input[type="checkbox"] {
       display: none;
     }
 
+    .flipbook-wrapper {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative; // Absolute children will be relative to this
+
+      .side-nav-btn {
+        background: none;
+        border: none;
+        font-size: 2.5rem;
+        color: var(--global-text-color);
+        opacity: 0.2;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        position: absolute; // Remove from flow
+        top: 50%;
+        transform: translateY(-50%);
+
+        &.prev {
+          left: -60px; // Place outside the book to the left
+        }
+
+        &.next {
+          right: -60px; // Place outside the book to the right
+        }
+
+        &:hover:not(.disabled) {
+          opacity: 0.8;
+          transform: translateY(-50%) scale(1.1);
+        }
+
+        &.disabled {
+          opacity: 0.02;
+          cursor: default;
+        }
+      }
+    }
+
     .flipbook-container {
       width: 100%;
       height: auto;
