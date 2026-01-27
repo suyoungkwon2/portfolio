@@ -19,7 +19,7 @@ nav_order: 1
     <button class="btn btn-sm btn-outline-primary" data-filter="Commerce">Commerce</button>
   </div>
 
-  {% assign sorted_projects = site.projects | sort: "year" | reverse %}
+  {% assign sorted_projects = site.projects | sort: "date" | reverse %}
 
   <div class="row row-cols-1 row-cols-md-2" id="project-grid">
     {% for project in sorted_projects %}

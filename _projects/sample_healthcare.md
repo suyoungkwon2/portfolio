@@ -10,4 +10,6 @@ domain_tags: [Diagnostics, Medical Imaging]
 problem_tags: [Low Precision, Image Noise]
 tech_tags: [TensorFlow, OpenCV, Docker]
 year: 2024
+month: 6
+date: 2024-06-01
 ---

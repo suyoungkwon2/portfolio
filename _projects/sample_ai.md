@@ -10,4 +10,6 @@ domain_tags: [Education]
 problem_tags: [Learning Language]
 tech_tags: [NLP, AI]
 year: 2025
+month: 1
+date: 2025-01-01
 ---

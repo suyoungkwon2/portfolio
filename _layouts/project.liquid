@@ -79,7 +79,7 @@ layout: default
   {% endif %}
 
   <!-- Project Navigation -->
-  {% assign sorted_projects = site.projects | sort: "year" | reverse %}
+  {% assign sorted_projects = site.projects | sort: "date" | reverse %}
   {% for project in sorted_projects %}
     {% if project.url == page.url %}
       {% assign prev_index = forloop.index0 | plus: 1 %}
