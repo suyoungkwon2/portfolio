@@ -59,21 +59,41 @@ ninja.data = [{
             window.open("https://medium.com/@al-folio/displaying-external-posts-on-your-al-folio-blog-b60a1d241a0a?source=rss-17feae71c3c4------2", "_blank");
           
         },
-      },{id: "projects-sample-ai-project",
-          title: 'Sample AI Project',
-          description: "This is a sample AI project to test the filtering and tag chips.",
+      },{id: "projects-sleepvice",
+          title: 'SleepVice',
+          description: "AI-powered Mnemonic Foreign Vocab Learning",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/sample_ai/";
-            },},{id: "projects-sample-commerce-nlp-project",
-          title: 'Sample Commerce NLP Project',
-          description: "This is a sample Commerce and NLP project to test the filtering and tag chips.",
+              window.location.href = "/projects/SleepVice/";
+            },},{id: "projects-sommind",
+          title: 'SomMind',
+          description: "Digital Therapeutic App for Severe Insomnia",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/sample_commerce_nlp/";
-            },},{id: "projects-sample-healthcare-project",
-          title: 'Sample Healthcare Project',
-          description: "This is a sample Healthcare project to test the filtering and tag chips.",
+              window.location.href = "/projects/SomMind/";
+            },},{id: "projects-asleeptrack",
+          title: 'AsleepTrack',
+          description: "Ultimate AI Sleep Tracking Module",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/sample_healthcare/";
+              window.location.href = "/projects/AsleepTrack/";
+            },},{id: "projects-ai-search",
+          title: 'AI Search',
+          description: "Enhancing Search Experience &amp; Driving Sales",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/AISearch/";
+            },},{id: "projects-ai-curation",
+          title: 'AI Curation',
+          description: "AI-Driven Scaling of Themed Campaigns",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/AICuration/";
+            },},{id: "projects-phonitale",
+          title: 'PhoniTale',
+          description: "AI-powered Mnemonic Foreign Vocab Learning",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/PhoniTale/";
+            },},{id: "projects-m-a-r-s",
+          title: 'M.A.R.S',
+          description: "Re-Engineering Clinical Workflow with GenAI",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/MARS/";
             },},{
         id: 'social-cv',
         title: 'CV',
