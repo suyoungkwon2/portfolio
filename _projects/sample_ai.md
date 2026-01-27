@@ -1,13 +1,13 @@
 ---
-layout: page
-title: Sample AI Project
-description: This is a sample AI project to test the filtering and tag chips.
+layout: project
+title: PhoniTale
+description: AI-powered Mnemonic Foreign Vocab Learning
 img: assets/img/projects/sample_ai/12.jpg
 importance: 1
 category: work
-tags: [AI, NLP]
+tags: [AI, NLP, Education]
+domain_tags: [Education]
+problem_tags: [Learning Language]
+tech_tags: [NLP, AI]
 year: 2025
 ---
-
-# Sample AI Project
-This is the content of the project.

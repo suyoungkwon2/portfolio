@@ -1,0 +1,123 @@
+---
+layout: default
+---
+{% if page._styles %}
+  <!-- Page/Post style -->
+  <style type="text/css">
+    {{ page._styles }}
+  </style>
+{% endif %}
+
+<div class="post project-detail">
+  <header class="project-header">
+    <h1 class="project-title">
+      {{ page.title }}
+      {% if page.year %}
+        <span class="project-year">/ {{ page.year }}</span>
+      {% endif %}
+    </h1>
+    {% if page.description %}
+      <p class="project-subtitle">{{ page.description }}</p>
+    {% endif %}
+
+    <div class="project-tag-groups">
+      {% if page.domain_tags %}
+        <div class="tag-group group-domain">
+          <span class="group-label">Domain</span>
+          <div class="tags">
+            {% for tag in page.domain_tags %}
+              <span class="detail-tag tag-domain">{{ tag }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if page.problem_tags %}
+        <div class="tag-group group-problem">
+          <span class="group-label">Problem</span>
+          <div class="tags">
+            {% for tag in page.problem_tags %}
+              <span class="detail-tag tag-problem">{{ tag }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if page.tech_tags %}
+        <div class="tag-group group-tech">
+          <span class="group-label">Tech</span>
+          <div class="tags">
+            {% for tag in page.tech_tags %}
+              <span class="detail-tag tag-tech">{{ tag }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="project-file-viewer">
+    <div class="pageflip-placeholder">
+      <p>React-Pageflip Viewer Will Be Integrated Here</p>
+      <p>(Library: react-pageflip)</p>
+    </div>
+  </div>
+
+  <article class="project-content">
+    {{ content }}
+  </article>
+
+  {% if page.related_publications %}
+    <h2>References</h2>
+    <div class="publications">
+      {% bibliography --cited_in_order %}
+    </div>
+  {% endif %}
+
+  {% if site.giscus and page.giscus_comments %}
+    {% include giscus.liquid %}
+  {% endif %}
+
+  <!-- Project Navigation -->
+  {% assign sorted_projects = site.projects | sort: "year" | reverse %}
+  {% for project in sorted_projects %}
+    {% if project.url == page.url %}
+      {% assign prev_index = forloop.index0 | plus: 1 %}
+      {% assign next_index = forloop.index0 | minus: 1 %}
+      
+      {% if prev_index < sorted_projects.size %}
+        {% assign prev_project = sorted_projects[prev_index] %}
+      {% endif %}
+      
+      {% if next_index >= 0 %}
+        {% assign next_project = sorted_projects[next_index] %}
+      {% endif %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+
+  <nav class="project-navigation">
+    <div class="nav-box prev">
+      {% if prev_project %}
+        <a href="{{ prev_project.url | relative_url }}">
+          <span class="nav-label">← Previous Project</span>
+          <span class="nav-title">{{ prev_project.title }}</span>
+          {% if prev_project.description %}
+            <span class="nav-subtitle">{{ prev_project.description }}</span>
+          {% endif %}
+        </a>
+      {% endif %}
+    </div>
+    <div class="nav-box next">
+      {% if next_project %}
+        <a href="{{ next_project.url | relative_url }}">
+          <span class="nav-label">Next Project →</span>
+          <span class="nav-title">{{ next_project.title }}</span>
+          {% if next_project.description %}
+            <span class="nav-subtitle">{{ next_project.description }}</span>
+          {% endif %}
+        </a>
+      {% endif %}
+    </div>
+  </nav>
+</div>
