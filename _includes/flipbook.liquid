@@ -1,0 +1,84 @@
+<div class="project-file-viewer">
+  <div class="flipbook-container">
+    <div id="flipbook" class="flipbook">
+      <!-- Pages will be generated here -->
+      {% assign image_base = "assets/img/projects/" | append: include.project_folder %}
+      {% for i in (1..include.image_count) %}
+        <div class="page">
+          <div class="page-content">
+            {% capture img_name %}{{ include.project_folder }} - {{ i }}.jpg{% endcapture %}
+            {% capture img_path %}{{ image_base }}/{{ img_name }}{% endcapture %}
+            <img src="{{ img_path | relative_url | replace: ' ', '%20' }}" alt="Page {{ i }}">
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="flipbook-controls">
+    <button id="prevPage">Prev</button>
+    <span class="page-num"><span id="currentPage">1</span> / {{ include.image_count }}</span>
+    <button id="nextPage">Next</button>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('load', function() {
+    const flipbookElement = document.getElementById("flipbook");
+    if (!flipbookElement) return;
+
+    // Check if St is defined (library loaded)
+    if (typeof St === 'undefined' || !St.PageFlip) {
+      console.error("PageFlip library (St.PageFlip) not loaded.");
+      return;
+    }
+
+    const pageFlip = new St.PageFlip(
+      flipbookElement,
+      {
+        width: 700, // Increased base page width
+        height: 990, // Increased base page height (700 * 1.414)
+        size: "stretch",
+        minWidth: 315,
+        maxWidth: 1400, // Increased max width
+        minHeight: 445,
+        maxHeight: 2000, // Adjusted max height
+        maxShadowOpacity: 0.2,
+        showCover: false,
+        mobileScrollSupport: false,
+        startPage: 1,
+        drawShadow: true,
+        flippingTime: 1000,
+        usePortrait: false,
+        startVelocity: 10
+      }
+    );
+
+    // load pages from existing HTML elements
+    pageFlip.loadFromHTML(document.querySelectorAll(".page"));
+
+    // Update initial page number
+    document.getElementById("currentPage").innerText = pageFlip.getCurrentPageIndex() + 1;
+
+    document.getElementById("prevPage").addEventListener("click", () => {
+      pageFlip.flipPrev();
+    });
+
+    document.getElementById("nextPage").addEventListener("click", () => {
+      pageFlip.flipNext();
+    });
+
+    pageFlip.on("flip", (e) => {
+      document.getElementById("currentPage").innerText = e.data + 1;
+    });
+
+    // Keyboard navigation
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") {
+        pageFlip.flipPrev();
+      } else if (e.key === "ArrowRight") {
+        pageFlip.flipNext();
+      }
+    });
+  });
+</script>

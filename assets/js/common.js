@@ -38,7 +38,8 @@ $(document).ready(function () {
   cssLink.rel = "stylesheet";
   cssLink.type = "text/css";
 
-  let jupyterTheme = determineComputedTheme();
+  // Safely check for theme
+  let jupyterTheme = (typeof determineComputedTheme !== "undefined") ? determineComputedTheme() : "light";
 
   $(".jupyter-notebook-iframe-container iframe").each(function () {
     $(this).contents().find("head").append(cssLink);
@@ -57,4 +58,29 @@ $(document).ready(function () {
   $('[data-toggle="popover"]').popover({
     trigger: "hover",
   });
+
+  // Navbar hide on scroll
+  var lastScrollTop = 0;
+  var delta = 5; // Minimum scroll amount to trigger
+  var navbar = document.getElementById("navbar");
+  
+  if (navbar) {
+    window.addEventListener("scroll", function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      // Make sure they scroll more than delta
+      if (Math.abs(lastScrollTop - scrollTop) <= delta) return;
+      
+      if (scrollTop > lastScrollTop && scrollTop > 50) {
+        // Scroll Down - Hide
+        navbar.classList.add("navbar-hidden");
+      } else {
+        // Scroll Up - Show
+        if (scrollTop + window.innerHeight < document.documentElement.scrollHeight) {
+          navbar.classList.remove("navbar-hidden");
+        }
+      }
+      lastScrollTop = scrollTop;
+    }, false);
+  }
 });

@@ -10,6 +10,12 @@
   background-color: #ffffffcf !important;
   opacity: 1;
   z-index: 1000;
+  transition: transform 0.3s ease-in-out !important; // Use transform for better performance
+  top: 0;
+
+  &.navbar-hidden {
+    transform: translateY(-100%); // Hide more effectively
+  }
 }
 
 .navbar .dropdown-menu,

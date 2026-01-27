@@ -12,7 +12,7 @@ nav_order: 1
   <!-- Filter Buttons -->
   <div class="project-filters mb-4">
     <button class="btn btn-sm btn-outline-primary active" data-filter="all">All</button>
-    <button class="btn btn-sm btn-outline-primary" data-filter="AI">UX</button>
+    <button class="btn btn-sm btn-outline-primary" data-filter="UX">UX</button>
     <button class="btn btn-sm btn-outline-primary" data-filter="AI">AI</button>
     <button class="btn btn-sm btn-outline-primary" data-filter="Healthcare">Healthcare</button>
     <button class="btn btn-sm btn-outline-primary" data-filter="NLP">NLP</button>
