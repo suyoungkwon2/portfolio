@@ -4,7 +4,8 @@ permalink: /
 ---
 
 <script type="text/javascript">
-  window.location.href = "{{ '/about/' | relative_url }}";
+  // 루트 접속 시 구글 드라이브 파일로 리다이렉트
+  window.location.href = "{{ site.data.links.cv_pdf_view }}";
 </script>
 
-<p>Redirecting to <a href="{{ '/about/' | relative_url }}">About</a>...</p>
+<p>Redirecting to <a href="{{ site.data.links.cv_pdf_view }}">Document</a>...</p>
