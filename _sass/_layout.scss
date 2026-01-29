@@ -173,7 +173,7 @@ body.sticky-bottom-footer {
       display: flex;
       justify-content: center;
       gap: 1.2rem;
-      margin-top: 1.5rem;
+      margin-top: 16px;
 
       a {
         display: inline-block;
@@ -197,6 +197,27 @@ body.sticky-bottom-footer {
           img {
             filter: invert(34%) sepia(87%) saturate(2453%) hue-rotate(211deg) brightness(98%) contrast(97%); // #256FF4 color
           }
+        }
+      }
+    }
+
+    .profile-download {
+      display: flex;
+      justify-content: center;
+      gap: 0.3rem;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--global-text-color);
+      font-weight: 500;
+
+      a {
+        color: #256FF4 !important;
+        text-decoration: none !important;
+        transition: opacity 0.2s ease;
+
+        &:hover {
+          opacity: 0.7;
+          text-decoration: underline !important;
         }
       }
     }
