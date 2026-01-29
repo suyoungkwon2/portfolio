@@ -204,6 +204,11 @@ body.sticky-bottom-footer {
   .news-section {
     max-width: 950px !important;
     margin: 0 auto;
+
+    h2 {
+      font-weight: 700;
+      margin-bottom: 2rem;
+    }
   }
 }
 
