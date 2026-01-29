@@ -4,6 +4,7 @@ title: PhoniTale
 description: AI-powered Mnemonic Foreign Vocab Learning
 img: assets/img/projects/PhoniTale/PhoniTale - 1.jpg
 importance: 1
+featured: true
 category: work
 tags: [AI, NLP, Education, Research]
 domain_tags: [Education]

@@ -4,6 +4,7 @@ title: AI Curation
 description: AI-Driven Scaling of Themed Campaigns
 img: assets/img/projects/AICuration/AICuration - 1.jpg
 importance: 1
+featured: true
 category: work
 tags: [AI, UX, Commerce, Recommendation]
 domain_tags: [Commerce]

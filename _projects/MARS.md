@@ -4,6 +4,7 @@ title: M.A.R.S
 description: Re-Engineering Clinical Workflow with GenAI
 img: assets/img/projects/MARS/MARS - 1.jpg
 importance: 1
+featured: true
 category: work
 tags: [AI, NLP, Healthcare, Research]
 domain_tags: [Medical]

@@ -3,6 +3,9 @@
     <div class="card h-100 hoverable">
       {% if project.img %}
         <div class="card-img-container">
+          {% if project.featured %}
+            <img src="{{ 'assets/img/icon/icn_featured.png' | relative_url }}" alt="featured" class="featured-sticker">
+          {% endif %}
           {%
             include figure.liquid
             loading="eager"
