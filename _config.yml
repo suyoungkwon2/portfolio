@@ -7,8 +7,7 @@ first_name: Suyoung Mel
 middle_name:
 last_name: Kwon
 contact_note: # Contact me for design collaborations.
-description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  Suyoung Kwon's Design Portfolio.
+description: Welcome to Mel's portfolio!
 footer_text: >
   Design inspiration from <a href="https://github.com/alshedivat/al-folio">al-folio</a>.
 keywords: design, portfolio, suyoung kwon # add your own keywords or leave empty
@@ -67,9 +66,9 @@ max_width: 930px
 # -----------------------------------------------------------------------------
 # Display links to the page with a preview object on social media.
 # see https://schema.org/docs/faq.html for more information
-serve_og_meta: false # Include Open Graph meta tags in the HTML head
+serve_og_meta: true # Include Open Graph meta tags in the HTML head
 serve_schema_org: false # Include Schema.org in the HTML head
-og_image: # The site-wide (default for all links) Open Graph preview image
+og_image: assets/img/OG_bg.jpeg # The site-wide (default for all links) Open Graph preview image
 
 # -----------------------------------------------------------------------------
 # Analytics and search engine verification
