@@ -56,6 +56,144 @@ body.sticky-bottom-footer {
 
 // TODO: redefine projects layout.
 
+.about-layout {
+  .intro-section {
+    background-color: #256ef40a;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    padding: 4rem calc(50vw - 50%);
+    margin-bottom: 4rem;
+    margin-top: -3rem;
+
+    .post-header, .intro-content {
+      max-width: v.$max-content-width;
+      margin: 0 auto;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  }
+
+  .post-header {
+    margin-bottom: 2.5rem;
+    .post-title {
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 32px;
+    }
+    .desc {
+      font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 1.2;
+      margin-bottom: 2rem;
+    }
+  }
+
+  .intro-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 3rem;
+  }
+
+  .intro-text {
+    flex: 1;
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 500;
+
+    p {
+      color: var(--global-text-color);
+      opacity: 0.8;
+      margin-bottom: 1.5rem;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    a {
+      text-decoration: none !important;
+      &:hover {
+        text-decoration: none !important;
+      }
+    }
+  }
+
+  .profile {
+    width: 280px !important;
+    margin: 0 !important;
+    flex-shrink: 0;
+    
+    img {
+      width: 280px !important;
+      height: 286px !important;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+
+    .profile-contact {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      margin-top: 1.5rem;
+
+      a {
+        display: inline-block;
+        transition: transform 0.2s ease;
+
+        img {
+          width: 24px !important;
+          height: 24px !important;
+          filter: brightness(0); // Make black by default
+          transition: filter 0.2s ease;
+          border-radius: 0; // Reset border radius for icons
+        }
+
+        &.icon-linkedin img {
+          width: 19px !important;
+          height: 19px !important;
+        }
+
+        &:hover {
+          transform: translateY(-2px);
+          img {
+            filter: invert(34%) sepia(87%) saturate(2453%) hue-rotate(211deg) brightness(98%) contrast(97%); // #256FF4 color
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .about-layout {
+    .intro-content {
+      flex-direction: column-reverse;
+      gap: 2rem;
+    }
+    .profile {
+      width: 100% !important;
+      max-width: 280px;
+      margin: 0 auto !important;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .about-layout {
+    .intro-section {
+      padding: 2rem 1.5rem;
+    }
+    .post-header {
+      .post-title {
+        font-size: 3rem;
+      }
+      .desc {
+        font-size: 1.2rem;
+      }
+    }
+  }
+}
+
 .header-container {
   display: flex;
   justify-content: space-between;

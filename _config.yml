@@ -6,8 +6,7 @@ title: Suyoung Mel Kwon # the website title (if blank, full name will be used in
 first_name: Suyoung Mel
 middle_name:
 last_name: Kwon
-contact_note: >
-  Contact me for design collaborations.
+contact_note: # Contact me for design collaborations.
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
   Suyoung Kwon's Design Portfolio.
 footer_text: >

@@ -73,7 +73,7 @@
 
       .author {
         a {
-          border-bottom: 1px dashed var(--global-theme-color);
+          border-bottom: 1px dashed var(--global-link-color);
 
           &:hover {
             border-bottom-style: solid;
@@ -109,8 +109,8 @@
           margin-left: 0;
 
           &:hover {
-            color: var(--global-theme-color);
-            border-color: var(--global-theme-color);
+            color: var(--global-link-color);
+            border-color: var(--global-link-color);
           }
         }
         a.award.btn {
@@ -184,5 +184,5 @@
 
 .citation,
 .citation-number {
-  color: var(--global-theme-color);
+  color: var(--global-link-color);
 }
