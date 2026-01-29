@@ -10,6 +10,7 @@ body {
   background-color: var(--global-bg-color);
   font-family: var(--global-font-family);
   letter-spacing: 0.02em;
+  overflow-x: hidden;
 
   h1,
   h2,
@@ -58,12 +59,23 @@ body.sticky-bottom-footer {
 
 .about-layout {
   .intro-section {
-    background-color: #256ef40a;
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
-    padding: 4rem calc(50vw - 50%);
+    background-color: #71bc200d;
+    position: relative;
+    padding: 4rem 0;
     margin-bottom: 4rem;
     margin-top: -3rem;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 100%;
+      background-color: inherit;
+      z-index: -1;
+    }
 
     .post-header, .intro-content {
       max-width: v.$max-content-width;
@@ -97,7 +109,7 @@ body.sticky-bottom-footer {
 
   .intro-text {
     flex: 1;
-    font-size: 16px;
+    font-size: 1.05rem;
     line-height: 1.6;
     font-weight: 500;
 
