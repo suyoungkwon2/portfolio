@@ -1,7 +1,7 @@
 ---
 layout: about
 title: Suyoung (Mel) Kwon
-permalink: /about/
+permalink: /
 subtitle: >
   “I’m a Product Manager dedicated to bridging the gap between<br>people and technology to deliver impact where it is needed most.”
 
