@@ -36,6 +36,10 @@ body.sticky-bottom-footer {
   max-width: v.$max-content-width;
 }
 
+.container-about {
+  max-width: 1100px !important;
+}
+
 // Profile
 .profile {
   img {
@@ -77,22 +81,22 @@ body.sticky-bottom-footer {
     }
 
     .post-header, .intro-content {
-      max-width: v.$max-content-width;
+      max-width: 950px !important;
       margin: 0 auto;
-      padding-left: 15px;
-      padding-right: 15px;
+      padding-left: 0px;
+      padding-right: -px;
     }
   }
 
   .post-header {
     margin-bottom: 2.5rem;
     .post-title {
-      font-size: 4rem;
+      font-size: 48px;
       font-weight: 700;
       margin-bottom: 32px;
     }
     .desc {
-      font-size: 1.5rem;
+      font-size: 24px;
       font-weight: 500;
       line-height: 1.2;
       margin-bottom: 2rem;
@@ -108,7 +112,7 @@ body.sticky-bottom-footer {
 
   .intro-text {
     flex: 1;
-    font-size: 1.05rem;
+    font-size: 15px;
     line-height: 1.6;
     font-weight: 400;
 
@@ -196,6 +200,10 @@ body.sticky-bottom-footer {
         }
       }
     }
+  }
+  .news-section {
+    max-width: 950px !important;
+    margin: 0 auto;
   }
 }
 
