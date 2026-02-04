@@ -1,0 +1,29 @@
+<div class="projects">
+  {% if site.data.media %}
+    <div class="container">
+      <div class="row row-cols-1 row-cols-md-3">
+        {% assign media_items = site.data.media | sort: "date" | reverse %}
+        {% for item in media_items %}
+          <div class="col mb-4">
+            <a href="{{ item.link }}" target="_blank" rel="noopener noreferrer">
+              <div class="card h-100 h-100 shadow-none border-0">
+                {% if item.image %}
+                  <div class="card-img-container" style="aspect-ratio: 3 / 2; overflow: hidden;">
+                    <img src="{{ item.image | relative_url }}" alt="{{ item.title }}" class="card-img-top" style="width: 100%; height: 100%; object-fit: cover;">
+                  </div>
+                {% endif %}
+                <div class="card-body">
+                  <h3 class="card-title">{{ item.title }}</h3>
+                  <p class="card-text" style="font-size: 0.9rem; opacity: 0.6;">{{ item.date | date: "%b %d, %Y" }}</p>
+                  <div class="project-item">
+                    <span class="tag-chip">{{ item.media_type }}</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>

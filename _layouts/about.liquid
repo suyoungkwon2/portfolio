@@ -71,6 +71,12 @@ layout: default
       {% include news.liquid limit=true %}
     {% endif %}
 
+    <!-- Media -->
+    {% if page.media and page.media.enabled %}
+      <h2 class="section-title" style="margin-top: 3rem;">Media</h2>
+      {% include media.liquid %}
+    {% endif %}
+
     <!-- Latest posts -->
     {% if page.latest_posts and page.latest_posts.enabled %}
       <h2>

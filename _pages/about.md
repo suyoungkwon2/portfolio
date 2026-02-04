@@ -19,6 +19,9 @@ announcements:
   scrollable: true # adds a vertical scroll bar if there are more than 3 news items
   limit: 20 # leave blank to include all the news in the `_news` folder
 
+media:
+  enabled: true # includes a list of media items
+
 latest_posts:
   enabled: false
 ---
