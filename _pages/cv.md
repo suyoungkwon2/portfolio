@@ -4,8 +4,8 @@ permalink: /cv/
 title: CV
 nav: true
 nav_order: 3
-cv_pdf: https://drive.google.com/file/d/1fgnDjvlEE27zrDtG23l7dw8WGFRuDEhj/view?usp=sharing
-last_updated: Jan. 2026
+cv_pdf: https://drive.google.com/file/d/1Se8HWIbTuNnB7uWpVN0muI-kQq7iIxqY/view?usp=drive_link
+last_updated: Mar. 2026
 #description: My professional curriculum vitae.
 _styles: >
   .post-header { display: none; }
