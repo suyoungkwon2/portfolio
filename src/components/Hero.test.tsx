@@ -7,11 +7,8 @@ describe("Hero", () => {
     render(<Hero />);
 
     const heading = screen.getByRole("heading", { level: 1 });
-    // Each letter renders as its own span (for the scroll-disintegration
-    // effect) and spaces are non-text spacer elements, so compare with
-    // whitespace stripped rather than the literal heading string.
     expect(heading.textContent?.replace(/\s+/g, "")).toBe("HealtheWorld");
 
-    expect(screen.getByRole("button", { name: /pause video|play video/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /pause music|play music/i })).toBeInTheDocument();
   });
 });

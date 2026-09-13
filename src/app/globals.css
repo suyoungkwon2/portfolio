@@ -13,6 +13,7 @@
 
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-inter);
+  --font-instrument: "Instrument Serif", serif;
 }
 
 html {
@@ -30,7 +31,15 @@ body {
   color: var(--color-paper);
 }
 
-.hero-word {
-  display: inline-block;
-  will-change: transform, opacity, filter;
+.instrument-serif-regular {
+  font-family: "Instrument Serif", serif;
+  font-weight: 400;
+  font-style: normal;
 }
+
+.instrument-serif-regular-italic {
+  font-family: "Instrument Serif", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+

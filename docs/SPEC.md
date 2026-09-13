@@ -53,10 +53,17 @@ technical" feel of the old academic site.
    - Full-bleed video background (Michael Jackson "Heal the World" clip —
      to be supplied by the site owner; placeholder path is
      `public/video/heal-the-world.mp4`).
-   - Giant white "Heal the World" headline centered over the video.
-   - On scroll: headline characters disintegrate (fade/scatter/blur, staggered
-     per character) while the video simultaneously shrinks from full-bleed
-     into a small pill — landing in the nav bar as the right-most item.
+   - "Heal the World" headline (Instrument Serif, 400, 94px/103px) centered
+     over the video, held in a `position: sticky` box the height of one
+     viewport so it stays put on screen for the hero's scroll range instead
+     of moving with the page.
+   - On scroll: the video shrinks from full-bleed into a small pill — landing
+     in the nav bar as the right-most item — while the headline stays exactly
+     where it is (no disintegration effect). As the shrinking video reveals
+     the page's paper background behind it, the headline's color crossfades
+     from white to ink (`rgb(26,26,26)`) so it stays legible, then the
+     sticky box releases and scrolls away naturally once the hero section
+     ends (it never floats past `#hero`).
    - The docked pill becomes a play/pause control with a circular progress
      ring, and stays fixed there for the rest of the scroll.
 2. **About** (`#about`) — short summary intro, not the full academic bio.

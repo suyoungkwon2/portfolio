@@ -7,6 +7,8 @@ export const site = {
   email: "suyoungkwon77@gmail.com",
   resumeHref: "/resume.pdf",
   heroVideoSrc: "/video/heal-the-world.mp4",
+  bgMusicSrc: "/video/bg-music.mp4",
+  bgMusicStartSeconds: 4 * 60 + 54,
 } as const;
 
 export type NavItem = {
