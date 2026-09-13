@@ -160,14 +160,22 @@ export function Hero() {
   // (translateY) doesn't have that guarantee, which is what caused the
   // empty space seen at the bottom of the chip previously.
   const videoZoom = useTransform(scrollYProgress, [0, DOCK_START], [1, 1.12]);
+  // Width shrinks over the full DOCK_START→DOCK_END window, but height/top/
+  // radius finish early (by SNAP_ASPECT_END, partway through that window) —
+  // otherwise, since the two dimensions shrink from very different starting
+  // ratios (full viewport vs. a short wide pill) at the same linear rate,
+  // the box spends most of the snap looking like a shrinking fat rectangle
+  // and only becomes pill-shaped right at the very end. Finishing the
+  // height/roundness early makes it read as a shrinking pill for more of
+  // the animation instead.
+  const SNAP_ASPECT_END = DOCK_START + (DOCK_END - DOCK_START) * 0.4;
   const width = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.w}px`, `${CHIP_W}px`]);
-  const height = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.h}px`, `${CHIP_H}px`]);
-  const top = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_TOP}px`]);
+  const height = useTransform(scrollYProgress, [DOCK_START, SNAP_ASPECT_END], [`${viewport.h}px`, `${CHIP_H}px`]);
+  const top = useTransform(scrollYProgress, [DOCK_START, SNAP_ASPECT_END], ["0px", `${CHIP_TOP}px`]);
   const right = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_RIGHT}px`]);
-  const radius = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", "999px"]);
+  const radius = useTransform(scrollYProgress, [DOCK_START, SNAP_ASPECT_END], ["0px", "999px"]);
   const overlayOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, DOCK_START, 0.35, 0));
   const controlsOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, DOCK_END, DOCK_END + 0.05, 0, 1));
-  const cueOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, DOCK_START * 0.4, 1, 0));
   // White while it's sitting over the video, ink once the video's gone
   // (docked into the chip) — timed to DOCK_START/DOCK_END, the same
   // threshold the video itself snaps at, so the two always stay in sync
@@ -330,13 +338,6 @@ export function Hero() {
             )}
           </AnimatePresence>
         </div>
-
-        <motion.p
-          style={{ opacity: cueOpacity }}
-          className="mt-10 text-xs font-medium uppercase tracking-[0.3em] text-paper/70"
-        >
-          Scroll — {site.role}
-        </motion.p>
       </div>
     </div>
   );
