@@ -143,8 +143,14 @@ export function Hero() {
 
   // A slow pan/zoom on the video itself during the "dead zone" before the
   // dock threshold — otherwise the whole hero looks frozen for a large
-  // chunk of scroll distance and feels broken/unresponsive.
-  const videoPan = useTransform(scrollYProgress, [0, DOCK_START], [0, -100]);
+  // chunk of scroll distance and feels broken/unresponsive. It has to ease
+  // back to neutral (0 / scale 1) by DOCK_END, not just stop at whatever
+  // value it reached — a MotionValue holds its last output forever past
+  // the end of its input range, and a leftover pan/zoom inside the tiny
+  // 120x44 chip pushes the video's cropped frame out of view, which reads
+  // as empty space top/bottom instead of a clean object-cover fill.
+  const videoPan = useTransform(scrollYProgress, [0, DOCK_START, DOCK_END], [0, -100, 0]);
+  const videoZoom = useTransform(scrollYProgress, [0, DOCK_START, DOCK_END], [1, 1.15, 1]);
   const width = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.w}px`, `${CHIP_W}px`]);
   const height = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.h}px`, `${CHIP_H}px`]);
   const top = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_TOP}px`]);
@@ -202,7 +208,7 @@ export function Hero() {
           muted
           loop
           playsInline
-          style={{ y: videoPan, scale: 1.15 }}
+          style={{ y: videoPan, scale: videoZoom }}
           className="h-full w-full object-cover"
         />
         {/* Once docked, this crossfades over the (now paused) video so the
