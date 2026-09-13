@@ -36,8 +36,8 @@ body {
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-paper);
+  background: rgb(26, 26, 26);
+  color: #ffffff;
 }
 
 .instrument-serif-regular {
