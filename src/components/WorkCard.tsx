@@ -1,20 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
 import type { WorkItem } from "@/content/works";
 
+// Placeholder thumbnail tint per sector, until real case-study screenshots
+// replace it — kept as a soft (not saturated) tint to match the image-
+// forward, chrome-free card this is modeled on (tushar.work's Selected
+// Work grid: plain thumbnail + text below, no card border or background).
 const sectorAccent: Record<WorkItem["sector"], string> = {
-  "Healthcare / Education": "from-accent/25 via-accent/10 to-transparent",
-  "AI / Business": "from-accent-2/25 via-accent-2/10 to-transparent",
-};
-
-// Tag pill picks up the sector's own point color instead of a neutral
-// gray badge, so the color-coding started by the card's gradient carries
-// through consistently.
-const sectorTag: Record<WorkItem["sector"], string> = {
-  "Healthcare / Education": "bg-accent-soft/70 text-accent",
-  "AI / Business": "bg-accent-2-soft/60 text-accent-2",
+  "Healthcare / Education": "from-accent-soft via-accent-soft/40 to-transparent",
+  "AI / Business": "from-accent-2-soft via-accent-2-soft/40 to-transparent",
 };
 
 export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
@@ -25,30 +20,21 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5, delay: (index % 3) * 0.08, ease: "easeOut" }}
-      whileHover={{ y: -6 }}
-      className="group flex flex-col overflow-hidden rounded-3xl border border-line bg-paper-2/50 transition-shadow hover:shadow-xl hover:shadow-ink/5"
+      className="group block"
     >
-      <div
-        className={`relative flex h-44 items-end bg-gradient-to-br ${sectorAccent[work.sector]} p-5`}
-      >
-        <span
-          className={`rounded-full border border-ink/10 px-3 py-1 text-xs font-medium backdrop-blur ${sectorTag[work.sector]}`}
-        >
-          {work.tag}
-        </span>
-        <ArrowUpRight className="absolute right-5 top-5 h-5 w-5 text-ink/30 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-3" />
+      <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-ink">
+        <div
+          className={`h-full w-full bg-gradient-to-br ${sectorAccent[work.sector]} transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]`}
+        />
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-6">
-        <div className="flex items-center justify-between text-xs text-ink-muted">
-          <span>{work.sector}</span>
-          <span>{work.year}</span>
-        </div>
+      <div className="mt-4 flex flex-col gap-1">
+        <p className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
+          {work.tag} · {work.year}
+        </p>
         <h3 className="font-display text-xl font-medium text-ink">{work.title}</h3>
         <p className="text-sm leading-relaxed text-ink-muted">{work.summary}</p>
-        {work.metrics && (
-          <p className="mt-auto pt-3 text-sm font-medium text-accent">{work.metrics}</p>
-        )}
+        {work.metrics && <p className="mt-1 text-sm font-medium text-accent">{work.metrics}</p>}
       </div>
     </motion.a>
   );

@@ -45,7 +45,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
-            className="rounded-2xl border border-line bg-paper-2/60 p-6"
+            className="rounded-xl border border-line bg-paper-2/60 p-6"
           >
             <h3 className="font-display text-lg font-medium text-ink">{pillar.title}</h3>
             <p className="mt-3 text-sm leading-relaxed text-ink-muted">{pillar.body}</p>

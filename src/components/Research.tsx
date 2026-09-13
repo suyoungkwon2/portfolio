@@ -17,7 +17,7 @@ export function Research() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
-            className="rounded-2xl border border-line bg-paper-2/50 p-6"
+            className="rounded-xl border border-line bg-paper-2/50 p-6"
           >
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-2">
               {item.period}

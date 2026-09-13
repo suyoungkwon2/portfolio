@@ -15,7 +15,7 @@ export function Resume() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="mx-auto mt-12 flex max-w-xl flex-col items-center gap-6 rounded-3xl border border-line bg-paper-2/50 px-8 py-14 text-center"
+        className="mx-auto mt-12 flex max-w-xl flex-col items-center gap-6 rounded-2xl border border-line bg-paper-2/50 px-8 py-14 text-center"
       >
         <p className="max-w-sm text-sm leading-relaxed text-ink-muted">
           Every case study above, distilled to one page — roles, impact, and the
