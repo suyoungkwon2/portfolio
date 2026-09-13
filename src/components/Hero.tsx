@@ -15,6 +15,11 @@ const CHIP_W = 120;
 const CHIP_H = 44;
 const CHIP_TOP = (84 - CHIP_H) / 2;
 const CHIP_RIGHT = 20;
+// The video stays full-bleed until DOCK_START, then snaps into the nav chip
+// over a short scroll distance instead of shrinking gradually the whole way
+// down — a quick "pop" at a threshold rather than a linear shrink.
+const DOCK_START = 0.35;
+const DOCK_END = 0.42;
 
 const HEADLINE = "Heal the World";
 
@@ -94,7 +99,13 @@ export function Hero() {
         safePlay(audio, setIsPlaying);
       }
     }
-    const events = ["pointerdown", "mousemove", "keydown", "wheel", "scroll"] as const;
+    // `mousemove` deliberately isn't here: every browser's autoplay policy
+    // only counts a small set of discrete, intentional inputs as a "user
+    // gesture" — click/pointerdown, keydown, and real wheel/scroll input —
+    // and explicitly excludes continuous events like mousemove (otherwise
+    // the gesture requirement would mean nothing). No script can change
+    // that, so listening for mousemove here would never actually unmute.
+    const events = ["pointerdown", "keydown", "wheel", "scroll", "touchstart"] as const;
     events.forEach((e) => window.addEventListener(e, unmuteOnInteraction, { once: true, passive: true }));
     return () => events.forEach((e) => window.removeEventListener(e, unmuteOnInteraction));
   }, []);
@@ -105,7 +116,7 @@ export function Hero() {
   });
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setIsDocked(v > 0.55);
+    setIsDocked(v > DOCK_END);
   });
 
   // Once docked, the hero video pauses and a static photo crossfades over
@@ -121,13 +132,13 @@ export function Hero() {
     }
   }, [isDocked]);
 
-  const width = useTransform(scrollYProgress, [0, 0.55], [`${viewport.w}px`, `${CHIP_W}px`]);
-  const height = useTransform(scrollYProgress, [0, 0.55], [`${viewport.h}px`, `${CHIP_H}px`]);
-  const top = useTransform(scrollYProgress, [0, 0.55], ["0px", `${CHIP_TOP}px`]);
-  const right = useTransform(scrollYProgress, [0, 0.55], ["0px", `${CHIP_RIGHT}px`]);
-  const radius = useTransform(scrollYProgress, [0, 0.55], ["0px", "999px"]);
+  const width = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.w}px`, `${CHIP_W}px`]);
+  const height = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.h}px`, `${CHIP_H}px`]);
+  const top = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_TOP}px`]);
+  const right = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_RIGHT}px`]);
+  const radius = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", "999px"]);
   const overlayOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, 0.3, 0.35, 0));
-  const controlsOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0.5, 0.62, 0, 1));
+  const controlsOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, DOCK_END, DOCK_END + 0.05, 0, 1));
   const cueOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, 0.12, 1, 0));
   // The headline sits in a `sticky` box the height of one viewport, inside a
   // section HERO_SCROLL_VH tall — sticky naturally releases it once scrolled
