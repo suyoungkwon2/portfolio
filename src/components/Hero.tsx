@@ -65,51 +65,39 @@ export function Hero() {
     return () => window.removeEventListener("resize", updateViewport);
   }, []);
 
-  // Background music starts on load from site.bgMusicStartSeconds and loops
-  // back to that same point (not 0) when it ends. Browsers block unmuted
-  // autoplay without a user gesture, so if the initial play() is rejected we
-  // retry on the first interaction — real playback may not start until then.
+  // Browsers refuse to autoplay audible media with no prior user gesture —
+  // there is no way to force real sound-on-load, on any site. Muted
+  // autoplay, though, is always allowed, so we start muted immediately
+  // (the timeline and progress ring are already moving from the first
+  // frame) and unmute on the very first interaction anywhere on the page,
+  // which is as close to "plays the moment you land" as the platform
+  // allows.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-
-    function startFrom(time: number) {
-      audio!.currentTime = time;
-      safePlay(audio!, setIsPlaying);
-    }
-
-    function handleEnded() {
-      startFrom(site.bgMusicStartSeconds);
-    }
-
-    audio.addEventListener("ended", handleEnded);
-    startFrom(site.bgMusicStartSeconds);
-
-    return () => audio.removeEventListener("ended", handleEnded);
+    audio.currentTime = site.bgMusicStartSeconds;
+    audio.muted = true;
+    safePlay(audio, setIsPlaying);
   }, []);
 
   useEffect(() => {
-    if (isPlaying) return;
-    function retryPlay(e: Event) {
-      // The chip's own button already toggles play/pause explicitly — if a
-      // page-wide interaction listener also fires play() for the same
-      // gesture, the click that follows a mousedown sees `paused === false`
-      // (play() flips it synchronously) and immediately pauses again,
-      // making the button feel like a "press and hold" control. Skip
-      // gestures that originate on the button itself.
+    function unmuteOnInteraction(e: Event) {
+      // The chip's own button already toggles play/pause (and unmutes)
+      // explicitly — if this page-wide listener also reacted to the same
+      // gesture, a click's mousedown would fire this first and the
+      // following click would then immediately toggle playback off again.
       if (e.target instanceof Node && controlButtonRef.current?.contains(e.target)) return;
       const audio = audioRef.current;
       if (!audio) return;
-      safePlay(audio, (ok) => ok && setIsPlaying(true));
+      audio.muted = false;
+      if (audio.paused) {
+        safePlay(audio, setIsPlaying);
+      }
     }
-    // No `{ once: true }` here: cleanup already re-runs (removing these
-    // listeners) whenever `isPlaying` flips true, and using `once` per
-    // event would let a guarded no-op (see above) burn through a listener
-    // without ever actually starting playback.
-    const events = ["pointerdown", "keydown", "wheel"] as const;
-    events.forEach((e) => window.addEventListener(e, retryPlay));
-    return () => events.forEach((e) => window.removeEventListener(e, retryPlay));
-  }, [isPlaying]);
+    const events = ["pointerdown", "mousemove", "keydown", "wheel", "scroll"] as const;
+    events.forEach((e) => window.addEventListener(e, unmuteOnInteraction, { once: true, passive: true }));
+    return () => events.forEach((e) => window.removeEventListener(e, unmuteOnInteraction));
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -155,6 +143,7 @@ export function Hero() {
   function toggleMusic() {
     const a = audioRef.current;
     if (!a) return;
+    a.muted = false;
     if (a.paused) {
       safePlay(a, setIsPlaying);
     } else {
@@ -166,16 +155,17 @@ export function Hero() {
   function handleTimeUpdate() {
     const a = audioRef.current;
     if (!a || !a.duration) return;
-    const span = a.duration - site.bgMusicStartSeconds;
-    const elapsed = a.currentTime - site.bgMusicStartSeconds;
-    setProgress(span > 0 ? Math.max(0, Math.min(1, elapsed / span)) : 0);
+    // The ring tracks the full track length, not just the span from the
+    // custom start point — so on the very first play it starts partway
+    // around, then wraps to 0 with every loop from there on.
+    setProgress(a.currentTime / a.duration);
   }
 
   const circumference = 2 * Math.PI * 15;
 
   return (
     <div ref={sectionRef} id="hero" style={{ height: `${HERO_SCROLL_VH}vh` }} className="relative bg-paper">
-      <audio ref={audioRef} src={site.bgMusicSrc} onTimeUpdate={handleTimeUpdate} />
+      <audio ref={audioRef} src={site.bgMusicSrc} loop onTimeUpdate={handleTimeUpdate} />
 
       <motion.div
         style={{ width, height, top, right, borderRadius: radius }}

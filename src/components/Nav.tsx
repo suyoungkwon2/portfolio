@@ -32,12 +32,13 @@ export function Nav() {
           {site.name}
         </a>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium text-ink-muted sm:flex md:gap-8">
+        <nav className="hidden items-center gap-6 sm:flex md:gap-8">
           {navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="transition-colors hover:text-ink"
+              style={{ color: "rgb(26, 26, 26)" }}
+              className="font-satoshi text-[15px] font-normal not-italic leading-[21px] transition-opacity hover:opacity-70"
             >
               {item.label}
             </a>
