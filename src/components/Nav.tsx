@@ -38,7 +38,7 @@ export function Nav() {
               key={item.href}
               href={item.href}
               style={{ color: "rgb(26, 26, 26)" }}
-              className="font-satoshi text-[15px] font-normal not-italic leading-[21px] transition-opacity hover:opacity-70"
+              className="font-display text-[15px] font-normal not-italic leading-[21px] transition-opacity hover:opacity-70"
             >
               {item.label}
             </a>

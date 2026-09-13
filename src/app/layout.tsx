@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  axes: ["opsz", "SOFT", "WONK"],
-});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -36,9 +29,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${fraunces.variable} ${inter.variable} antialiased`}>
-        {children}
-      </body>
+      <body className={`${inter.variable} antialiased`}>{children}</body>
     </html>
   );
 }

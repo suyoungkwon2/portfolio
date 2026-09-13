@@ -28,7 +28,7 @@ import { site } from "@/content/site";
 //     before it scrolls away; the video/chip mechanics above don't need to
 //     change since they're pinned to DOCK_START_VH/DOCK_END_VH, not to a
 //     fraction of this value.
-const HERO_SCROLL_VH = 300;
+const HERO_SCROLL_VH = 220;
 const DOCK_START_VH = 50;
 const DOCK_END_VH = 75;
 const DOCK_START = DOCK_START_VH / HERO_SCROLL_VH;
@@ -323,7 +323,7 @@ export function Hero() {
                 </p>
                 <p className="mx-auto max-w-2xl">
                   As a Product Manager, UX Designer, and HCI Researcher, I
-                  bridge cutting-edge technology with empathetic design to
+                  bridge adaptive technology with empathetic design to
                   solve complex problems.
                 </p>
               </motion.div>

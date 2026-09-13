@@ -11,15 +11,15 @@
   --color-accent-2-soft: #c9d6cd;
   --color-line: #e2d9c6;
 
-  --font-display: var(--font-fraunces);
+  --font-display: "Aspekta", sans-serif;
+  --font-aspekta: "Aspekta", sans-serif;
   --font-sans: var(--font-inter);
   --font-instrument: "Instrument Serif", serif;
-  --font-satoshi: "Satoshi", sans-serif;
 }
 
 @font-face {
-  font-family: "Satoshi";
-  src: url("/font/satoshi/Satoshi-Regular.otf") format("opentype");
+  font-family: "Aspekta";
+  src: url("/font/aspekta/webfonts/Aspekta-400.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
