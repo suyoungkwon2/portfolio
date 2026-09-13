@@ -16,10 +16,17 @@ const CHIP_H = 44;
 const CHIP_TOP = (84 - CHIP_H) / 2;
 const CHIP_RIGHT = 20;
 // The video stays full-bleed until DOCK_START, then snaps into the nav chip
-// over a short scroll distance instead of shrinking gradually the whole way
-// down — a quick "pop" at a threshold rather than a linear shrink.
+// by DOCK_END instead of shrinking gradually the whole way down — a quick
+// "pop" at a threshold rather than a linear shrink.
+//   - Both are scroll progress fractions from 0 to 1 across the hero's full
+//     scrollable height (HERO_SCROLL_VH, i.e. 170vh), not pixels.
+//   - DOCK_START = where the snap begins (raise it to delay the snap later
+//     into the scroll; lower it to start snapping sooner).
+//   - The GAP between them (DOCK_END − DOCK_START) is the snap's speed: a
+//     bigger gap = slower/smoother, a smaller gap = faster/snappier. E.g.
+//     0.35 → 0.42 (a 0.07 gap) is quite fast; 0.35 → 0.50 (0.15) is slower.
 const DOCK_START = 0.35;
-const DOCK_END = 0.42;
+const DOCK_END = 0.5;
 
 const HEADLINE = "Heal the World";
 
