@@ -10,23 +10,32 @@ import {
 import { Pause, Play } from "lucide-react";
 import { site } from "@/content/site";
 
-const HERO_SCROLL_VH = 170;
+// Total scroll length of the hero section, in vh. Everything below is
+// tunable in vh (real scroll distance) rather than raw 0-1 fractions, so
+// it's easier to reason about and adjust:
+//   - DOCK_START_VH / DOCK_END_VH: the video stays full-bleed until
+//     DOCK_START_VH, then snaps into the nav chip by DOCK_END_VH instead of
+//     shrinking the whole way down — a quick "pop" at a threshold rather
+//     than a linear shrink. Raise DOCK_START_VH to delay the snap; widen
+//     the gap between the two to slow the snap down, narrow it to speed it
+//     up.
+//   - HERO_SCROLL_VH also controls how long the hero stays pinned on screen
+//     AFTER the chip finishes docking, before the page finally releases
+//     into the next section — that "dwell" is (HERO_SCROLL_VH - 100 -
+//     DOCK_END_VH) of scroll. Raise HERO_SCROLL_VH to give the hero (e.g.
+//     a headline plus supporting copy) more comfortable reading room
+//     before it scrolls away; the video/chip mechanics above don't need to
+//     change since they're pinned to DOCK_START_VH/DOCK_END_VH, not to a
+//     fraction of this value.
+const HERO_SCROLL_VH = 300;
+const DOCK_START_VH = 50;
+const DOCK_END_VH = 75;
+const DOCK_START = DOCK_START_VH / HERO_SCROLL_VH;
+const DOCK_END = DOCK_END_VH / HERO_SCROLL_VH;
 const CHIP_W = 120;
 const CHIP_H = 44;
 const CHIP_TOP = (84 - CHIP_H) / 2;
 const CHIP_RIGHT = 20;
-// The video stays full-bleed until DOCK_START, then snaps into the nav chip
-// by DOCK_END instead of shrinking gradually the whole way down — a quick
-// "pop" at a threshold rather than a linear shrink.
-//   - Both are scroll progress fractions from 0 to 1 across the hero's full
-//     scrollable height (HERO_SCROLL_VH, i.e. 170vh), not pixels.
-//   - DOCK_START = where the snap begins (raise it to delay the snap later
-//     into the scroll; lower it to start snapping sooner).
-//   - The GAP between them (DOCK_END − DOCK_START) is the snap's speed: a
-//     bigger gap = slower/smoother, a smaller gap = faster/snappier. E.g.
-//     0.35 → 0.42 (a 0.07 gap) is quite fast; 0.35 → 0.50 (0.15) is slower.
-const DOCK_START = 0.35;
-const DOCK_END = 0.5;
 
 const HEADLINE = "Heal the World";
 
@@ -141,35 +150,34 @@ export function Hero() {
     }
   }, [isDocked]);
 
-  // A slow pan/zoom on the video itself during the "dead zone" before the
-  // dock threshold — otherwise the whole hero looks frozen for a large
-  // chunk of scroll distance and feels broken/unresponsive. This has to be
-  // fully back to neutral (0 / scale 1) BY DOCK_START, not merely by
-  // DOCK_END — the shrink-to-chip animation (DOCK_START to DOCK_END) needs
-  // a perfectly neutral video the whole way through, because a still-active
-  // pan/zoom combined with the container rapidly shrinking to 120x44 can
-  // momentarily push the video's covering frame past the container's edge,
-  // showing empty space (the container's own background) at the bottom.
-  // Keeping the two effects in separate, non-overlapping scroll ranges
-  // avoids that interaction entirely.
-  const videoPan = useTransform(scrollYProgress, [0, DOCK_START * 0.6, DOCK_START], [0, -100, 0]);
-  const videoZoom = useTransform(scrollYProgress, [0, DOCK_START * 0.6, DOCK_START], [1, 1.15, 1]);
+  // A slow zoom-in on the video during the "dead zone" before the dock
+  // threshold — otherwise the whole hero looks frozen for a large chunk of
+  // scroll distance and feels broken/unresponsive. Zoom-in only (no pan):
+  // scaling up always leaves the video larger than its box, so it keeps
+  // fully covering — and thus never exposes a gap — however much the
+  // container shrinks during the DOCK_START→DOCK_END snap afterward. A pan
+  // (translateY) doesn't have that guarantee, which is what caused the
+  // empty space seen at the bottom of the chip previously.
+  const videoZoom = useTransform(scrollYProgress, [0, DOCK_START], [1, 1.12]);
   const width = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.w}px`, `${CHIP_W}px`]);
   const height = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.h}px`, `${CHIP_H}px`]);
   const top = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_TOP}px`]);
   const right = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_RIGHT}px`]);
   const radius = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", "999px"]);
-  const overlayOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, 0.3, 0.35, 0));
+  const overlayOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, DOCK_START, 0.35, 0));
   const controlsOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, DOCK_END, DOCK_END + 0.05, 0, 1));
-  const cueOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, 0.12, 1, 0));
-  // The headline sits in a `sticky` box the height of one viewport, inside a
-  // section HERO_SCROLL_VH tall — sticky naturally releases it once scrolled
-  // (HERO_SCROLL_VH - 100)vh in, well before scrollYProgress reaches 1. The
-  // color swap has to land before that release point or it happens off-screen.
-  const stickyRelease = (HERO_SCROLL_VH - 100) / HERO_SCROLL_VH;
+  const cueOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, DOCK_START * 0.4, 1, 0));
+  // White while it's sitting over the video, ink once the video's gone
+  // (docked into the chip) — timed to DOCK_START/DOCK_END, the same
+  // threshold the video itself snaps at, so the two always stay in sync
+  // regardless of how HERO_SCROLL_VH is tuned. The headline sits in a
+  // `sticky` box the height of one viewport, inside a section
+  // HERO_SCROLL_VH tall — it only naturally releases once scrolled
+  // (HERO_SCROLL_VH - 100)vh in, comfortably after DOCK_END, so the color
+  // swap always finishes while the headline is still on screen.
   const headlineColor = useTransform(
     scrollYProgress,
-    [0.15, stickyRelease * 0.9],
+    [DOCK_START, DOCK_END],
     ["#ffffff", "rgb(26, 26, 26)"],
   );
 
@@ -211,7 +219,7 @@ export function Hero() {
           muted
           loop
           playsInline
-          style={{ y: videoPan, scale: videoZoom }}
+          style={{ scale: videoZoom }}
           className="h-full w-full object-cover"
         />
         {/* Once docked, this crossfades over the (now paused) video so the
