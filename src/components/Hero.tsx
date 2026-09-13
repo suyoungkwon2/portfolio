@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  AnimatePresence,
   motion,
   useMotionValueEvent,
   useScroll,
@@ -275,13 +276,54 @@ export function Hero() {
         </motion.button>
       </motion.div>
 
-      <div className="pointer-events-none sticky top-0 z-[65] flex h-screen w-full flex-col items-center justify-center px-6 text-center">
+      <div className="pointer-events-none sticky top-0 z-[65] flex h-screen w-full flex-col items-center justify-center px-6 pt-16 text-center">
+        {/* "Heal the World" never unmounts — the intro lines and subtext
+            fade/slide in around it once docked, rather than replacing it. */}
         <motion.h1
           style={{ color: headlineColor }}
-          className="font-instrument text-[94px] font-normal not-italic leading-[103px]"
+          className="pointer-events-auto font-instrument text-[94px] font-normal not-italic leading-[103px]"
         >
+          <AnimatePresence>
+            {isDocked && (
+              <motion.span
+                key="hero-intro"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 24 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="block"
+              >
+                I’m Mel,
+                <br />
+                building products to
+              </motion.span>
+            )}
+          </AnimatePresence>
           {HEADLINE}
         </motion.h1>
+
+        <AnimatePresence>
+          {isDocked && (
+            <motion.div
+              key="hero-subtext"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 24 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+              className="pointer-events-auto mt-8 max-w-2xl space-y-4 font-sans text-lg leading-relaxed text-ink"
+            >
+              <p>
+                I love building sustainable, scalable, and universally
+                inclusive solutions that foster meaningful human change.
+              </p>
+              <p>
+                As a Product Manager, UX Designer, and HCI Researcher, I
+                bridge cutting-edge technology with empathetic design to
+                solve complex problems.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <motion.p
           style={{ opacity: cueOpacity }}
