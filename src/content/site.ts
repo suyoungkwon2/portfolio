@@ -1,5 +1,5 @@
 export const site = {
-  name: "Suyoung “Mel” Kwon",
+  name: "Suyoung Mel Kwon",
   shortName: "Mel",
   role: "Product Manager",
   tagline:

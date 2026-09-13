@@ -9,6 +9,14 @@ const sectorAccent: Record<WorkItem["sector"], string> = {
   "AI / Business": "from-accent-2/25 via-accent-2/10 to-transparent",
 };
 
+// Tag pill picks up the sector's own point color instead of a neutral
+// gray badge, so the color-coding started by the card's gradient carries
+// through consistently.
+const sectorTag: Record<WorkItem["sector"], string> = {
+  "Healthcare / Education": "bg-accent-soft/70 text-accent",
+  "AI / Business": "bg-accent-2-soft/60 text-accent-2",
+};
+
 export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
   return (
     <motion.a
@@ -23,10 +31,12 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
       <div
         className={`relative flex h-44 items-end bg-gradient-to-br ${sectorAccent[work.sector]} p-5`}
       >
-        <span className="rounded-full border border-ink/10 bg-paper/80 px-3 py-1 text-xs font-medium text-ink-muted backdrop-blur">
+        <span
+          className={`rounded-full border border-ink/10 px-3 py-1 text-xs font-medium backdrop-blur ${sectorTag[work.sector]}`}
+        >
           {work.tag}
         </span>
-        <ArrowUpRight className="absolute right-5 top-5 h-5 w-5 text-ink/30 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink" />
+        <ArrowUpRight className="absolute right-5 top-5 h-5 w-5 text-ink/30 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-3" />
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-6">

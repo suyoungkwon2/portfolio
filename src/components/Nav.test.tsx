@@ -6,7 +6,7 @@ describe("Nav", () => {
   it("renders the logo and all nav links", () => {
     render(<Nav />);
 
-    expect(screen.getByText("Suyoung “Mel” Kwon")).toBeInTheDocument();
+    expect(screen.getByText("Suyoung Mel Kwon")).toBeInTheDocument();
     for (const label of ["About", "Work", "Research", "Resume"]) {
       expect(screen.getByRole("link", { name: label })).toHaveAttribute(
         "href",

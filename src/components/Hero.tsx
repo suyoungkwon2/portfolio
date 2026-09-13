@@ -260,7 +260,7 @@ export function Hero() {
                 cy="18"
                 r="15"
                 fill="none"
-                stroke="rgba(247,243,236,0.25)"
+                stroke="rgba(250,250,250,0.25)"
                 strokeWidth="2"
               />
               <circle
@@ -268,7 +268,7 @@ export function Hero() {
                 cy="18"
                 r="15"
                 fill="none"
-                stroke="#F7F3EC"
+                stroke="#fafafa"
                 strokeWidth="2"
                 strokeDasharray={circumference}
                 strokeDashoffset={circumference * (1 - progress)}

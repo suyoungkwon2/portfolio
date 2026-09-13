@@ -1,15 +1,38 @@
 @import "tailwindcss";
 
+/*
+ * Color system — cool/navy-leaning, near-monochrome by design.
+ *
+ * Neutrals (paper/ink/line) are true grays with zero warm cast — this is
+ * where "cool" mostly lives, since they cover ~90% of the UI (backgrounds,
+ * body text, borders). Reserve the 5 brand colors below strictly for point-
+ * of-interest moments: section eyebrows, category tags, metrics, hover
+ * states. Never use a brand color for a large surface or body copy — that's
+ * what makes them still read as "accents" against an otherwise black/white
+ * site instead of turning the whole thing purple/green.
+ *
+ * Brand palette (from the approved swatch) and their assigned roles:
+ *   Twilight Indigo  #2F3061 -> --color-accent      (primary point color)
+ *   Lavender         #DED9E2 -> --color-accent-soft (primary's light tint)
+ *   Jungle Teal      #55917F -> --color-accent-2    (secondary point color)
+ *   Tea Green        #D4F0A8 -> --color-accent-2-soft (secondary's light tint)
+ *   Soft Periwinkle  #9C85D6 -> --color-accent-3    (interaction accent —
+ *     hover/focus states, a third category if one appears later)
+ * Lavender doubles as accent-3's soft companion too (same indigo/violet
+ * family as periwinkle), so there's no separate --color-accent-3-soft.
+ */
 @theme {
   --color-paper: #fafafa;
-  --color-paper-2: #efe8da;
-  --color-ink: #16140f;
-  --color-ink-muted: #6b6459;
-  --color-accent: #c1502e;
-  --color-accent-soft: #e8c9b8;
-  --color-accent-2: #2b4c43;
-  --color-accent-2-soft: #c9d6cd;
-  --color-line: #e2d9c6;
+  --color-paper-2: #eef0f3;
+  --color-ink: #1a1a1a;
+  --color-ink-muted: #5b6472;
+  --color-line: #e3e6ea;
+
+  --color-accent: #2f3061;
+  --color-accent-soft: #ded9e2;
+  --color-accent-2: #55917f;
+  --color-accent-2-soft: #d4f0a8;
+  --color-accent-3: #9c85d6;
 
   --font-display: "Aspekta", sans-serif;
   --font-aspekta: "Aspekta", sans-serif;
@@ -52,7 +75,7 @@ body {
 }
 
 ::selection {
-  background: rgb(26, 26, 26);
+  background: var(--color-ink);
   color: #ffffff;
 }
 
