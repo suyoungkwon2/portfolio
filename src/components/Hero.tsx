@@ -99,13 +99,15 @@ export function Hero() {
         safePlay(audio, setIsPlaying);
       }
     }
-    // `mousemove` deliberately isn't here: every browser's autoplay policy
-    // only counts a small set of discrete, intentional inputs as a "user
-    // gesture" — click/pointerdown, keydown, and real wheel/scroll input —
-    // and explicitly excludes continuous events like mousemove (otherwise
-    // the gesture requirement would mean nothing). No script can change
-    // that, so listening for mousemove here would never actually unmute.
-    const events = ["pointerdown", "keydown", "wheel", "scroll", "touchstart"] as const;
+    // Correction from an earlier version of this file: `wheel`/`scroll`
+    // were listed here on the assumption that scrolling counts as a user
+    // gesture. It doesn't — per the HTML spec, browsers only grant "user
+    // activation" (which unmuted audio requires) from a short, fixed list
+    // of discrete inputs: mousedown/pointerdown, keydown, and touchend.
+    // Scroll and wheel are explicitly excluded, on every browser, on every
+    // site — no code here can change that, so they're removed rather than
+    // left in as dead weight that quietly never fires.
+    const events = ["pointerdown", "keydown", "touchend"] as const;
     events.forEach((e) => window.addEventListener(e, unmuteOnInteraction, { once: true, passive: true }));
     return () => events.forEach((e) => window.removeEventListener(e, unmuteOnInteraction));
   }, []);
@@ -132,6 +134,10 @@ export function Hero() {
     }
   }, [isDocked]);
 
+  // A slow pan/zoom on the video itself during the "dead zone" before the
+  // dock threshold — otherwise the whole hero looks frozen for a large
+  // chunk of scroll distance and feels broken/unresponsive.
+  const videoPan = useTransform(scrollYProgress, [0, DOCK_START], [0, -100]);
   const width = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.w}px`, `${CHIP_W}px`]);
   const height = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.h}px`, `${CHIP_H}px`]);
   const top = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_TOP}px`]);
@@ -182,13 +188,14 @@ export function Hero() {
         style={{ width, height, top, right, borderRadius: radius }}
         className="fixed z-[55] overflow-hidden bg-ink shadow-lg"
       >
-        <video
+        <motion.video
           ref={videoRef}
           src={site.heroVideoSrc}
           autoPlay
           muted
           loop
           playsInline
+          style={{ y: videoPan, scale: 1.15 }}
           className="h-full w-full object-cover"
         />
         {/* Once docked, this crossfades over the (now paused) video so the
