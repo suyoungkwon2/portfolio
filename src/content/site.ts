@@ -8,7 +8,7 @@ export const site = {
   resumeHref: "/resume.pdf",
   heroVideoSrc: "/video/heal-the-world.mp4",
   bgMusicSrc: "/video/bg-music.mp4",
-  bgMusicStartSeconds: 4 * 60 + 54,
+  bgMusicStartSeconds: 4 * 60 + 57,
 } as const;
 
 export type NavItem = {

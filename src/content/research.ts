@@ -5,19 +5,21 @@ export type ResearchItem = {
   description: string;
 };
 
+// Real research history, sourced from CV_SuyoungKwon_2pages.pdf and
+// docs/projects/02-phonitale.md.
 export const research: ResearchItem[] = [
   {
-    title: "Visiting Scholar, Language Technologies Institute",
+    title: "Visiting Scholar, Language Technology Institute",
     affiliation: "Carnegie Mellon University, School of Computer Science",
-    period: "2023",
+    period: "Mar — Jun 2025",
     description:
-      "Worked with Professors Rita Singh and Bhiksha Raj on applied speech and language technology research.",
+      "Developed and evaluated PhoniTale, a novel NLP mnemonic-generation system, with Professors Rita Singh and Bhiksha Raj — published at the EMNLP 2025 Main Conference.",
   },
   {
-    title: "Research Assistant",
-    affiliation: "KAIST, School of Humanities and Social Sciences",
-    period: "2023 — 2024",
+    title: "Research Assistant, Digital Humanities & Computational Social Sciences",
+    affiliation: "KAIST",
+    period: "Sep 2025 — Present",
     description:
-      "Explored metaverse environments and narrative theory with Professor Seohyun Jung.",
+      "Researching space & narrative theory and supporting data analysis for the National Library of Korea database project, advised by Professor Seohyon Jung.",
   },
 ];

@@ -69,7 +69,6 @@ export function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const controlButtonRef = useRef<HTMLButtonElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isDocked, setIsDocked] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -87,46 +86,14 @@ export function Hero() {
     return () => window.removeEventListener("resize", updateViewport);
   }, []);
 
-  // Browsers refuse to autoplay audible media with no prior user gesture —
-  // there is no way to force real sound-on-load, on any site. Muted
-  // autoplay, though, is always allowed, so we start muted immediately
-  // (the timeline and progress ring are already moving from the first
-  // frame) and unmute on the very first interaction anywhere on the page,
-  // which is as close to "plays the moment you land" as the platform
-  // allows.
+  // Music never autoplays, muted or otherwise — it only starts when the
+  // visitor explicitly presses the docked chip's play button (toggleMusic
+  // below). This just seeks the track to its custom start point up front
+  // so the first press begins at the right spot instead of from 0.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.currentTime = site.bgMusicStartSeconds;
-    audio.muted = true;
-    safePlay(audio, setIsPlaying);
-  }, []);
-
-  useEffect(() => {
-    function unmuteOnInteraction(e: Event) {
-      // The chip's own button already toggles play/pause (and unmutes)
-      // explicitly — if this page-wide listener also reacted to the same
-      // gesture, a click's mousedown would fire this first and the
-      // following click would then immediately toggle playback off again.
-      if (e.target instanceof Node && controlButtonRef.current?.contains(e.target)) return;
-      const audio = audioRef.current;
-      if (!audio) return;
-      audio.muted = false;
-      if (audio.paused) {
-        safePlay(audio, setIsPlaying);
-      }
-    }
-    // Correction from an earlier version of this file: `wheel`/`scroll`
-    // were listed here on the assumption that scrolling counts as a user
-    // gesture. It doesn't — per the HTML spec, browsers only grant "user
-    // activation" (which unmuted audio requires) from a short, fixed list
-    // of discrete inputs: mousedown/pointerdown, keydown, and touchend.
-    // Scroll and wheel are explicitly excluded, on every browser, on every
-    // site — no code here can change that, so they're removed rather than
-    // left in as dead weight that quietly never fires.
-    const events = ["pointerdown", "keydown", "touchend"] as const;
-    events.forEach((e) => window.addEventListener(e, unmuteOnInteraction, { once: true, passive: true }));
-    return () => events.forEach((e) => window.removeEventListener(e, unmuteOnInteraction));
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -190,15 +157,19 @@ export function Hero() {
     ["#ffffff", "rgb(26, 26, 26)"],
   );
 
+  // isPlaying mirrors the <audio> element's own play/pause events (below)
+  // rather than being set here directly — play() returns a promise that
+  // can resolve after a quick follow-up pause(), and setting state from
+  // that stale resolution would silently flip the icon back to "playing"
+  // even though the element is actually paused.
   function toggleMusic() {
     const a = audioRef.current;
     if (!a) return;
     a.muted = false;
     if (a.paused) {
-      safePlay(a, setIsPlaying);
+      safePlay(a);
     } else {
       a.pause();
-      setIsPlaying(false);
     }
   }
 
@@ -215,7 +186,14 @@ export function Hero() {
 
   return (
     <div ref={sectionRef} id="hero" style={{ height: `${HERO_SCROLL_VH}vh` }} className="relative bg-paper">
-      <audio ref={audioRef} src={site.bgMusicSrc} loop onTimeUpdate={handleTimeUpdate} />
+      <audio
+        ref={audioRef}
+        src={site.bgMusicSrc}
+        loop
+        onTimeUpdate={handleTimeUpdate}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+      />
 
       <motion.div
         style={{ width, height, top, right, borderRadius: radius }}
@@ -246,7 +224,6 @@ export function Hero() {
         />
 
         <motion.button
-          ref={controlButtonRef}
           type="button"
           onClick={toggleMusic}
           aria-label={isPlaying ? "Pause music" : "Play music"}
@@ -284,7 +261,16 @@ export function Hero() {
         </motion.button>
       </motion.div>
 
-      <div className="pointer-events-none sticky top-0 z-[65] flex h-screen w-full flex-col items-center justify-center px-6 pt-16 text-center">
+      {/* z-index flips once docked: while the video is still full-bleed the
+          headline must sit above the Nav bar (Hero > video > Nav), but once
+          the video has shrunk away into the chip, the Nav bar should win
+          instead (Nav > Hero) so its links/logo are never covered by the
+          headline/intro text overlapping the top of the viewport. */}
+      <div
+        className={`pointer-events-none sticky top-0 flex h-screen w-full flex-col items-center justify-center px-6 pt-16 text-center ${
+          isDocked ? "z-40" : "z-[65]"
+        }`}
+      >
         {/* "Heal the World" never unmounts and never moves — the intro lines
             and subtext are positioned absolutely (out of normal flow) around
             it, so their appearing/disappearing can't change this wrapper's
