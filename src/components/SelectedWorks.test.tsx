@@ -12,7 +12,7 @@ describe("SelectedWorks", () => {
     }
 
     const cardLinks = screen.getAllByRole("link").filter((link) =>
-      link.getAttribute("href")?.startsWith("#work-"),
+      link.getAttribute("href")?.startsWith("/work/"),
     );
     expect(cardLinks).toHaveLength(works.length);
   });
