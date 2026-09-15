@@ -26,8 +26,8 @@ export function MarsDetail() {
         <div className="mt-10">
           <StatGrid
             stats={[
-              { value: "🥇 1st / 100", label: "Preliminary round — 3-task NLP benchmark" },
-              { value: "🥈 2nd / 10", label: "Final round — Excellence Award" },
+              { value: "1st / 100", label: "Preliminary round — 3-task NLP benchmark" },
+              { value: "2nd / 10", label: "Final round — Excellence Award" },
               { value: "3.55 → 3.70", label: "Clinician satisfaction, round 1 → round 2" },
               { value: "400", label: "Real patient records used (final round)" },
             ]}
@@ -102,7 +102,7 @@ export function MarsDetail() {
               body: "Converts structured JSON into a human-readable document with headers, standardizes dates, and strips noise/special characters.",
             },
           ].map((item) => (
-            <div key={item.title} className="rounded-2xl border border-line p-5">
+            <div key={item.title} className="rounded-xl border border-line bg-paper-2/50 p-5">
               <h3 className="font-display text-sm font-medium text-ink">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-ink-muted">{item.body}</p>
             </div>

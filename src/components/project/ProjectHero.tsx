@@ -22,7 +22,7 @@ export function ProjectHero({ meta }: { meta: ProjectMeta }) {
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-accent">
             {meta.sector} · {meta.tag} · {meta.year}
           </p>
-          <h1 className="font-display mt-4 max-w-3xl text-4xl font-medium tracking-tight text-ink sm:text-5xl md:text-6xl">
+          <h1 className="font-display mt-4 max-w-3xl text-balance text-4xl font-medium tracking-tight text-ink sm:text-5xl md:text-6xl">
             {meta.title}
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-ink-muted md:text-xl">{meta.subtitle}</p>

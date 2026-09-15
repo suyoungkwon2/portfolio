@@ -110,7 +110,7 @@ export function SomMindDetail() {
               body: "Context-aware reminders reinforce adherence at the moments patients are most likely to drop off.",
             },
           ].map((item) => (
-            <div key={item.title} className="rounded-2xl border border-line p-5">
+            <div key={item.title} className="rounded-xl border border-line bg-paper-2/50 p-5">
               <h3 className="font-display text-sm font-medium text-ink">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-ink-muted">{item.body}</p>
             </div>
