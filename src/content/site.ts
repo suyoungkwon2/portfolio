@@ -5,7 +5,7 @@ export const site = {
   tagline:
     "I'm a Product Manager dedicated to bridging the gap between people and technology to deliver impact where it is needed most.",
   email: "suyoungkwon77@gmail.com",
-  resumeHref: "/resume.pdf",
+  resumeHref: "https://drive.google.com/file/d/1IQdQYWXbsZb0afdeOxoJc1aGZrb-FBHD/view",
   heroVideoSrc: "/video/heal-the-world.mp4",
   bgMusicSrc: "/video/bg-music.mp4",
   bgMusicStartSeconds: 4 * 60 + 57,

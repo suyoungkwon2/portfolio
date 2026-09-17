@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Download } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { site } from "@/content/site";
 import { SectionHeading } from "./SectionHeading";
 
@@ -23,11 +23,12 @@ export function Resume() {
         </p>
         <a
           href={site.resumeHref}
-          download
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-opacity hover:opacity-85"
         >
-          <Download className="h-4 w-4" />
-          Download Resume
+          <ExternalLink className="h-4 w-4" />
+          View Resume
         </a>
       </motion.div>
     </section>
