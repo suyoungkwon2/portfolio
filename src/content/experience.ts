@@ -1,44 +1,110 @@
 export type ExperienceItem = {
   org: string;
+  logo: string;
+  link?: string;
   role: string;
   period: string;
   location: string;
   description: string;
+  highlights?: string[];
 };
 
-// Real role history, sourced from CV_SuyoungKwon_2pages.pdf and
-// cross-referenced against docs/projects/*.md.
+// Real role history, copied as closely as possible from LinkedIn
+// (linkedin.com/in/suyoungkwon) as of Sep 2026, cross-referenced against
+// CV_SuyoungKwon_2pages.pdf and docs/projects/*.md.
 export const experience: ExperienceItem[] = [
   {
     org: "Carnegie Mellon University",
-    role: "Master of Design, Design for Interaction (HCI)",
-    period: "2026 — 2028 (Expected)",
+    logo: "/images/logo_cmu.png",
+    role: "Research Assistant, School of Design",
+    period: "Aug 2026 — Present",
     location: "Pittsburgh, PA",
-    description:
-      "Deepening human-centered design practice, building on the CMU visiting-scholar research that produced a published EMNLP 2025 paper.",
+    description: "Researching spatial interaction at the intersection of design and HCI.",
+    highlights: [
+      "Advisor: Prof. [Daniel Rosenberg Muñoz](https://www.design.cmu.edu/profiles/daniel-rosenberg-munoz), School of Design",
+    ],
+  },
+  {
+    org: "Carnegie Mellon University",
+    logo: "/images/logo_cmu.png",
+    link: "https://www.design.cmu.edu/about-our-programs/masters-degrees/master-design-design-interactions",
+    role: "Master of Design, Design for Interaction (HCI)",
+    period: "Aug 2026 — May 2028 (Expected)",
+    location: "Pittsburgh, PA",
+    description: "Fellow, Block Student Fellowship on AI and Society.",
   },
   {
     org: "KAIST",
+    logo: "/images/logo_kaist.jpeg",
+    link: "https://www.kaist.ac.kr/en/",
     role: "M.S., Information Management (Data Science minor)",
-    period: "2024 — 2026",
+    period: "Sep 2024 — Aug 2026",
     location: "Daejeon, Korea",
+    description: "Academic Excellence Scholarship.",
+  },
+  {
+    org: "Carnegie Mellon University",
+    logo: "/images/logo_cmucs.jpeg",
+    role: "Visiting Researcher, School of Computer Science",
+    period: "Mar 2025 — Jun 2025",
+    location: "Pittsburgh, PA",
     description:
-      "Graduate studies bridging human-centered design and data science, alongside an industry track building AI products at scale.",
+      "Researched LLM-based vocabulary learning: co-first-authored publication at EMNLP 2025 Main.",
+    highlights: [
+      "https://aclanthology.org/2025.emnlp-main.1299.pdf",
+      "Advisors: Prof. [Rita Singh](https://www.lti.cs.cmu.edu/people/faculty/singh-rita.html), Prof. [Bhiksha Raj](https://www.lti.cs.cmu.edu/people/faculty/raj-bhiksha.html), Language Technologies Institute",
+    ],
   },
   {
     org: "Kurly",
-    role: "AI Product Manager, Data Service Development Team",
+    logo: "/images/logo_kurly.jpeg",
+    link: "https://www.kurly.com/main",
+    role: "AI Product Manager",
     period: "Mar 2024 — Dec 2024",
-    location: "Seoul, Korea",
+    location: "Seoul, South Korea",
     description:
-      "Drove Kurly's AI Transformation initiative — defined and shipped 8 AI solution systems across search, curation, and recipe generation. Built a Vertex AI search layer (174x revenue lift, presented at Google Cloud Summit Seoul 2024) and an AI curation system now running 25% of homepage promotional slots.",
+      "Led Kurly's AI transformation, scoping and shipping AI systems across search, recommendation, merchandising, and product data for a 3.5M MAU grocery platform.",
+    highlights: [
+      "AI Search with Google Cloud Vertex AI: Increased monthly revenue from \"no-result\" queries by 174x and cut SaaS costs by 30%, adding AI-assisted search - Presented at Google Cloud Summit Seoul 2024",
+      "Generative AI Copilot for Curated Collections: Automated 25% of key homepage sections with AI recommendation system across 200+ campaign topics while improving product diversity",
+      "Real-time Popular Product Recommendations for Kurly Now: Built a time-of-day popular product recommendation system for instant delivery, reducing manual curation work",
+      "AI Recipe Suite with Google Korea: Directed R&D on recipe generation, recipe image generation, and product recommendation, grounding features in Kurly's customer data",
+      "Product Information Automation: Used OCR and LLMs to extract and structure regulatory product information, building AI-ready product data",
+    ],
   },
   {
     org: "Asleep",
-    role: "Product Manager → Head of Sleep Track Platform",
+    logo: "/images/logo_asleep.jpeg",
+    link: "https://www.asleep.ai/en/home",
+    role: "Product Manager → UX Team Lead → Head of Sleep Track Platform",
     period: "Apr 2021 — Mar 2024",
-    location: "Seoul, Korea",
+    location: "Seoul, South Korea",
     description:
-      "10th early employee; grew with the company from Series Seed to B across three roles — launched Asleep's first MVP and its Amazon Alexa skill, led an insomnia DTx app to KGMP/K-FDA clinical trial approval, then built the B2B SaaS platform (API/SDK/Dashboard) that became Asleep's first revenue line at $70K MRR.",
+      "Asleep is an AI sleep-tech startup that analyzes sleep through everyday devices without wearables. I joined as the 10th employee and grew with the company from Seed to Series B across three roles.",
+    highlights: [
+      "Product Manager (Apr 2021 – Aug 2021): Launched Asleep's first AI sleep analysis MVP app, building the initial user base",
+      "Product Manager (Apr 2021 – Aug 2021): Co-developed the Sleepvice Amazon Alexa Skill with Amazon's Alexa Startup team, making Asleep the first official Amazon collaborator startup in Korea and contributing to its $12M Series B",
+      "UX Team Lead / Product Manager (Sep 2021 – Mar 2023): Led an insomnia CBT-I digital therapeutic (software as a medical device) in partnership with Seoul National University Bundang Hospital",
+      "Head of Sleep Track Platform / Product Manager (Apr 2023 – Mar 2024): grew the B2B Sleep Track SaaS platform (API/SDK/Dashboard)",
+    ],
+  },
+  {
+    org: "Kookmin University",
+    logo: "/images/logo_kmu.jpeg",
+    link: "https://id-eng.kookmin.ac.kr/id-eng/index.do",
+    role: "Bachelor of Fine Arts, Industrial Design (UX Focused)",
+    period: "2013 — 2018",
+    location: "Seoul, South Korea",
+    description: "Academic Excellence Scholarship.",
+  },
+  {
+    org: "LG Electronics",
+    logo: "/images/logo_lg.jpeg",
+    link: "https://www.lg.com/us/",
+    role: "Product UX Designer, Freelance",
+    period: "Nov 2015 — Dec 2015",
+    location: "Seoul Incheon Metropolitan Area",
+    description:
+      "Facilitated ideation workshops with designers, executives, engineers, and end-users at LG Electronics R&D Center to develop future concepts for home appliances.",
   },
 ];

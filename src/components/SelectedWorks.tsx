@@ -4,7 +4,7 @@ import { WorkCard } from "./WorkCard";
 
 export function SelectedWorks() {
   return (
-    <section id="work" className="mx-auto max-w-6xl px-6 py-28 md:px-10 md:py-40">
+    <section id="work" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
       <SectionHeading kicker="Selected Works" title="Products that moved the needle." />
 
       <div className="mt-16 flex flex-col gap-20">

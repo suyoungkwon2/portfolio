@@ -7,7 +7,7 @@ import { SectionHeading } from "./SectionHeading";
 
 export function Resume() {
   return (
-    <section id="resume" className="mx-auto max-w-6xl px-6 py-28 md:px-10 md:py-40">
+    <section id="resume" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
       <SectionHeading kicker="Resume" title="The one-page version." align="center" />
 
       <motion.div

@@ -19,6 +19,6 @@ export type NavItem = {
 export const navItems: NavItem[] = [
   { label: "About", href: "#about" },
   { label: "Work", href: "#work" },
-  { label: "Research", href: "#research" },
+  { label: "Publication", href: "#publication" },
   { label: "Resume", href: "#resume" },
 ];

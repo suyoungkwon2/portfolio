@@ -13,7 +13,7 @@ const proofPoints = [
 
 export function About() {
   return (
-    <section id="about" className="mx-auto max-w-6xl px-6 py-28 md:px-10 md:py-40">
+    <section id="about" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
       <SectionHeading kicker="About" title="Product, with a reason to build it." />
 
       <div className="mt-8 grid gap-8 md:grid-cols-[auto_1fr] md:items-stretch">
