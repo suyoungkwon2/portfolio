@@ -1,12 +1,23 @@
+export type ExperienceCategory = "education" | "professional";
+
+export type ExperienceSubRole = {
+  role: string;
+  period: string;
+  description?: string;
+  highlights?: string[];
+};
+
 export type ExperienceItem = {
   org: string;
   logo: string;
   link?: string;
+  category: ExperienceCategory;
   role: string;
   period: string;
   location: string;
-  description: string;
+  description?: string;
   highlights?: string[];
+  subRoles?: ExperienceSubRole[];
 };
 
 // Real role history, copied as closely as possible from LinkedIn
@@ -16,6 +27,8 @@ export const experience: ExperienceItem[] = [
   {
     org: "Carnegie Mellon University",
     logo: "/images/logo_cmu.png",
+    link: "https://www.design.cmu.edu/about-our-programs/masters-degrees/master-design-design-interactions",
+    category: "professional",
     role: "Research Assistant, School of Design",
     period: "Aug 2026 — Present",
     location: "Pittsburgh, PA",
@@ -28,6 +41,7 @@ export const experience: ExperienceItem[] = [
     org: "Carnegie Mellon University",
     logo: "/images/logo_cmu.png",
     link: "https://www.design.cmu.edu/about-our-programs/masters-degrees/master-design-design-interactions",
+    category: "education",
     role: "Master of Design, Design for Interaction (HCI)",
     period: "Aug 2026 — May 2028 (Expected)",
     location: "Pittsburgh, PA",
@@ -37,21 +51,24 @@ export const experience: ExperienceItem[] = [
     org: "KAIST",
     logo: "/images/logo_kaist.jpeg",
     link: "https://www.kaist.ac.kr/en/",
+    category: "education",
     role: "M.S., Information Management (Data Science minor)",
     period: "Sep 2024 — Aug 2026",
-    location: "Daejeon, Korea",
+    location: "Seoul & Daejeon, Korea",
     description: "Academic Excellence Scholarship.",
   },
   {
     org: "Carnegie Mellon University",
     logo: "/images/logo_cmucs.jpeg",
+    link: "https://www.cs.cmu.edu/",
+    category: "professional",
     role: "Visiting Researcher, School of Computer Science",
     period: "Mar 2025 — Jun 2025",
     location: "Pittsburgh, PA",
     description:
       "Researched LLM-based vocabulary learning: co-first-authored publication at EMNLP 2025 Main.",
     highlights: [
-      "https://aclanthology.org/2025.emnlp-main.1299.pdf",
+      "[https://aclanthology.org/2025.emnlp-main.1299.pdf](https://aclanthology.org/2025.emnlp-main.1299.pdf)",
       "Advisors: Prof. [Rita Singh](https://www.lti.cs.cmu.edu/people/faculty/singh-rita.html), Prof. [Bhiksha Raj](https://www.lti.cs.cmu.edu/people/faculty/raj-bhiksha.html), Language Technologies Institute",
     ],
   },
@@ -59,6 +76,7 @@ export const experience: ExperienceItem[] = [
     org: "Kurly",
     logo: "/images/logo_kurly.jpeg",
     link: "https://www.kurly.com/main",
+    category: "professional",
     role: "AI Product Manager",
     period: "Mar 2024 — Dec 2024",
     location: "Seoul, South Korea",
@@ -76,22 +94,48 @@ export const experience: ExperienceItem[] = [
     org: "Asleep",
     logo: "/images/logo_asleep.jpeg",
     link: "https://www.asleep.ai/en/home",
+    category: "professional",
     role: "Product Manager → UX Team Lead → Head of Sleep Track Platform",
     period: "Apr 2021 — Mar 2024",
     location: "Seoul, South Korea",
-    description:
-      "Asleep is an AI sleep-tech startup that analyzes sleep through everyday devices without wearables. I joined as the 10th employee and grew with the company from Seed to Series B across three roles.",
-    highlights: [
-      "Product Manager (Apr 2021 – Aug 2021): Launched Asleep's first AI sleep analysis MVP app, building the initial user base",
-      "Product Manager (Apr 2021 – Aug 2021): Co-developed the Sleepvice Amazon Alexa Skill with Amazon's Alexa Startup team, making Asleep the first official Amazon collaborator startup in Korea and contributing to its $12M Series B",
-      "UX Team Lead / Product Manager (Sep 2021 – Mar 2023): Led an insomnia CBT-I digital therapeutic (software as a medical device) in partnership with Seoul National University Bundang Hospital",
-      "Head of Sleep Track Platform / Product Manager (Apr 2023 – Mar 2024): grew the B2B Sleep Track SaaS platform (API/SDK/Dashboard)",
+    subRoles: [
+      {
+        role: "Head of Sleep Track Platform / B2B SaaS Product Manager",
+        period: "Apr 2023 – Mar 2024",
+        description:
+          "Asleep is an AI sleep-tech startup that analyzes sleep through everyday devices without wearables. I joined as the 10th employee and grew with the company from Seed to Series B.",
+        highlights: [
+          "Led end-to-end development process of Sleep Track, a B2B AI SaaS platform (API, SDK, Dashboard) that made AI sleep analysis easy for enterprise clients to adopt",
+          "Reached $60K+ MRR within three months of launch, securing the company's first platform revenue",
+          "Uncovered clients' adoption barriers through hands-on integration consulting, turning them into onboarding and product improvements",
+          "Led a cross-functional team of 10 (front-end, back-end, product design, QA), aligning C-level, BD, and marketing on the roadmap",
+        ],
+      },
+      {
+        role: "UX Team Lead / DTx Product Manager",
+        period: "Sep 2021 – Mar 2023",
+        highlights: [
+          "Led an insomnia CBT-I digital therapeutic (software as a medical device) in partnership with Seoul National University Bundang Hospital",
+          "Conducted interviews and usability tests with middle-to-senior-aged insomnia patients to design around their digital fluency needs",
+          "Managed the end-to-end regulatory process, securing KGMP certification and K-FDA clinical trial approval",
+          "Led the UX team for Asleep's consumer mobile sleep app",
+        ],
+      },
+      {
+        role: "B2C App Product Manager",
+        period: "Apr 2021 – Aug 2021",
+        highlights: [
+          "Launched Asleep's first AI sleep analysis MVP app, building the initial user base",
+          "Co-developed the Sleepvice Amazon Alexa Skill with Amazon's Alexa Startup team, making Asleep the first official Amazon collaborator startup in Korea and contributing to its $12M Series B",
+        ],
+      },
     ],
   },
   {
     org: "Kookmin University",
     logo: "/images/logo_kmu.jpeg",
     link: "https://id-eng.kookmin.ac.kr/id-eng/index.do",
+    category: "education",
     role: "Bachelor of Fine Arts, Industrial Design (UX Focused)",
     period: "2013 — 2018",
     location: "Seoul, South Korea",
@@ -101,6 +145,7 @@ export const experience: ExperienceItem[] = [
     org: "LG Electronics",
     logo: "/images/logo_lg.jpeg",
     link: "https://www.lg.com/us/",
+    category: "professional",
     role: "Product UX Designer, Freelance",
     period: "Nov 2015 — Dec 2015",
     location: "Seoul Incheon Metropolitan Area",

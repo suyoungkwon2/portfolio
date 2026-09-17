@@ -2,9 +2,17 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Fragment } from "react";
-import { experience } from "@/content/experience";
+import { Fragment, useMemo, useState } from "react";
+import { experience, type ExperienceCategory } from "@/content/experience";
 import { SectionHeading } from "./SectionHeading";
+
+type Filter = ExperienceCategory | "all";
+
+const filters: { key: Filter; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "education", label: "Education" },
+  { key: "professional", label: "Professional" },
+];
 
 // Renders "[label](url)" segments in highlight text as underlined links.
 function renderHighlight(text: string) {
@@ -38,12 +46,37 @@ function renderHighlight(text: string) {
 }
 
 export function Experience() {
+  const [filter, setFilter] = useState<Filter>("all");
+  const filtered = useMemo(
+    () => (filter === "all" ? experience : experience.filter((item) => item.category === filter)),
+    [filter],
+  );
+
   return (
     <section className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
       <SectionHeading kicker="Experience" title="Where I've built." />
 
-      <div className="mt-16 flex flex-col">
-        {experience.map((item, i) => (
+      <div className="mt-8 flex items-center gap-3 text-sm">
+        {filters.map((f, i) => (
+          <Fragment key={f.key}>
+            {i > 0 && <span className="text-line">|</span>}
+            <button
+              type="button"
+              onClick={() => setFilter(f.key)}
+              className={
+                filter === f.key
+                  ? "font-bold text-ink underline underline-offset-4"
+                  : "text-ink-muted transition-colors hover:text-ink"
+              }
+            >
+              {f.label}
+            </button>
+          </Fragment>
+        ))}
+      </div>
+
+      <div className="mt-8 flex flex-col">
+        {filtered.map((item, i) => (
           <motion.div
             key={`${item.org}-${item.role}`}
             initial={{ opacity: 0, y: 20 }}
@@ -66,7 +99,7 @@ export function Experience() {
                     href={item.link}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-display text-lg font-medium text-ink no-underline transition-colors hover:text-accent-2"
+                    className="font-display text-lg font-medium text-ink no-underline transition-colors hover:text-accent-3"
                   >
                     {item.org}
                   </a>
@@ -78,16 +111,41 @@ export function Experience() {
               </div>
             </div>
             <div>
-              <p className="font-medium text-ink">{item.role}</p>
-              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-muted">
-                {item.description}
-              </p>
-              {item.highlights && item.highlights.length > 0 && (
-                <ul className="mt-2 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-ink-muted">
-                  {item.highlights.map((highlight) => (
-                    <li key={highlight}>{renderHighlight(highlight)}</li>
+              {item.subRoles ? (
+                <div className="flex flex-col gap-5">
+                  {item.subRoles.map((sub) => (
+                    <div key={sub.role}>
+                      <p className="font-medium text-ink">{sub.role}</p>
+                      <p className="mt-0.5 text-sm text-ink-muted">{sub.period}</p>
+                      {sub.description && (
+                        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-muted">
+                          {sub.description}
+                        </p>
+                      )}
+                      {sub.highlights && sub.highlights.length > 0 && (
+                        <ul className="mt-2 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-ink-muted">
+                          {sub.highlights.map((highlight) => (
+                            <li key={highlight}>{renderHighlight(highlight)}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   ))}
-                </ul>
+                </div>
+              ) : (
+                <>
+                  <p className="font-medium text-ink">{item.role}</p>
+                  <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-muted">
+                    {item.description}
+                  </p>
+                  {item.highlights && item.highlights.length > 0 && (
+                    <ul className="mt-2 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-ink-muted">
+                      {item.highlights.map((highlight) => (
+                        <li key={highlight}>{renderHighlight(highlight)}</li>
+                      ))}
+                    </ul>
+                  )}
+                </>
               )}
             </div>
           </motion.div>
