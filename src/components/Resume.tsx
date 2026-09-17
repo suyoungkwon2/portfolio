@@ -1,35 +1,38 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
 import { site } from "@/content/site";
-import { SectionHeading } from "./SectionHeading";
+
+const links = [
+  { label: "Resume", href: site.resumeHref },
+  { label: "LinkedIn", href: site.linkedinHref },
+  { label: "Email", href: `mailto:${site.email}` },
+  { label: "GitHub", href: site.githubHref },
+];
 
 export function Resume() {
   return (
-    <section id="resume" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
-      <SectionHeading kicker="Resume" title="The one-page version." align="center" />
+    <section id="contact" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
+      <span className="text-xs font-medium uppercase tracking-[0.25em] text-accent">Contact</span>
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="mx-auto mt-12 flex max-w-xl flex-col items-center gap-6 rounded-2xl border border-line bg-paper-2/50 px-8 py-14 text-center"
+        className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3"
       >
-        <p className="max-w-sm text-sm leading-relaxed text-ink-muted">
-          Every case study above, distilled to one page — roles, impact, and the
-          skills behind them.
-        </p>
-        <a
-          href={site.resumeHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-opacity hover:opacity-85"
-        >
-          <ExternalLink className="h-4 w-4" />
-          View Resume
-        </a>
+        {links.map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-lg font-medium text-ink no-underline transition-colors hover:text-accent-3"
+          >
+            {link.label}
+          </a>
+        ))}
       </motion.div>
     </section>
   );

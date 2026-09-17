@@ -6,6 +6,8 @@ export const site = {
     "I'm a Product Manager dedicated to bridging the gap between people and technology to deliver impact where it is needed most.",
   email: "suyoungkwon77@gmail.com",
   resumeHref: "https://drive.google.com/file/d/1IQdQYWXbsZb0afdeOxoJc1aGZrb-FBHD/view",
+  linkedinHref: "https://www.linkedin.com/in/suyoungkwon/",
+  githubHref: "https://github.com/suyoungkwon2",
   heroVideoSrc: "/video/heal-the-world.mp4",
   bgMusicSrc: "/video/bg-music.mp4",
   bgMusicStartSeconds: 4 * 60 + 57,
@@ -20,5 +22,5 @@ export const navItems: NavItem[] = [
   { label: "About", href: "#about" },
   { label: "Work", href: "#work" },
   { label: "Publication", href: "#publication" },
-  { label: "Resume", href: "#resume" },
+  { label: "Contact", href: "#contact" },
 ];
