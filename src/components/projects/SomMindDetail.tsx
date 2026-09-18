@@ -12,7 +12,7 @@ import { StatGrid } from "@/components/project/Stat";
 export function SomMindDetail() {
   return (
     <>
-      <Section kicker="Result" title="From patient interviews to a certified clinical trial">
+      <Section kicker="Result" title="From patient interviews to a certified clinical trial" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           CBT-i is the gold-standard, drug-free treatment for chronic insomnia — but cost and
           access barriers push patients toward medication instead. I owned product, clinical

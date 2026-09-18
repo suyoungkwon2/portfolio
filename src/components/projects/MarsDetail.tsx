@@ -14,7 +14,7 @@ import { StatGrid } from "@/components/project/Stat";
 export function MarsDetail() {
   return (
     <>
-      <Section kicker="Result" title="2nd place, out of 10 finalist teams">
+      <Section kicker="Result" title="2nd place, out of 10 finalist teams" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           Physicians spend up to <strong className="text-ink">30% of their work time</strong>{" "}
           hand-writing discharge summaries — and Korea&apos;s 2024 medical staffing crisis, which

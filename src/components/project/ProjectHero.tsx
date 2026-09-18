@@ -18,48 +18,48 @@ export function ProjectHero({ meta }: { meta: ProjectMeta }) {
           <span aria-hidden>←</span> Selected Works
         </Link>
 
-        <div className="mt-8">
-          <p className="text-xs font-medium uppercase tracking-[0.25em] text-accent">
-            {meta.sector} · {meta.tag} · {meta.year}
-          </p>
-          <h1 className="font-display mt-4 max-w-3xl text-balance text-4xl font-medium tracking-tight text-ink sm:text-5xl md:text-6xl">
-            {meta.title}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-ink-muted md:text-xl">{meta.subtitle}</p>
-          <p className="instrument-serif-regular-italic mt-6 max-w-xl text-2xl text-ink md:text-3xl">
+        <div className="mt-8 flex flex-col items-center text-center">
+          <div className="flex flex-wrap justify-center gap-2">
+            <Chip kind="domain">{meta.chips.domain}</Chip>
+            <Chip kind="problem">{meta.chips.problem}</Chip>
+            {meta.chips.tech.map((tech) => (
+              <Chip key={tech} kind="tech">
+                {tech}
+              </Chip>
+            ))}
+          </div>
+          <p className="instrument-serif-regular-italic mt-6 text-2xl text-ink md:text-3xl">
             &ldquo;{meta.tagline}&rdquo;
           </p>
+          <h1 className="font-display mt-4 text-4xl font-medium tracking-tight text-ink sm:text-5xl md:whitespace-nowrap md:text-[clamp(1.75rem,4vw,3.6rem)]">
+            {meta.title}
+          </h1>
+          <p className="mt-4 text-lg text-ink-muted md:text-xl">{meta.subtitle}</p>
         </div>
 
         <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-line pt-8 sm:grid-cols-4">
           {(
             [
-              ["Period", meta.period],
+              ["Period", [meta.period]],
               ["Role", meta.role],
               ["Team", meta.team],
-              ["Org", meta.org],
+              ["Org", [meta.org]],
             ] as const
-          ).map(([term, value]) => (
+          ).map(([term, items]) => (
             <div key={term}>
               <dt className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
                 {term}
               </dt>
               <dd className="font-display mt-1.5 text-sm font-medium text-ink md:text-base">
-                {value}
+                {items.map((item) => (
+                  <span key={item} className="block">
+                    {item}
+                  </span>
+                ))}
               </dd>
             </div>
           ))}
         </dl>
-
-        <div className="mt-8 flex flex-wrap gap-2">
-          <Chip kind="domain">{meta.chips.domain}</Chip>
-          <Chip kind="problem">{meta.chips.problem}</Chip>
-          {meta.chips.tech.map((tech) => (
-            <Chip key={tech} kind="tech">
-              {tech}
-            </Chip>
-          ))}
-        </div>
 
         <ImagePlaceholder
           label={`Hero image — ${meta.title}`}

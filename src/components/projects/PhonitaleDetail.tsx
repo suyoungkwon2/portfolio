@@ -13,7 +13,7 @@ import { StatGrid } from "@/components/project/Stat";
 export function PhonitaleDetail() {
   return (
     <>
-      <Section kicker="Result" title="Published at EMNLP 2025, matching human-authored recall">
+      <Section kicker="Result" title="Published at EMNLP 2025, matching human-authored recall" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           Learners acquiring vocabulary across <strong className="text-ink">typologically
           distant language pairs</strong> (like English↔Korean) can&apos;t rely on simple sound-alike

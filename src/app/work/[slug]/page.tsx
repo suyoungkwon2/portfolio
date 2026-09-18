@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Nav } from "@/components/Nav";
 import { ProjectFooterNav } from "@/components/project/ProjectFooterNav";
 import { ProjectHero } from "@/components/project/ProjectHero";
+import { RelatedLinks } from "@/components/project/RelatedLinks";
 import { AiCurationDetail } from "@/components/projects/AiCurationDetail";
 import { AiSearchDetail } from "@/components/projects/AiSearchDetail";
 import { AsleepTrackDetail } from "@/components/projects/AsleepTrackDetail";
@@ -62,6 +63,7 @@ export default async function ProjectPage({
       <main>
         <ProjectHero meta={meta} />
         <Detail />
+        <RelatedLinks links={meta.relatedLinks} />
         <ProjectFooterNav
           prev={prevSlug ? { slug: prevSlug, title: projects[prevSlug].title } : undefined}
           next={nextSlug ? { slug: nextSlug, title: projects[nextSlug].title } : undefined}

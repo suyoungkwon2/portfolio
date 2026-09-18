@@ -12,7 +12,7 @@ import { StatGrid } from "@/components/project/Stat";
 export function AsleepTrackDetail() {
   return (
     <>
-      <Section kicker="Result" title="$70K MRR — the company's first B2B revenue line">
+      <Section kicker="Result" title="$70K MRR — the company's first B2B revenue line" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           Asleep had built the most accurate non-contact sleep-tracking AI available — but no
           corporate client could integrate the raw model without months of custom engineering. I

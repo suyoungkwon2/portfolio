@@ -12,7 +12,7 @@ import { StatGrid } from "@/components/project/Stat";
 export function AiCurationDetail() {
   return (
     <>
-      <Section kicker="Result" title="25% of homepage slots, fully autonomous">
+      <Section kicker="Result" title="25% of homepage slots, fully autonomous" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           Kurly&apos;s merchandisers manually curate themed campaigns across 40K+ SKUs — a process
           that couldn&apos;t scale past their staff capacity. I built an AI system where a

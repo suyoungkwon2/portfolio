@@ -12,7 +12,7 @@ import { StatGrid } from "@/components/project/Stat";
 export function AiSearchDetail() {
   return (
     <>
-      <Section kicker="Result" title="174x revenue lift, 35.5x return on investment">
+      <Section kicker="Result" title="174x revenue lift, 35.5x return on investment" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           6–7% of daily searches on Kurly&apos;s e-commerce platform (3.5M MAU) returned{" "}
           <strong className="text-ink">zero results</strong> — a direct revenue leak, since search

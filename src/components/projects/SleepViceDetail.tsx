@@ -12,7 +12,7 @@ import { StatGrid } from "@/components/project/Stat";
 export function SleepViceDetail() {
   return (
     <>
-      <Section kicker="Result" title="Korea's first official Amazon collaboration startup">
+      <Section kicker="Result" title="Korea's first official Amazon collaboration startup" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           A 3-person task force — business development, engineering, and me on product & voice
           design — built an Alexa Skill that layers Asleep&apos;s sleep-tracking AI onto the Amazon
