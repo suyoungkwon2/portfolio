@@ -40,7 +40,7 @@ function PhonitaleSection({
     <section className="mx-auto flex max-w-[1200px] flex-col gap-4 px-6 py-8 md:px-[88px] md:py-10">
       <Kicker>{kicker}</Kicker>
       <h2
-        className={`font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl ${
+        className={`mt-4 font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl ${
           centered ? "text-center" : ""
         }`}
       >
@@ -215,7 +215,7 @@ export function PhonitaleDetail() {
       {/* Result — structural exception: hero row + 4-up icon stat grid */}
       <section className="mx-auto flex max-w-[1200px] flex-col gap-6 px-6 py-8 md:px-[88px] md:py-10">
         <Kicker>RESULT</Kicker>
-        <div className="flex flex-col gap-8 md:flex-row md:items-start">
+        <div className="mt-6 flex flex-col gap-8 md:flex-row md:items-start">
           <div className="flex flex-1 flex-col gap-4">
             <p className="font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl">
               Built PhoniTale,
