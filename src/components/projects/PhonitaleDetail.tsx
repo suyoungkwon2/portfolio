@@ -235,7 +235,7 @@ export function PhonitaleDetail() {
           </div>
           <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded-lg md:h-[368px] md:w-[500px]">
             <Image
-              src={`${IMG}/result-hero-photo.png`}
+              src={`${IMG}/img_result_1.png`}
               alt="Presenting the PhoniTale poster at EMNLP 2025"
               fill
               sizes="(min-width: 768px) 500px, 100vw"
@@ -386,7 +386,7 @@ export function PhonitaleDetail() {
           <li>PhoniTale matches human-expert mnemonics.</li>
           <li>It outperforms older AI-based methods.</li>
         </ol>
-        <Accordion label="See What We Compared">
+        <Accordion label="See What We Compared" className="w-full text-left">
           <FlexTable
             columns={[{ label: "Compared Against", width: 150 }, { label: "Name", width: 100 }, { label: "Description" }]}
             rows={[
@@ -434,23 +434,8 @@ export function PhonitaleDetail() {
         </p>
 
         <div className="flex w-full flex-col items-center gap-5 md:flex-row">
-          <div className="flex h-[140px] w-full shrink-0 items-center justify-center gap-2 rounded-[10px] bg-line px-4 md:w-[640px]">
-            {[
-              { label: "KSS (Human Expert)", color: "#52775f" },
-              { label: "OGR (Older SOTA)", color: "#e54f4f" },
-              { label: "PHT (Our Model)", color: "#5255a0" },
-            ].map((g, i, arr) => (
-              <div key={g.label} className="contents">
-                <div
-                  className="flex h-14 flex-col items-center justify-center rounded-sm border bg-white px-2 text-center"
-                  style={{ borderColor: g.color, color: g.color }}
-                >
-                  <p className="text-[11px] font-semibold leading-tight">{g.label}</p>
-                  <p className="text-[10px] leading-tight">N = 17</p>
-                </div>
-                {i < arr.length - 1 && <span className="text-xs text-ink">vs</span>}
-              </div>
-            ))}
+          <div className="relative h-[140px] w-full shrink-0 rounded-[10px] bg-line md:w-[640px]">
+            <Image src={`${IMG}/img_evaluationdesign_1.png`} alt="KSS (Human Expert) vs OGR (Older SOTA) vs PHT (Our Model), N = 17 each" fill unoptimized className="object-contain p-6" />
           </div>
           <div className="flex-1 text-left">
             <p className="font-display text-xl font-semibold text-accent">Groups &amp; Participants</p>
@@ -463,27 +448,8 @@ export function PhonitaleDetail() {
         </div>
 
         <div className="flex w-full flex-col items-center gap-5 md:flex-row">
-          <div className="flex h-[140px] w-full shrink-0 flex-col items-center justify-center gap-2 rounded-[10px] bg-line px-4 text-[11px] text-ink-muted md:w-[640px]">
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <span className="rounded-full border border-ink-muted px-3 py-1">Instruction</span>
-              <span aria-hidden>→</span>
-              <span className="rounded-full border border-ink-muted px-3 py-1">Learning</span>
-              <span aria-hidden>→</span>
-              <div className="relative pt-4">
-                <span className="absolute inset-x-0 -top-0.5 text-center text-[10px]">Testing</span>
-                <div className="flex items-center gap-1 border-t border-ink-muted/50 pt-1.5">
-                  <span className="rounded-full border border-ink-muted px-3 py-1">Recognition</span>
-                  <span aria-hidden>→</span>
-                  <span className="rounded-full border border-ink-muted px-3 py-1">Generation</span>
-                </div>
-              </div>
-              <span aria-hidden>→</span>
-              <span className="rounded-full border border-ink-muted px-3 py-1">Survey</span>
-            </div>
-            <div className="relative w-[85%] pt-2 text-center">
-              <div className="border-t border-ink-muted/50" />
-              <span className="absolute left-1/2 top-1 -translate-x-1/2 bg-line px-2 text-[10px]">3 sets</span>
-            </div>
+          <div className="relative h-[140px] w-full shrink-0 rounded-[10px] bg-line md:w-[640px]">
+            <Image src={`${IMG}/img_evaluationdesign_2.png`} alt="Instruction → Learning → Testing (Recognition → Generation) → Survey, 3 sets" fill unoptimized className="object-contain p-6" />
           </div>
           <div className="flex-1 text-left">
             <p className="font-display text-xl font-semibold text-accent">Procedure</p>
@@ -496,8 +462,8 @@ export function PhonitaleDetail() {
         </div>
 
         <div className="flex w-full flex-col items-center gap-5 md:flex-row">
-          <div className="relative h-[140px] w-full shrink-0 overflow-hidden rounded-[10px] bg-line md:w-[380px]">
-            <Image src={`${IMG}/eval-web-platform-mockup.png`} alt="PhoniTale evaluation web platform screenshot" fill className="object-contain p-4" />
+          <div className="w-full shrink-0 overflow-hidden rounded-[10px] bg-line pl-6 pr-6 pt-6 md:w-[640px]">
+            <Image src={`${IMG}/img_evaluationdesign_3.png`} alt="PhoniTale evaluation web platform screenshot" width={882} height={210} unoptimized className="h-auto w-full" />
           </div>
           <div className="flex-1 text-left">
             <p className="font-display text-xl font-semibold text-accent">Web Platform</p>
@@ -508,7 +474,7 @@ export function PhonitaleDetail() {
           </div>
         </div>
 
-        <Accordion label="See Full Procedure Details">
+        <Accordion label="See Full Procedure Details" className="text-left">
           <FlexTable
             columns={[{ label: "Phase", width: 150 }, { label: "Task", width: 300 }, { label: "Provided Components" }]}
             rows={[

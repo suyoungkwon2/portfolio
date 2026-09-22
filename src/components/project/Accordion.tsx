@@ -9,14 +9,16 @@ import { useState } from "react";
 export function Accordion({
   label,
   children,
+  className = "",
 }: {
   label: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className={`flex w-full flex-col items-center ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
