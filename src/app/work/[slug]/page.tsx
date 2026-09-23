@@ -9,7 +9,7 @@ import { AiCurationDetail } from "@/components/projects/AiCurationDetail";
 import { AiSearchDetail } from "@/components/projects/AiSearchDetail";
 import { AsleepTrackDetail } from "@/components/projects/AsleepTrackDetail";
 import { MarsDetail } from "@/components/projects/MarsDetail";
-import { PhonitaleDetail } from "@/components/projects/PhonitaleDetail";
+import { PhonitaleDetail, PhonitaleHeroVideos } from "@/components/projects/PhonitaleDetail";
 import { SleepViceDetail } from "@/components/projects/SleepViceDetail";
 import { SomMindDetail } from "@/components/projects/SomMindDetail";
 import { projectOrder, projects } from "@/content/projects";
@@ -61,7 +61,7 @@ export default async function ProjectPage({
     <>
       <Nav />
       <main>
-        <ProjectHero meta={meta} />
+        <ProjectHero meta={meta} heroMedia={slug === "phonitale" ? <PhonitaleHeroVideos /> : undefined} />
         <Detail />
         <RelatedLinks links={meta.relatedLinks} />
         <ProjectFooterNav

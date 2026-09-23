@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { Accordion } from "@/components/project/Accordion";
 import { ChapterDivider } from "@/components/project/ChapterDivider";
 import { FlexTable } from "@/components/project/FlexTable";
-import { PullQuote } from "@/components/project/PullQuote";
 
 // Rebuilt from the redesigned Figma file (Portfolio_Asset, "Projects" page,
 // "Phonitale — Project Detail" frame). The narrative is now a long,
@@ -83,18 +82,18 @@ function IconStat({
   );
 }
 
-// Splits "Lead-in — rest of the sentence" bullets into a bold lead-in plus
-// regular body copy, matching the em-dash lead-in pattern used elsewhere
-// on the site. Falls back to plain text if there's no clean split.
-function LeadInBullet({ text }: { text: string }) {
-  const sep = " — ";
+// Splits "Lead-in: rest of the sentence" bullets into a bold lead-in plus
+// regular body copy. Falls back to plain text if there's no clean split.
+function LeadInBullet({ text, index }: { text: string; index?: number }) {
+  const sep = ": ";
   const idx = text.indexOf(sep);
-  if (idx === -1) return <p className="text-sm leading-relaxed text-ink-muted">{text}</p>;
+  const prefix = index ? `${index}. ` : "";
+  if (idx === -1) return <p className="text-sm leading-relaxed text-ink-muted">{prefix}{text}</p>;
   const lead = text.slice(0, idx);
   const rest = text.slice(idx + sep.length);
   return (
     <p className="text-sm leading-relaxed text-ink-muted">
-      <span className="font-display font-semibold text-ink">{lead}</span> — {rest}
+      <span className="font-display font-semibold text-ink">{prefix}{lead}:</span> {rest}
     </p>
   );
 }
@@ -180,6 +179,46 @@ function PipelineDiagram() {
 }
 
 const IMG = "/images/phonitale";
+
+// Hero media for the project's ProjectHero slot (passed in from the route
+// page, not rendered by PhonitaleDetail itself). Both source videos are
+// raw 1920x1080 recordings with their real content pillarboxed in black
+// (content is centered in the frame in both cases: vid_architecture's
+// content spans x=161-1758, a 1597:1080 rectangle). Both blocks scale
+// fluidly at their true content aspect ratio — object-cover then only
+// ever crops the black bars, never the content, at any viewport — and
+// cap out at the exact desktop spec once xl: gives them room to sit
+// side by side sharing a 364px height (538 * 1080/1597 ≈ 364, so the
+// left block naturally lands on the same height as the right one).
+// Below xl the two stack full-width instead of squeezing into a row.
+export function PhonitaleHeroVideos() {
+  return (
+    <div className="mt-14 flex flex-col gap-4 xl:flex-row">
+      <div className="relative aspect-[1597/1080] w-full max-w-[538px] shrink-0 overflow-hidden rounded-2xl bg-[#E1E6E9] xl:aspect-auto xl:h-[364px] xl:w-[538px]">
+        <video
+          src={`${IMG}/vid_architecture.mp4`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
+        />
+      </div>
+      <div className="flex items-center justify-center overflow-hidden rounded-2xl bg-[#E1E6E9] py-[12px] xl:h-[364px] xl:flex-1">
+        <div className="relative aspect-[440/340] w-full max-w-[440px] overflow-hidden rounded-[15px]">
+          <video
+            src={`${IMG}/vid_web.mp4`}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function PhonitaleDetail() {
   return (
@@ -271,7 +310,7 @@ export function PhonitaleDetail() {
 
       <PhonitaleSection kicker="BACKGROUND" title="It All Started with Our Own Frustration">
         <p className="w-full text-sm leading-relaxed text-ink-muted">
-          We were studying for the GRE — grad school applications in the U.S. — and English
+          We were studying for the GRE (grad school applications in the U.S.), and English
           vocabulary just wouldn&rsquo;t stick.
         </p>
         <div className="relative aspect-[2048/2313] w-full max-w-[900px] overflow-hidden rounded-lg">
@@ -281,7 +320,7 @@ export function PhonitaleDetail() {
 
       <PhonitaleSection kicker="PROBLEM" title="So Why Did the LLM Get It So Wrong?">
         <p className="w-full text-sm leading-relaxed text-ink-muted">
-          English and Korean don&rsquo;t sound alike — not even close. Here&rsquo;s what LLMs miss:
+          English and Korean don&rsquo;t sound alike. Not even close. Here&rsquo;s what LLMs miss:
         </p>
         <ExampleBox bordered={false} fit>
           {[
@@ -350,7 +389,7 @@ export function PhonitaleDetail() {
               <img src={`${IMG}/svg_goal_2.svg`} alt="" className="h-[90px] w-[87px]" />
             }
             title="Fully Scalable"
-            description={<>Automate the entire process <br /> — no manual work required.</>}
+            description={<>Automate the entire process <br /> with no manual work required.</>}
           />
           <IconStat
             icon={
@@ -365,7 +404,7 @@ export function PhonitaleDetail() {
 
       <PhonitaleSection kicker="APPROACH" title={'We Designed PhoniTale to Really "Listen"'}>
         <p className="w-full text-sm leading-relaxed text-ink-muted">
-          See how &ldquo;Squander&rdquo; becomes a Korean keyword — and then a memorable cue.
+          See how &ldquo;Squander&rdquo; becomes a Korean keyword, and then a memorable cue.
           <br />
           * L1 = native language, L2 = language you&rsquo;re learning
         </p>
@@ -407,7 +446,7 @@ export function PhonitaleDetail() {
                 "Older AI (SOTA)",
                 "OGR",
                 <ul key="d2" className="list-disc space-y-1 pl-5">
-                  <li>Prior best-performing AI method — heavily LLM-dependent, high hallucination risk</li>
+                  <li>Prior best-performing AI method: heavily LLM-dependent, high hallucination risk</li>
                   <li>
                     <a href="https://aclanthology.org/2024.findings-emnlp.316/" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-ink">
                       Overgenerate-and-Rank (2024)
@@ -462,13 +501,19 @@ export function PhonitaleDetail() {
         </div>
 
         <div className="flex w-full flex-col items-center gap-5 md:flex-row">
-          <div className="w-full shrink-0 overflow-hidden rounded-[10px] bg-line pl-6 pr-6 pt-6 md:w-[640px]">
-            <Image src={`${IMG}/img_evaluationdesign_3.png`} alt="PhoniTale evaluation web platform screenshot" width={882} height={210} unoptimized className="h-auto w-full" />
+          <div className="relative flex h-[140px] w-full shrink-0 items-end justify-center overflow-hidden rounded-[10px] bg-line px-6 pt-6 md:w-[640px]">
+            <Image
+              src={`${IMG}/img_evaluationdesign_3.png`}
+              alt="PhoniTale evaluation web platform screenshot"
+              width={440}
+              height={105}
+              className="h-auto w-full max-w-[440px]"
+            />
           </div>
           <div className="flex-1 text-left">
             <p className="font-display text-xl font-semibold text-accent">Web Platform</p>
             <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-              I built a custom web platform — to reach remote participants, capture precise timing
+              I built a custom web platform to reach remote participants, capture precise timing
               data, and eliminate variables unrelated to the mnemonics themselves.
             </p>
           </div>
@@ -548,69 +593,81 @@ export function PhonitaleDetail() {
         </p>
 
         <div className="flex w-full flex-col gap-2 text-left">
-          <p className="font-display text-xl font-semibold text-accent">Key Path</p>
+          <p className="font-display text-xl font-semibold text-accent">1. Key Path</p>
           <p className="text-sm leading-relaxed text-ink-muted">
             Mapped the essential flow participants needed to follow, based on the evaluation
             procedure.
           </p>
-          <div className="relative mt-2 h-[94px] w-full overflow-hidden rounded-[10px] bg-line">
-            <Image src={`${IMG}/design-key-path.png`} alt="Key path flow diagram" fill className="object-contain p-4" />
+          <div className="relative mt-2 w-full overflow-hidden rounded-[10px] bg-line p-4">
+            <Image
+              src={`${IMG}/img_design_keypath.png`}
+              alt="Key path flow diagram"
+              width={916}
+              height={96}
+              className="h-auto w-full"
+            />
           </div>
         </div>
 
         <div className="flex w-full flex-col gap-2 text-left">
-          <p className="font-display text-xl font-semibold text-accent">Wireframe</p>
+          <p className="font-display text-xl font-semibold text-accent">2. Wireframe</p>
           <p className="text-sm leading-relaxed text-ink-muted">
             Studied existing language-learning apps to explore layout patterns and core UX
             decisions.
           </p>
-          <div className="relative mt-2 h-[94px] w-full overflow-hidden rounded-[10px] bg-line">
-            <Image src={`${IMG}/design-wireframe.png`} alt="Wireframe exploration" fill className="object-contain p-4" />
+          <div className="relative mt-2 w-full overflow-hidden rounded-[10px] bg-line p-4">
+            <Image
+              src={`${IMG}/img_design_wireframe.png`}
+              alt="Wireframe exploration"
+              width={916}
+              height={96}
+              className="h-auto w-full"
+            />
           </div>
         </div>
 
         <div className="flex w-full flex-col gap-4 text-left">
-          <p className="font-display text-xl font-semibold text-accent">Design</p>
+          <p className="font-display text-xl font-semibold text-accent">3. Design</p>
           <p className="text-sm leading-relaxed text-ink-muted">
-            Prioritized a simple, distraction-free interface — so participants could focus on the
+            Prioritized a simple, distraction-free interface, so participants could focus on the
             task, not the design.
           </p>
 
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-6">
-              <p className="font-display text-lg font-semibold text-accent">Key Component</p>
-              <div className="relative h-[233px] w-full max-w-[401px] overflow-hidden rounded-sm shadow">
-                <Image src={`${IMG}/design-mockup-key-component.png`} alt="Key component mockup" fill className="object-contain" />
+              <p className="w-full text-left font-display text-lg font-semibold text-accent">Key Component</p>
+              <div className="relative h-[233px] w-full max-w-[400px] overflow-hidden rounded-sm">
+                <Image src={`${IMG}/img_design_keycomponent.png`} alt="Key component mockup" fill className="object-contain" />
               </div>
               <p className="text-sm leading-relaxed text-ink-muted">
                 Matching English and Korean keywords were color-coded to show their phonetic link,
                 while distinct font styles separated the word&rsquo;s meaning from the mnemonic
-                story — making the logic behind each cue visually clear at a glance.
+                story, making the logic behind each cue visually clear at a glance.
               </p>
             </div>
             <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-6">
-              <p className="font-display text-lg font-semibold text-accent">Learning</p>
-              <div className="relative h-[329px] w-full max-w-[400px] overflow-hidden rounded-sm shadow">
-                <Image src={`${IMG}/design-mockup-learning.png`} alt="Learning screen mockup" fill className="object-contain" />
+              <p className="w-full text-left font-display text-lg font-semibold text-accent">Learning</p>
+              <div className="relative h-[329px] w-full max-w-[400px] overflow-hidden rounded-sm">
+                <Image src={`${IMG}/img_design_learning.png`} alt="Learning screen mockup" fill className="object-contain" />
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex flex-1 flex-col gap-4 rounded-[10px] bg-line px-6 py-6">
-              <p className="text-center font-display text-lg font-semibold text-accent">Test - Recognition</p>
-              <div className="relative h-[252px] w-full overflow-hidden rounded-sm shadow">
-                <Image src={`${IMG}/design-mockup-recognition.png`} alt="Recognition test mockup" fill className="object-contain" />
+            <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-6">
+              <p className="w-full text-left font-display text-lg font-semibold text-accent">Test - Recognition</p>
+              <div className="relative h-[252px] w-full max-w-[400px] overflow-hidden rounded-sm">
+                <Image src={`${IMG}/img_design_recognition.png`} alt="Recognition test mockup" fill className="object-contain" />
               </div>
-              <p className="text-center font-display text-lg font-semibold text-accent">Test - Generation</p>
-              <div className="relative h-[251px] w-full overflow-hidden rounded-sm shadow">
-                <Image src={`${IMG}/design-mockup-generation.png`} alt="Generation test mockup" fill className="object-contain" />
+              <p className="w-full text-left font-display text-lg font-semibold text-accent">Test - Generation</p>
+              <div className="relative h-[251px] w-full max-w-[400px] overflow-hidden rounded-sm">
+                <Image src={`${IMG}/img_design_generation.png`} alt="Generation test mockup" fill className="object-contain" />
               </div>
             </div>
             <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-6">
-              <p className="font-display text-lg font-semibold text-accent">Survey</p>
-              <div className="relative h-[473px] w-full max-w-[400px] overflow-hidden rounded-sm shadow">
-                <Image src={`${IMG}/design-mockup-survey.png`} alt="Survey screen mockup" fill className="object-contain" />
+              <p className="w-full text-left font-display text-lg font-semibold text-accent">Survey</p>
+              <div className="relative h-[473px] w-full max-w-[400px] overflow-hidden rounded-sm">
+                <Image src={`${IMG}/img_design_survey.png`} alt="Survey screen mockup" fill className="object-contain" />
               </div>
             </div>
           </div>
@@ -626,35 +683,26 @@ export function PhonitaleDetail() {
 
         <div className="flex w-full flex-col gap-4 md:flex-row">
           <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-5">
-            <p className="font-display text-xl font-semibold text-accent">System Architecture</p>
-            <div className="flex w-full flex-wrap items-center justify-center gap-3 text-xs text-ink-muted">
-              <span className="rounded-sm border border-ink-muted bg-paper px-4 py-2">Group-specific URL</span>
-              <span aria-hidden>→</span>
-              <span className="rounded-sm border border-ink-muted bg-paper px-4 py-2">Web Frontend</span>
-              <span aria-hidden>→</span>
-              <span className="rounded-sm border border-ink-muted bg-paper px-4 py-2">Backend (AWS)</span>
-            </div>
-            <div className="flex w-full flex-wrap items-center justify-center gap-3 text-xs text-ink-muted">
-              <span className="opacity-0">Group-specific URL</span>
-              <span className="rounded-sm border border-ink-muted bg-paper px-4 py-2 text-center">Group-specific Test Set</span>
-              <span className="rounded-sm border border-ink-muted bg-paper px-4 py-2 text-center">Database (DynamoDB)</span>
+            <p className="w-full text-left font-display text-xl font-semibold text-accent">System Architecture</p>
+            <div className="relative h-[140px] w-full max-w-[640px]">
+              <Image
+                src={`${IMG}/img_development_architecture.png`}
+                alt="System architecture: group-specific URL to web frontend to backend (AWS), with group-specific test set and DynamoDB database"
+                fill
+                className="object-contain"
+              />
             </div>
           </div>
           <div className="flex w-full flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-5 md:w-[250px]">
-            <p className="font-display text-xl font-semibold text-accent">Tools</p>
-            <div className="flex flex-col gap-1">
-              <div className="relative h-[60px] w-[170px] overflow-hidden rounded-[10px] bg-white">
-                <Image src={`${IMG}/tools-image-1.png`} alt="" fill className="object-cover" />
-              </div>
-              <div className="relative h-[60px] w-[170px] overflow-hidden rounded-[10px] bg-white">
-                <Image src={`${IMG}/tools-image-2.png`} alt="" fill className="object-cover" />
-              </div>
+            <p className="w-full text-left font-display text-xl font-semibold text-accent">Tools</p>
+            <div className="relative h-[160px] w-full max-w-[220px]">
+              <Image src={`${IMG}/img_development_tools.png`} alt="Cursor and Claude" fill className="object-contain" />
             </div>
           </div>
         </div>
 
         <div className="flex w-full flex-col items-center gap-4 rounded-[10px] bg-line p-4">
-          <div className="relative h-[280px] w-full max-w-[500px] overflow-hidden rounded shadow">
+          <div className="relative h-[450px] w-full max-w-[800px] overflow-hidden rounded shadow">
             <Image src={`${IMG}/platform-demo.gif`} alt="Demo of the PhoniTale evaluation platform" fill unoptimized className="object-cover" />
           </div>
           <a
@@ -674,8 +722,14 @@ export function PhonitaleDetail() {
           goals, and the results confirmed them.
         </p>
         <div className="flex w-full flex-col gap-6 md:flex-row md:items-center">
-          <div className="relative h-[212px] w-full shrink-0 overflow-hidden rounded-[10px] bg-line md:w-[443px]">
-            <Image src={`${IMG}/findings-chart.png`} alt="Chart comparing recognition and generation recall across the three groups" fill className="object-contain p-4" />
+          <div className="relative w-full shrink-0 overflow-hidden rounded-[10px] bg-line p-[30px] md:w-fit">
+            <Image
+              src={`${IMG}/img_findings.png`}
+              alt="Chart comparing recognition and generation recall across the three groups"
+              width={440}
+              height={210}
+              className="h-auto w-full max-w-[440px]"
+            />
           </div>
           <div className="flex flex-1 flex-col gap-5 text-left">
             <div>
@@ -695,7 +749,7 @@ export function PhonitaleDetail() {
             <div>
               <p className="font-display text-xl font-semibold text-accent">+ One More Thing: Preference ≠ Performance</p>
               <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-                Interestingly, people still preferred human-made cues — even when PhoniTale helped
+                Interestingly, people still preferred human-made cues, even when PhoniTale helped
                 them remember just as well.
               </p>
             </div>
@@ -707,26 +761,22 @@ export function PhonitaleDetail() {
 
       <section className="mx-auto flex max-w-[1200px] flex-col gap-6 px-6 py-8 md:px-[88px] md:py-10">
         <ExampleBox>
-          <p className="text-sm font-medium text-ink">New Experience</p>
+          <p className="text-sm font-medium text-ink-muted">New Experience</p>
           <div className="flex flex-col gap-3">
-            <LeadInBullet text="First Step into AI Research — My first project in AI/NLP research — from idea to publication." />
-            <LeadInBullet text="Built a System Solo — Went beyond planning to design and build the entire evaluation platform myself." />
-            <LeadInBullet text="Published at a Top-Tier Conference — Presented our work at EMNLP 2025 Main Conference." />
+            <LeadInBullet index={1} text="First Step into AI Research: My first project in AI/NLP research, from idea to publication." />
+            <LeadInBullet index={2} text="Built a System Solo: Went beyond planning to design and build the entire evaluation platform myself." />
+            <LeadInBullet index={3} text="Published at a Top-Tier Conference: Presented our work at EMNLP 2025 Main Conference." />
           </div>
         </ExampleBox>
         <ExampleBox>
-          <p className="text-sm font-medium text-ink">New Learnings</p>
+          <p className="text-sm font-medium text-ink-muted">New Learnings</p>
           <div className="flex flex-col gap-3">
-            <LeadInBullet text="What Research Really Means — I learned what research actually looks like — turning a personal pain point into a real question, building an approach to answer it, and proving it works. That full arc taught me more than any single step could." />
-            <LeadInBullet text="The Barrier to Building Has Dropped — Beyond planning, I directly handled development and data analysis for the first time. I realized that with curiosity and an idea, anyone can now build something and put it into the world. This makes me want to focus less on the tools themselves, and more on intent and value." />
-            <LeadInBullet text="New Challenges Compound — Diving headfirst into unfamiliar territory pushed me a level up — in both skill and perspective. I want to keep embracing the unfamiliar and growing from it." />
+            <LeadInBullet index={1} text="What Research Really Means: I learned what research actually looks like, turning a personal pain point into a real question, building an approach to answer it, and proving it works. That full arc taught me more than any single step could." />
+            <LeadInBullet index={2} text="The Barrier to Building Has Dropped: Beyond planning, I directly handled development and data analysis for the first time. I realized that with curiosity and an idea, anyone can now build something and put it into the world. This makes me want to focus less on the tools themselves, and more on intent and value." />
+            <LeadInBullet index={3} text="New Challenges Compound: Diving headfirst into unfamiliar territory pushed me a level up, in both skill and perspective. I want to keep embracing the unfamiliar and growing from it." />
           </div>
         </ExampleBox>
       </section>
-
-      <PullQuote attribution="Suyoung Kwon, Sana Kang, Myeongseok Gwon, Jaewook Lee, Andrew Lan, Bhiksha Raj, Rita Singh — EMNLP 2025">
-        Memorizing foreign words shouldn&apos;t feel like torture.
-      </PullQuote>
     </>
   );
 }

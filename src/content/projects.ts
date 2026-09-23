@@ -51,13 +51,13 @@ export const projects: Record<string, ProjectMeta> = {
   },
   phonitale: {
     slug: "phonitale",
-    title: "Phonitale — AI Vocabulary Mnemonics",
-    subtitle: "AI-powered mnemonic foreign vocab learning",
+    title: "Phonitale : AI-powered mnemonic foreign vocab learning",
+    subtitle: "AI Research Project",
     tagline: "Memorizing foreign words shouldn't feel like torture.",
-    period: "Mar – Jun 2025",
-    role: ["PM", "AI Research", "Evaluation Design", "Platform Dev"],
-    team: ["5 researchers", "2 faculty advisors"],
-    org: "CMU Language Technology Institute",
+    period: "March 2025\n- June 2025",
+    role: ["Evaluation Design", "UX/UI Design", "Platform Dev", "Data Analysis"],
+    team: ["Evaluation Lead (me)*", "2 engineers*", "1 PhD student", "3 faculty advisors"],
+    org: "CMU\nSchool of Computer Science, Language Technology Institute",
     chips: { domain: "Education", problem: "Learning Language", tech: ["NLP", "AI"] },
     relatedLinks: [
       {
@@ -73,7 +73,10 @@ export const projects: Record<string, ProjectMeta> = {
         label: "Slide",
         url: "https://drive.google.com/file/d/1LGc0jKpugwi1ISWm76bRJMKiWknyEXxf/view?usp=sharing",
       },
-      { label: "Evaluation Web", url: "https://phonitale.com/" },
+      {
+        label: "Evaluation Web",
+        url: "https://phonitale-react-git-no-auth-su-young-kwons-projects.vercel.app/wodnr/no-auth/round/1/start",
+      },
     ],
   },
   sommind: {

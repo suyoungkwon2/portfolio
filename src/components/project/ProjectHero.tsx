@@ -7,7 +7,13 @@ import { ImagePlaceholder } from "./ImagePlaceholder";
 // back link, kicker, title, subtitle, tagline, meta grid, chips, hero
 // image. Per-project body composition (below this, in each project's
 // Detail component) is free to differ.
-export function ProjectHero({ meta }: { meta: ProjectMeta }) {
+export function ProjectHero({
+  meta,
+  heroMedia,
+}: {
+  meta: ProjectMeta;
+  heroMedia?: React.ReactNode;
+}) {
   return (
     <div className="border-b border-line pb-14 md:pb-20">
       <div className="mx-auto max-w-6xl px-6 pt-28 md:px-10 md:pt-36">
@@ -31,7 +37,7 @@ export function ProjectHero({ meta }: { meta: ProjectMeta }) {
           <p className="instrument-serif-regular-italic mt-6 text-2xl text-ink md:text-3xl">
             &ldquo;{meta.tagline}&rdquo;
           </p>
-          <h1 className="font-display mt-4 text-4xl font-medium tracking-tight text-ink sm:text-5xl md:whitespace-nowrap md:text-[clamp(1.75rem,4vw,3.6rem)]">
+          <h1 className="font-display mt-4 text-4xl font-medium tracking-tight text-ink text-balance sm:text-5xl md:text-[clamp(1.75rem,4vw,3.6rem)]">
             {meta.title}
           </h1>
           <p className="mt-4 text-lg text-ink-muted md:text-xl">{meta.subtitle}</p>
@@ -40,10 +46,10 @@ export function ProjectHero({ meta }: { meta: ProjectMeta }) {
         <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-line pt-8 sm:grid-cols-4">
           {(
             [
-              ["Period", [meta.period]],
+              ["Period", meta.period.split("\n")],
               ["Role", meta.role],
               ["Team", meta.team],
-              ["Org", [meta.org]],
+              ["Org", meta.org.split("\n")],
             ] as const
           ).map(([term, items]) => (
             <div key={term}>
@@ -60,11 +66,16 @@ export function ProjectHero({ meta }: { meta: ProjectMeta }) {
             </div>
           ))}
         </dl>
+        {meta.team.some((t) => t.includes("*")) && (
+          <p className="mt-3 text-xs text-ink-muted">* Co-first author</p>
+        )}
 
-        <ImagePlaceholder
-          label={`Hero image — ${meta.title}`}
-          aspect="mt-14 aspect-[16/9] md:aspect-[21/9]"
-        />
+        {heroMedia ?? (
+          <ImagePlaceholder
+            label={`Hero image — ${meta.title}`}
+            aspect="mt-14 aspect-[16/9] md:aspect-[21/9]"
+          />
+        )}
       </div>
     </div>
   );
