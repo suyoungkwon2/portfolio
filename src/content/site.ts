@@ -8,7 +8,6 @@ export const site = {
   resumeHref: "https://drive.google.com/file/d/1IQdQYWXbsZb0afdeOxoJc1aGZrb-FBHD/view",
   linkedinHref: "https://www.linkedin.com/in/suyoungkwon/",
   githubHref: "https://github.com/suyoungkwon2",
-  heroVideoSrc: "/video/heal-the-world.mp4",
   bgMusicSrc: "/video/bg-music.mp4",
   bgMusicStartSeconds: 4 * 60 + 57,
 } as const;

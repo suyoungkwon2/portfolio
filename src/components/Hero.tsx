@@ -8,31 +8,21 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
+import Image from "next/image";
 import { Pause, Play } from "lucide-react";
 import { site } from "@/content/site";
+import { HeroBackground } from "./hero-bg/HeroBackground";
 
-// Total scroll length of the hero section, in vh. Everything below is
-// tunable in vh (real scroll distance) rather than raw 0-1 fractions, so
-// it's easier to reason about and adjust:
-//   - DOCK_START_VH / DOCK_END_VH: the video stays full-bleed until
-//     DOCK_START_VH, then snaps into the nav chip by DOCK_END_VH instead of
-//     shrinking the whole way down — a quick "pop" at a threshold rather
-//     than a linear shrink. Raise DOCK_START_VH to delay the snap; widen
-//     the gap between the two to slow the snap down, narrow it to speed it
-//     up.
-//   - HERO_SCROLL_VH also controls how long the hero stays pinned on screen
-//     AFTER the chip finishes docking, before the page finally releases
-//     into the next section — that "dwell" is (HERO_SCROLL_VH - 100 -
-//     DOCK_END_VH) of scroll. Raise HERO_SCROLL_VH to give the hero (e.g.
-//     a headline plus supporting copy) more comfortable reading room
-//     before it scrolls away; the video/chip mechanics above don't need to
-//     change since they're pinned to DOCK_START_VH/DOCK_END_VH, not to a
-//     fraction of this value.
+// Total scroll length of the hero section, in vh. The background and
+// headline stay pinned for (HERO_SCROLL_VH - 100)vh of scroll before the
+// page releases into the next section:
+//   - REVEAL_VH: how far in the intro lines and subtext fade in around the
+//     headline, and the music chip fades in by the nav.
+//   - Raise HERO_SCROLL_VH to give the revealed copy more reading room
+//     before the hero scrolls away.
 const HERO_SCROLL_VH = 260;
-const DOCK_START_VH = 50;
-const DOCK_END_VH = 75;
-const DOCK_START = DOCK_START_VH / HERO_SCROLL_VH;
-const DOCK_END = DOCK_END_VH / HERO_SCROLL_VH;
+const REVEAL_VH = 75;
+const REVEAL = REVEAL_VH / HERO_SCROLL_VH;
 const CHIP_W = 120;
 const CHIP_H = 44;
 const CHIP_TOP = (84 - CHIP_H) / 2;
@@ -67,25 +57,12 @@ function safePlay(el: HTMLMediaElement, onSettled?: (ok: boolean) => void) {
 
 export function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isDocked, setIsDocked] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  // The background stops animating once the hero has scrolled off screen.
+  const [isPastHero, setIsPastHero] = useState(false);
   const [progress, setProgress] = useState(0);
-  // Framer Motion can't interpolate between mismatched CSS units (vw/vh vs
-  // px) — it silently collapses to the raw number, so the chip's full-bleed
-  // start size has to be measured in px too.
-  const [viewport, setViewport] = useState({ w: 0, h: 0 });
-
-  useEffect(() => {
-    function updateViewport() {
-      setViewport({ w: window.innerWidth, h: window.innerHeight });
-    }
-    updateViewport();
-    window.addEventListener("resize", updateViewport);
-    return () => window.removeEventListener("resize", updateViewport);
-  }, []);
-
   // Music never autoplays, muted or otherwise — it only starts when the
   // visitor explicitly presses the docked chip's play button (toggleMusic
   // below). This just seeks the track to its custom start point up front
@@ -102,60 +79,11 @@ export function Hero() {
   });
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setIsDocked(v > DOCK_END);
+    setIsRevealed(v > REVEAL);
+    setIsPastHero(v >= 1);
   });
 
-  // Once docked, the hero video pauses and a static photo crossfades over
-  // it, matching the calm "album art" look of the docked chip instead of
-  // keeping a distracting loop going in the corner for the rest of the page.
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (isDocked) {
-      v.pause();
-    } else {
-      safePlay(v);
-    }
-  }, [isDocked]);
-
-  // A slow zoom-in on the video during the "dead zone" before the dock
-  // threshold — otherwise the whole hero looks frozen for a large chunk of
-  // scroll distance and feels broken/unresponsive. Zoom-in only (no pan):
-  // scaling up always leaves the video larger than its box, so it keeps
-  // fully covering — and thus never exposes a gap — however much the
-  // container shrinks during the DOCK_START→DOCK_END snap afterward. A pan
-  // (translateY) doesn't have that guarantee, which is what caused the
-  // empty space seen at the bottom of the chip previously.
-  const videoZoom = useTransform(scrollYProgress, [0, DOCK_START], [1, 1.12]);
-  // Width shrinks over the full DOCK_START→DOCK_END window, but height/top/
-  // radius finish early (by SNAP_ASPECT_END, partway through that window) —
-  // otherwise, since the two dimensions shrink from very different starting
-  // ratios (full viewport vs. a short wide pill) at the same linear rate,
-  // the box spends most of the snap looking like a shrinking fat rectangle
-  // and only becomes pill-shaped right at the very end. Finishing the
-  // height/roundness early makes it read as a shrinking pill for more of
-  // the animation instead.
-  const SNAP_ASPECT_END = DOCK_START + (DOCK_END - DOCK_START) * 0.4;
-  const width = useTransform(scrollYProgress, [DOCK_START, DOCK_END], [`${viewport.w}px`, `${CHIP_W}px`]);
-  const height = useTransform(scrollYProgress, [DOCK_START, SNAP_ASPECT_END], [`${viewport.h}px`, `${CHIP_H}px`]);
-  const top = useTransform(scrollYProgress, [DOCK_START, SNAP_ASPECT_END], ["0px", `${CHIP_TOP}px`]);
-  const right = useTransform(scrollYProgress, [DOCK_START, DOCK_END], ["0px", `${CHIP_RIGHT}px`]);
-  const radius = useTransform(scrollYProgress, [DOCK_START, SNAP_ASPECT_END], ["0px", "999px"]);
-  const overlayOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, 0, DOCK_START, 0.35, 0));
-  const controlsOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, DOCK_END, DOCK_END + 0.05, 0, 1));
-  // White while it's sitting over the video, ink once the video's gone
-  // (docked into the chip) — timed to DOCK_START/DOCK_END, the same
-  // threshold the video itself snaps at, so the two always stay in sync
-  // regardless of how HERO_SCROLL_VH is tuned. The headline sits in a
-  // `sticky` box the height of one viewport, inside a section
-  // HERO_SCROLL_VH tall — it only naturally releases once scrolled
-  // (HERO_SCROLL_VH - 100)vh in, comfortably after DOCK_END, so the color
-  // swap always finishes while the headline is still on screen.
-  const headlineColor = useTransform(
-    scrollYProgress,
-    [DOCK_START, DOCK_END],
-    ["#ffffff", "rgb(26, 26, 26)"],
-  );
+  const chipOpacity = useTransform(scrollYProgress, (v) => lerpClamped(v, REVEAL, REVEAL + 0.05, 0, 1));
 
   // isPlaying mirrors the <audio> element's own play/pause events (below)
   // rather than being set here directly — play() returns a promise that
@@ -195,39 +123,25 @@ export function Hero() {
         onPause={() => setIsPlaying(false)}
       />
 
+      {/* Music chip beside the nav. Fades in with the intro copy and only
+          takes clicks once visible. */}
       <motion.div
-        style={{ width, height, top, right, borderRadius: radius }}
-        className="fixed z-[55] overflow-hidden bg-ink shadow-lg"
+        style={{
+          opacity: chipOpacity,
+          width: CHIP_W,
+          height: CHIP_H,
+          top: CHIP_TOP,
+          right: CHIP_RIGHT,
+          pointerEvents: isRevealed ? "auto" : "none",
+        }}
+        className="fixed z-[55] overflow-hidden rounded-full bg-ink shadow-lg"
       >
-        <motion.video
-          ref={videoRef}
-          src={site.heroVideoSrc}
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{ scale: videoZoom }}
-          className="h-full w-full object-cover"
-        />
-        {/* Once docked, this crossfades over the (now paused) video so the
-            chip settles on a calm, static photo instead of a frozen video
-            frame. */}
-        <motion.img
-          src="/images/mj-chip.png"
-          alt=""
-          style={{ opacity: controlsOpacity }}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-        />
-        <motion.div
-          style={{ opacity: overlayOpacity }}
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-black/10 to-black/60"
-        />
+        <Image src="/images/mj-chip.png" alt="" fill sizes={`${CHIP_W}px`} className="pointer-events-none object-cover" />
 
-        <motion.button
+        <button
           type="button"
           onClick={toggleMusic}
           aria-label={isPlaying ? "Pause music" : "Play music"}
-          style={{ opacity: controlsOpacity, pointerEvents: isDocked ? "auto" : "none" }}
           className="absolute inset-0 flex items-center justify-center gap-2 bg-ink/30"
         >
           <span className="relative flex h-8 w-8 items-center justify-center">
@@ -258,34 +172,29 @@ export function Hero() {
               <Play className="h-3.5 w-3.5 fill-paper text-paper" />
             )}
           </span>
-        </motion.button>
+        </button>
       </motion.div>
 
-      {/* z-index flips once docked: while the video is still full-bleed the
-          headline must sit above the Nav bar (Hero > video > Nav), but once
-          the video has shrunk away into the chip, the Nav bar should win
-          instead (Nav > Hero) so its links/logo are never covered by the
-          headline/intro text overlapping the top of the viewport. */}
-      <div
-        className={`pointer-events-none sticky top-0 flex h-screen w-full flex-col items-center justify-center px-6 pt-16 text-center ${
-          isDocked ? "z-40" : "z-[65]"
-        }`}
-      >
+      <div className="pointer-events-none sticky top-0 z-40 flex h-screen w-full flex-col items-center justify-center px-6 pt-16 text-center">
+        <HeroBackground paused={isPastHero} className="absolute inset-0 -z-10" />
+        {/* Fades the background into the page color at the bottom, so the
+            hero blends into the next section instead of ending on a hard
+            edge when it scrolls away. */}
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-[30vh] bg-gradient-to-b from-transparent to-paper" />
         {/* "Heal the World" never unmounts and never moves — the intro lines
             and subtext are positioned absolutely (out of normal flow) around
             it, so their appearing/disappearing can't change this wrapper's
             layout height and shove the headline's own position around. */}
         <div className="relative flex w-full flex-col items-center">
           <AnimatePresence>
-            {isDocked && (
+            {isRevealed && (
               <motion.div
                 key="hero-intro"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                style={{ color: headlineColor }}
-                className="pointer-events-auto absolute inset-x-0 bottom-full font-instrument text-[94px] font-normal not-italic leading-[103px]"
+                className="pointer-events-auto absolute inset-x-0 bottom-full font-instrument text-ink text-[94px] font-normal not-italic leading-[103px]"
               >
                 I’m Mel,
                 <br />
@@ -295,14 +204,13 @@ export function Hero() {
           </AnimatePresence>
 
           <motion.h1
-            style={{ color: headlineColor }}
-            className="pointer-events-auto font-instrument text-[94px] font-normal not-italic leading-[103px]"
+            className="pointer-events-auto font-instrument text-ink text-[94px] font-normal not-italic leading-[103px]"
           >
             {HEADLINE}
           </motion.h1>
 
           <AnimatePresence>
-            {isDocked && (
+            {isRevealed && (
               <motion.div
                 key="hero-subtext"
                 initial={{ opacity: 0 }}
