@@ -200,11 +200,11 @@ export const projects: Record<string, ProjectMeta> = {
 // exists) but has no Selected Works card yet — see that file's README
 // for the open placement decision.
 export const projectOrder = [
-  "mars",
-  "phonitale",
-  "sommind",
   "ai-search",
   "ai-curation",
   "asleeptrack",
+  "sommind",
+  "mars",
+  "phonitale",
   "sleepvice",
 ];

@@ -1,4 +1,4 @@
-export type WorkSector = "Healthcare / Education" | "AI / Business";
+export type WorkSector = "Projects" | "AI Research";
 
 export type WorkItem = {
   slug: string;
@@ -12,41 +12,12 @@ export type WorkItem = {
 
 // Real case studies, sourced and cross-referenced from
 // docs/projects/*.md (portfolio PDF + CVs + legacy-jekyll write-ups).
-// Site order matches docs/projects/README.md.
+// Shipped products lead (Kurly, then Asleep, newest first); the AI research
+// projects follow. projectOrder in projects.ts mirrors this order.
 export const works: WorkItem[] = [
   {
-    slug: "mars",
-    sector: "Healthcare / Education",
-    tag: "Applied AI Research",
-    title: "MARS — AI Clinical Documentation",
-    summary:
-      "Led a 4-person team building a 3-module GenAI pipeline that drafts discharge summaries from real patient records, for Seoul National University Bundang Hospital during Korea's national medical staffing crisis.",
-    metrics: "Excellence Award — 2nd of 10 finalists, SNUBH × KAIST Datathon",
-    year: "2025",
-  },
-  {
-    slug: "phonitale",
-    sector: "Healthcare / Education",
-    tag: "Published Research",
-    title: "Phonitale — AI Vocabulary Mnemonics",
-    summary:
-      "Designed an NLP pipeline that generates phonologically grounded mnemonics for learners of typologically distant languages, matching the recall rate of human-authored study aids.",
-    metrics: "Published, EMNLP 2025 Main Conference",
-    year: "2025",
-  },
-  {
-    slug: "sommind",
-    sector: "Healthcare / Education",
-    tag: "0 → 1 · DTx",
-    title: "SomMind — Insomnia Digital Therapeutic",
-    summary:
-      "Owned product, clinical-trial design, and regulatory strategy for a CBT-i mobile app built with Seoul National University Bundang Hospital, from patient research through certified clinical trial approval.",
-    metrics: "KGMP + K-FDA clinical trial approval secured",
-    year: "2022–23",
-  },
-  {
     slug: "ai-search",
-    sector: "AI / Business",
+    sector: "Projects",
     tag: "AI Transformation",
     title: "AI Search — Recovering Lost Revenue",
     summary:
@@ -56,7 +27,7 @@ export const works: WorkItem[] = [
   },
   {
     slug: "ai-curation",
-    sector: "AI / Business",
+    sector: "Projects",
     tag: "Automation at Scale",
     title: "AI Curation — Scaling Themed Campaigns",
     summary:
@@ -66,7 +37,7 @@ export const works: WorkItem[] = [
   },
   {
     slug: "asleeptrack",
-    sector: "AI / Business",
+    sector: "Projects",
     tag: "0 → 1 · B2B SaaS",
     title: "AsleepTrack — B2B Sleep AI Platform",
     summary:
@@ -74,6 +45,36 @@ export const works: WorkItem[] = [
     metrics: "$60K+ MRR — company's first B2B revenue line",
     year: "2023–24",
   },
+  {
+    slug: "sommind",
+    sector: "Projects",
+    tag: "0 → 1 · DTx",
+    title: "SomMind — Insomnia Digital Therapeutic",
+    summary:
+      "Owned product, clinical-trial design, and regulatory strategy for a CBT-i mobile app built with Seoul National University Bundang Hospital, from patient research through certified clinical trial approval.",
+    metrics: "KGMP + K-FDA clinical trial approval secured",
+    year: "2022–23",
+  },
+  {
+    slug: "mars",
+    sector: "AI Research",
+    tag: "Applied AI Research",
+    title: "MARS — AI Clinical Documentation",
+    summary:
+      "Led a 4-person team building a 3-module GenAI pipeline that drafts discharge summaries from real patient records, for Seoul National University Bundang Hospital during Korea's national medical staffing crisis.",
+    metrics: "Excellence Award — 2nd of 10 finalists, SNUBH × KAIST Datathon",
+    year: "2025",
+  },
+  {
+    slug: "phonitale",
+    sector: "AI Research",
+    tag: "Published Research",
+    title: "Phonitale — AI Vocabulary Mnemonics",
+    summary:
+      "Designed an NLP pipeline that generates phonologically grounded mnemonics for learners of typologically distant languages, matching the recall rate of human-authored study aids.",
+    metrics: "Published, EMNLP 2025 Main Conference",
+    year: "2025",
+  },
 ];
 
-export const workSectors: WorkSector[] = ["Healthcare / Education", "AI / Business"];
+export const workSectors: WorkSector[] = ["Projects", "AI Research"];
