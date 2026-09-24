@@ -21,12 +21,15 @@ const CHIP_H = 44;
 const CHIP_TOP = (84 - CHIP_H) / 2;
 const CHIP_RIGHT = 20;
 
-// One point each for business, impact, and scale. Every one is backed by a
-// case study on the site; keep these in sync with src/content/works.ts.
+// One point each for business, impact, scale, and AI depth. Every one is
+// backed by a case study on the site; keep these in sync with
+// src/content/works.ts.
 const proofPoints = [
   { value: "$60K+", unit: "MRR", label: "A sleep-tech startup's first B2B revenue line, built 0 → 1" },
   { value: "K-FDA", unit: "approved", label: "Clinical trial for an insomnia digital therapeutic" },
   { value: "6.8% → 0.22%", unit: "", label: "No-result searches on a 3.5M-MAU grocery platform" },
+  // "co‑first" uses a non-breaking hyphen (U+2011) so it never splits across lines.
+  { value: "AI research", unit: "", label: "Published at EMNLP 2025 Main Conference, co‑first author" },
 ];
 
 // useTransform's (value, inputRange[], outputRange[]) array-range overload
@@ -203,9 +206,9 @@ export function Hero() {
             with lasting social impact.
           </p>
 
-          <div className="mt-16 grid border-t border-ink/20 sm:grid-cols-3">
+          <div className="mt-16 grid border-t border-ink/20 sm:grid-cols-2 lg:grid-cols-4">
             {proofPoints.map((p) => (
-              <div key={p.value} className="border-b border-ink/10 py-5 sm:border-b-0 sm:pr-8">
+              <div key={p.value} className="border-b border-ink/10 py-5 sm:pr-8 lg:border-b-0">
                 <p className="font-instrument text-[32px] leading-none text-ink md:text-[36px]">
                   {p.value}
                   {p.unit && <span className="ml-2 text-[0.65em] italic text-ink-muted">{p.unit}</span>}
