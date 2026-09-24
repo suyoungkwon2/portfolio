@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 
 const proofPoints = [
-  { value: "174x Revenue Lift", label: "AI Search @ E-Commerce Unicorn" },
+  { value: "No-Result Searches 6.8% → 0.22%", label: "AI Search @ E-Commerce Unicorn" },
   { value: "Seed to Series B", label: "0-to-1 Build @ Sleep-tech Startup" },
   { value: "KFDA Clinical Trial Approved", label: "For Insomnia DTx @ Sleep-tech Startup" },
   { value: "150K+ Downloads", label: "2-Week MVP Launch @ INFACTO" },

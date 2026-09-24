@@ -83,7 +83,8 @@ export const experience: ExperienceItem[] = [
     description:
       "Led Kurly's AI transformation, scoping and shipping AI systems across search, recommendation, merchandising, and product data for a 3.5M MAU grocery platform.",
     highlights: [
-      "AI Search with Google Cloud Vertex AI: Increased monthly revenue from \"no-result\" queries by 174x and cut SaaS costs by 30%, adding AI-assisted search - Presented at Google Cloud Summit Seoul 2024",
+      "AI Search with Google Cloud Vertex AI: Cut product-search no-result rate from 6.80% to 0.22% and raised product-search click-through rate (CTR) from 58.60% to 60.14% by implementing AI search — presented at Google Cloud Summit Seoul 2024",
+      "Reduced AI search operating costs 30% below pilot-stage levels by building a proxy server for the production system",
       "Generative AI Copilot for Curated Collections: Automated 25% of key homepage sections with AI recommendation system across 200+ campaign topics while improving product diversity",
       "Real-time Popular Product Recommendations for Kurly Now: Built a time-of-day popular product recommendation system for instant delivery, reducing manual curation work",
       "AI Recipe Suite with Google Korea: Directed R&D on recipe generation, recipe image generation, and product recommendation, grounding features in Kurly's customer data",

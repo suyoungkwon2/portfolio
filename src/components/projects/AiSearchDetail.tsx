@@ -6,13 +6,13 @@ import { StatGrid } from "@/components/project/Stat";
 
 // AI Search is the clearest "PM drives business impact" story of the
 // set: a bounded PoC, validated with a rigorous A/B test, then hardened
-// for production. Leads hard with the revenue/ROI headline (the site
-// owner explicitly confirmed these as the numbers to lead with), keeps
-// the percentage figures as secondary detail per that same guidance.
+// for production. Leads with the no-result rate and CTR — the site owner
+// retired the 174x revenue / 35.5x ROI multiples as overstated (they're
+// off a near-zero baseline), matching the current resume wording.
 export function AiSearchDetail() {
   return (
     <>
-      <Section kicker="Result" title="174x revenue lift, 35.5x return on investment" wide>
+      <Section kicker="Result" title="No-result searches cut from 6.8% to 0.22%" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           6–7% of daily searches on Kurly&apos;s e-commerce platform (3.5M MAU) returned{" "}
           <strong className="text-ink">zero results</strong> — a direct revenue leak, since search
@@ -23,9 +23,9 @@ export function AiSearchDetail() {
         <div className="mt-10">
           <StatGrid
             stats={[
-              { value: "174x", label: "Revenue lift from recovered search events" },
-              { value: "35.5x", label: "Return on investment (margin ÷ API cost)" },
               { value: "6.8% → 0.22%", label: "No-result rate, legacy vs. post-launch" },
+              { value: "58.6% → 60.1%", label: "Search click-through rate, whole search" },
+              { value: "−30%", label: "Operating cost vs. pilot stage, via proxy server" },
               { value: "3.5M MAU", label: "A/B test population, 5:5 split" },
             ]}
           />
@@ -63,10 +63,8 @@ export function AiSearchDetail() {
           ]}
         />
         <p className="mt-4 text-sm leading-relaxed text-ink-muted">
-          Hypothesis validated across every KPI. Off that near-zero no-result baseline, downstream
-          revenue metrics moved by extreme multiples — purchase revenue +17,357%, add-to-cart
-          count +16,710% — legitimate lift, but reported here as supporting detail behind the
-          headline 174x / 35.5x figures above.
+          Hypothesis validated across every KPI. Within the searches that used to fail, CTR rose
+          from 3.83% to 26.50% — those queries now lead to products instead of a dead end.
         </p>
       </Section>
 
@@ -76,7 +74,7 @@ export function AiSearchDetail() {
             <h3 className="font-display text-base font-medium text-ink">Cost control</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink-muted">
               A proxy server caches search results per keyword for 12 hours, cutting redundant
-              Vertex AI calls by up to 30% and reducing SaaS spend by 30.82%.
+              Vertex AI calls and bringing operating costs 30% below pilot-stage levels.
             </p>
           </div>
           <div>

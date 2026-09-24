@@ -74,7 +74,7 @@ Asleep had developed world-class sleep-analysis AI, but adoption by B2B clients 
 - **Client use cases:** SK Telecom (AI sleep-tracking integration → personal AI assistant app), LG Electronics (real-time sleep-stage-based automated A/C control), algocare (AI sleep-tracking integration → nutrient management service), Navien (real-time sleep-stage-based automated mattress temperature control).
 - **Immediate client adoption:** 3 clients adopted within 3 months of launch (SK Telecom, Calm Sleep, KB Healthcare).
 - **Active usage metrics:** 8,500 DAU & 11,500 daily API calls (as of Dec 2023).
-- **Revenue growth:** **$70K MRR** (confirmed headline figure by site owner). Portfolio PDF also states this as 70 million KRW (as of Nov 2023) — figures roughly correspond; use $70K on the site.
+- **Revenue growth:** **$60K+ MRR** (site owner standardized on this in Sep 2026, matching the resume). Portfolio PDF states 70 million KRW (as of Nov 2023); don't use $70K on the site.
 - **Clients per business funnel** (as of Mar 2024, spanning multiple countries): 8 enterprises at Meeting stage → 10 at PoC/Test → 5 at Contract → 3 at Launch → 2 at Upscaling.
 - **Revenue growth trend:** consistent month-over-month growth chart, Aug 2023 through Mar (the following year).
 
@@ -94,4 +94,4 @@ Asleep had developed world-class sleep-analysis AI, but adoption by B2B clients 
 
 ## Notes / open questions
 
-- ✅ Resolved: site owner confirmed **$70K MRR** as the headline revenue figure to use on the site.
+- ✅ Resolved (revised Sep 2026): site owner standardized on **$60K+ MRR** as the headline revenue figure, replacing $70K.

@@ -32,8 +32,8 @@ PDF: **green = domain**, **red = problem**, **blue = tech/system used to solve i
 PDF's "2025" was a typo). Both `04-ai-search.md` and `05-ai-curation.md` have been updated to state
 May–Aug 2024 and Jun–Dec 2024 respectively.
 
-✅ **Resolved:** AsleepTrack MRR — site owner confirmed **$70K MRR** as the headline figure. Updated in
-`06-asleeptrack.md`.
+✅ **Resolved (revised Sep 2026):** AsleepTrack MRR — site owner standardized on **$60K+ MRR** everywhere
+(matches the resume; replaces the earlier $70K). Updated in `06-asleeptrack.md`.
 
 ✅ **Resolved:** SomMind duration — site owner confirmed the case study should headline the **project
 duration (Jun 2022 – Mar 2023)**, not the broader DTx-team role tenure (Sep 2021 – Mar 2023). Updated in
@@ -44,9 +44,10 @@ these should be ignored in favor of the PDF/CV durations already used in `01-mar
 (PhoniTale still has a minor 1-month drift between the PDF "Mar–May 2025" and CV "Mar–Jun 2025" — using CV
 as primary per that file's notes.)
 
-✅ **Resolved:** AI Search headline numbers — site owner confirmed leading with **174x revenue lift** /
-**35.52x ROI**, keeping the extreme percentage figures (e.g. +17,357% purchase revenue, off a near-zero
-baseline) as secondary supporting detail. Updated in `04-ai-search.md`.
+✅ **Resolved (revised Sep 2026):** AI Search headline numbers — site owner retired the **174x revenue lift** /
+**35.52x ROI** multiples as overstated. Lead instead with the resume wording: no-result rate **6.80% → 0.22%**,
+CTR **58.60% → 60.14%**, and operating costs **30% below pilot-stage levels** via the proxy server. Don't
+reintroduce the extreme revenue multiples. Updated in `04-ai-search.md`.
 
 ✅ **Resolved:** MARS team composition — site owner confirmed **4 people total**: site owner (Project
 Managing), 2 LLM Engineers, 1 Psychiatry Professor as clinical advisor. Exact name-to-role mapping among

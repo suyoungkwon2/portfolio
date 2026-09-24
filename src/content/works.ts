@@ -51,7 +51,7 @@ export const works: WorkItem[] = [
     title: "AI Search — Recovering Lost Revenue",
     summary:
       "Shipped a Vertex AI search layer that rescues Kurly's 'No Result' searches, validated on a 3.5M-MAU A/B test, then hardened it for production with caching and cost controls.",
-    metrics: "174x revenue lift · 35.5x ROI",
+    metrics: "No-result rate 6.8% → 0.22% · 30% lower operating cost",
     year: "2024",
   },
   {
@@ -71,7 +71,7 @@ export const works: WorkItem[] = [
     title: "AsleepTrack — B2B Sleep AI Platform",
     summary:
       "Took Asleep's sleep-tracking AI from a hard-to-integrate model to a full API/SDK/Dashboard platform, landing SK Telecom, LG, and KB Healthcare as clients within 3 months of launch.",
-    metrics: "$70K MRR — company's first B2B revenue line",
+    metrics: "$60K+ MRR — company's first B2B revenue line",
     year: "2023–24",
   },
 ];

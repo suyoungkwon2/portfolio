@@ -93,4 +93,4 @@ Addressed a critical customer pain point and revenue leak: a **6–7% rate of "N
 
 ## Notes / open questions
 
-- ✅ Resolved: site owner confirmed the website should lead with the **174x revenue lift** / **35.52x ROI** headline figures. The p.27 percentage figures (e.g. +17,357% purchase revenue) are legitimate multiplier effects off a near-zero "No Result" legacy baseline but should stay secondary/supporting, not the headline.
+- ✅ Resolved (revised Sep 2026): site owner retired the **174x revenue lift** / **35.52x ROI** headline figures as overstated; the site now leads with no-result rate 6.80% → 0.22%, CTR 58.60% → 60.14%, and operating costs 30% below pilot-stage levels (resume wording). The p.27 percentage figures (e.g. +17,357% purchase revenue) are legitimate multiplier effects off a near-zero "No Result" legacy baseline but should stay secondary/supporting, not the headline.
