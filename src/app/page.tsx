@@ -11,7 +11,7 @@ import { SelectedWorks } from "@/components/SelectedWorks";
 export default function Home() {
   return (
     <>
-      <Nav />
+      <Nav overlay />
       <main>
         <Hero />
         <SelectedWorks />

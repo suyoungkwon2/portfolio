@@ -42,7 +42,7 @@ export function Hero() {
           the proof points set as type on a hairline rather than as cards.
           The two italic phrases are the two halves of the thesis (the user
           side and the business side). */}
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 pb-16 pt-[84px] md:px-10">
+      <div className="mx-auto flex min-h-svh max-w-6xl flex-col justify-center px-6 pb-20 pt-[calc(63px+5rem)] md:px-10">
         <h1 className="font-instrument text-[40px] font-normal leading-[1.05] tracking-[-0.01em] text-ink md:text-[70px]">
           I’m Mel.{" "}
           <br />

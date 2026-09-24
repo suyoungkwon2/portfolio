@@ -16,7 +16,7 @@ export function ProjectHero({
 }) {
   return (
     <div className="border-b border-line pb-14 md:pb-20">
-      <div className="mx-auto max-w-6xl px-6 pt-28 md:px-10 md:pt-36">
+      <div className="mx-auto max-w-6xl px-6 pt-12 md:px-10 md:pt-20">
         <Link
           href="/#work"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted transition-colors hover:text-accent-3"
