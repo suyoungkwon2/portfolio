@@ -3,15 +3,11 @@ import { describe, expect, it } from "vitest";
 import { Nav } from "./Nav";
 
 describe("Nav", () => {
-  it("renders the logo and all nav links", () => {
+  it("renders the home logo, Resume, and About links", () => {
     render(<Nav />);
 
-    expect(screen.getByText("Suyoung Mel Kwon")).toBeInTheDocument();
-    for (const label of ["About", "Work", "Publication", "Contact"]) {
-      expect(screen.getByRole("link", { name: label })).toHaveAttribute(
-        "href",
-        `#${label.toLowerCase()}`,
-      );
-    }
+    expect(screen.getByRole("link", { name: "Suyoung Mel Kwon" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Resume" })).toHaveAttribute("target", "_blank");
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
   });
 });

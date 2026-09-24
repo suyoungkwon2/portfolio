@@ -4,8 +4,11 @@ export type AwardItem = {
   year: string;
 };
 
-// Real honors, sourced from CV_SuyoungKwon_2pages.pdf — most recent and
-// most relevant to the AI/PM narrative.
+// Recognition for the About page, sourced from CV_SuyoungKwon_2pages.pdf
+// and the old site. Video and press links live in the landing page's
+// Media section (src/content/media.ts), not here. Scholarships were dropped
+// as weak signal for PM hiring, and the CMU AI Intensive Program moved to
+// the CMU Visiting Researcher entry in experience.ts.
 export const awards: AwardItem[] = [
   {
     title: "1st Place, Global Data Convergence Talent Program Showcase",
@@ -18,18 +21,9 @@ export const awards: AwardItem[] = [
     year: "2025",
   },
   {
-    title: "Conference Scholarship, EMNLP 2025",
-    issuer: "KAIST & IITP",
-    year: "2025",
-  },
-  {
-    title: "Government-Sponsored CMU AI Intensive Program ($41K)",
-    issuer: "KAIST & IITP",
-    year: "2025",
-  },
-  {
-    title: "Academic Excellence Scholarship (Half-Tuition)",
-    issuer: "KAIST College of Business",
-    year: "2025",
+    // Presented on stage by Kurly's CEO; the project itself was Mel's.
+    title: "Featured Case Study, Google Cloud Summit Seoul 2024",
+    issuer: "Google Cloud · AI Search at Kurly",
+    year: "2024",
   },
 ];

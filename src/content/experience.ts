@@ -69,6 +69,7 @@ export const experience: ExperienceItem[] = [
       "Researched LLM-based vocabulary learning: co-first-authored publication at EMNLP 2025 Main.",
     highlights: [
       "[https://aclanthology.org/2025.emnlp-main.1299.pdf](https://aclanthology.org/2025.emnlp-main.1299.pdf)",
+      "Selected for the government-sponsored CMU AI Intensive Program ($41K), KAIST & IITP",
       "Advisors: Prof. [Rita Singh](https://www.lti.cs.cmu.edu/people/faculty/singh-rita.html), Prof. [Bhiksha Raj](https://www.lti.cs.cmu.edu/people/faculty/raj-bhiksha.html), Language Technologies Institute",
     ],
   },
@@ -110,6 +111,7 @@ export const experience: ExperienceItem[] = [
           "Reached $60K+ MRR within three months of launch, securing the company's first platform revenue",
           "Uncovered clients' adoption barriers through hands-on integration consulting, turning them into onboarding and product improvements",
           "Led a cross-functional team of 10 (front-end, back-end, product design, QA), aligning C-level, BD, and marketing on the roadmap",
+          "Presented Asleep and its sleep-tracking platform in AWS's partner showcase video ([Video](https://www.youtube.com/watch?v=ZKWwMvpdFZ0&t=26s))",
         ],
       },
       {
@@ -127,7 +129,7 @@ export const experience: ExperienceItem[] = [
         period: "Apr 2021 – Aug 2021",
         highlights: [
           "Launched Asleep's first AI sleep analysis MVP app, building the initial user base",
-          "Co-developed the Sleepvice Amazon Alexa Skill with Amazon's Alexa Startup team, making Asleep the first official Amazon collaborator startup in Korea and contributing to its $12M Series B",
+          "Co-developed the Sleepvice Amazon Alexa Skill with Amazon's Alexa Startup team, making Asleep the first official Amazon collaborator startup in Korea and contributing to its $12M Series B ([News](https://medigatenews.com/news/2902071943))",
         ],
       },
     ],
