@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  AnimatePresence,
   motion,
   useMotionValueEvent,
   useScroll,
@@ -13,22 +12,22 @@ import { Pause, Play } from "lucide-react";
 import { site } from "@/content/site";
 import { HeroBackground } from "./hero-bg/HeroBackground";
 
-// Total scroll length of the hero section, in vh. The background and
-// headline stay pinned for (HERO_SCROLL_VH - 100)vh of scroll before the
-// page releases into the next section:
-//   - REVEAL_VH: how far in the intro lines and subtext fade in around the
-//     headline, and the music chip fades in by the nav.
-//   - Raise HERO_SCROLL_VH to give the revealed copy more reading room
-//     before the hero scrolls away.
-const HERO_SCROLL_VH = 260;
-const REVEAL_VH = 75;
-const REVEAL = REVEAL_VH / HERO_SCROLL_VH;
+// All of the hero copy is visible on the first screen, with no scroll
+// pinning. The music chip by the nav fades in once the visitor has
+// scrolled REVEAL of the way through the hero.
+const REVEAL = 0.15;
 const CHIP_W = 120;
 const CHIP_H = 44;
 const CHIP_TOP = (84 - CHIP_H) / 2;
 const CHIP_RIGHT = 20;
 
-const HEADLINE = "Heal the World";
+// One point each for business, impact, and scale. Every one is backed by a
+// case study on the site; keep these in sync with src/content/works.ts.
+const proofPoints = [
+  { value: "$60K+", unit: "MRR", label: "A sleep-tech startup's first B2B revenue line, built 0 → 1" },
+  { value: "K-FDA", unit: "approved", label: "Clinical trial for an insomnia digital therapeutic" },
+  { value: "6.8% → 0.22%", unit: "", label: "No-result searches on a 3.5M-MAU grocery platform" },
+];
 
 // useTransform's (value, inputRange[], outputRange[]) array-range overload
 // silently freezes at its initial value for these plain-number opacity
@@ -59,7 +58,7 @@ export function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isRevealed, setIsRevealed] = useState(false);
+  const [isChipVisible, setIsChipVisible] = useState(false);
   // The background stops animating once the hero has scrolled off screen.
   const [isPastHero, setIsPastHero] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -79,7 +78,7 @@ export function Hero() {
   });
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setIsRevealed(v > REVEAL);
+    setIsChipVisible(v > REVEAL);
     setIsPastHero(v >= 1);
   });
 
@@ -113,7 +112,7 @@ export function Hero() {
   const circumference = 2 * Math.PI * 15;
 
   return (
-    <div ref={sectionRef} id="hero" style={{ height: `${HERO_SCROLL_VH}vh` }} className="relative bg-paper">
+    <div ref={sectionRef} id="hero" className="relative bg-paper">
       <audio
         ref={audioRef}
         src={site.bgMusicSrc}
@@ -123,8 +122,8 @@ export function Hero() {
         onPause={() => setIsPlaying(false)}
       />
 
-      {/* Music chip beside the nav. Fades in with the intro copy and only
-          takes clicks once visible. */}
+      {/* Music chip beside the nav. Fades in once the visitor starts
+          scrolling and only takes clicks once visible. */}
       <motion.div
         style={{
           opacity: chipOpacity,
@@ -132,7 +131,7 @@ export function Hero() {
           height: CHIP_H,
           top: CHIP_TOP,
           right: CHIP_RIGHT,
-          pointerEvents: isRevealed ? "auto" : "none",
+          pointerEvents: isChipVisible ? "auto" : "none",
         }}
         className="fixed z-[55] overflow-hidden rounded-full bg-ink shadow-lg"
       >
@@ -175,64 +174,48 @@ export function Hero() {
         </button>
       </motion.div>
 
-      <div className="pointer-events-none sticky top-0 z-40 flex h-screen w-full flex-col items-center justify-center px-6 pt-16 text-center">
+      <section className="relative isolate">
         <HeroBackground paused={isPastHero} className="absolute inset-0 -z-10" />
         {/* Fades the background into the page color at the bottom, so the
             hero blends into the next section instead of ending on a hard
-            edge when it scrolls away. */}
+            edge. */}
         <div className="absolute inset-x-0 bottom-0 -z-10 h-[30vh] bg-gradient-to-b from-transparent to-paper" />
-        {/* "Heal the World" never unmounts and never moves — the intro lines
-            and subtext are positioned absolutely (out of normal flow) around
-            it, so their appearing/disappearing can't change this wrapper's
-            layout height and shove the headline's own position around. */}
-        <div className="relative flex w-full flex-col items-center">
-          <AnimatePresence>
-            {isRevealed && (
-              <motion.div
-                key="hero-intro"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="pointer-events-auto absolute inset-x-0 bottom-full font-instrument text-ink text-[94px] font-normal not-italic leading-[103px]"
-              >
-                I’m Mel,
-                <br />
-                building products to
-              </motion.div>
-            )}
-          </AnimatePresence>
 
-          <motion.h1
-            className="pointer-events-auto font-instrument text-ink text-[94px] font-normal not-italic leading-[103px]"
-          >
-            {HEADLINE}
-          </motion.h1>
+        {/* Editorial layout on the same max-w-6xl grid as the sections below:
+            a left-aligned headline, full-width subcopy, and
+            the proof points set as type on a hairline rather than as cards.
+            The two italic phrases are the two halves of the thesis (the user
+            side and the business side). */}
+        <div className="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 pb-16 pt-[84px] md:px-10">
+          <h1 className="font-instrument text-[40px] font-normal leading-[1.05] tracking-[-0.01em] text-ink md:text-[70px]">
+            I’m Mel.{" "}
+            <br />
+            I find <em>what people need</em>,{" "}
+            <br />
+            then make it work as <em>a business</em>.
+          </h1>
 
-          <AnimatePresence>
-            {isRevealed && (
-              <motion.div
-                key="hero-subtext"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-                className="pointer-events-auto absolute inset-x-0 top-full mt-8 space-y-4 font-sans text-lg leading-relaxed text-ink"
-              >
-                <p className="mx-auto max-w-2xl">
-                  I love building sustainable, scalable, and universally
-                  inclusive solutions that foster meaningful human change.
+          <p className="mt-10 text-base leading-relaxed text-ink-muted">
+            Product Manager across AI, B2B SaaS, and digital health.{" "}
+            {/* Desktop only; phones wrap naturally. */}
+            <br className="hidden md:inline" />
+            I lead cross-functional teams from user research to launch, toward products
+            with lasting social impact.
+          </p>
+
+          <div className="mt-16 grid border-t border-ink/20 sm:grid-cols-3">
+            {proofPoints.map((p) => (
+              <div key={p.value} className="border-b border-ink/10 py-5 sm:border-b-0 sm:pr-8">
+                <p className="font-instrument text-[32px] leading-none text-ink md:text-[36px]">
+                  {p.value}
+                  {p.unit && <span className="ml-2 text-[0.65em] italic text-ink-muted">{p.unit}</span>}
                 </p>
-                <p className="mx-auto max-w-2xl">
-                  As a Product Manager, UX Designer, and HCI Researcher, I
-                  bridge adaptive technology with empathetic design to
-                  solve complex problems.
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <p className="mt-3 max-w-[30ch] text-sm leading-relaxed text-ink-muted">{p.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
