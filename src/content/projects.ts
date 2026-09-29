@@ -9,6 +9,13 @@ export type RelatedLink = {
   url: string;
 };
 
+// "10s Summary" — the What / Why / How strip under the hero.
+export type ProjectSummary = {
+  what: string;
+  why: string;
+  how: string;
+};
+
 export type ProjectMeta = {
   slug: string;
   title: string;
@@ -20,6 +27,11 @@ export type ProjectMeta = {
   org: string;
   chips: ProjectChips;
   relatedLinks: RelatedLink[];
+  summary?: ProjectSummary;
+  // Number of portfolio-PDF spreads in /public/images/<slug>/slides. Set on
+  // projects that don't have a full detail page yet; the route shows these
+  // slides as the page body instead.
+  slides?: number;
 };
 
 // Detail-page metadata for the shared ProjectHero template. Card-facing
@@ -29,7 +41,7 @@ export type ProjectMeta = {
 export const projects: Record<string, ProjectMeta> = {
   mars: {
     slug: "mars",
-    title: "MARS — AI Clinical Documentation",
+    title: "MARS: AI Clinical Documentation",
     subtitle: "Re-engineering clinical workflow with GenAI",
     tagline: "Get time back. Move care forward.",
     period: "Sep – Oct 2025",
@@ -48,10 +60,16 @@ export const projects: Record<string, ProjectMeta> = {
         url: "https://www.linkedin.com/posts/kaist-college-of-business_kcb-kaistqsvsmpqxmukr-tcustwswmtxuqsvsmpqxmukr-activity-7392430373407756288-_pUX",
       },
     ],
+    summary: {
+      what: "Built an LLM system that writes discharge summaries from real hospital records. Won 2nd place in Seoul National University Bundang Hospital's datathon.",
+      why: "Doctors spend up to 30% of their time turning messy notes into discharge summaries, and a national strike left them even more short-staffed.",
+      how: "Cleaned up noisy, duplicated records, then designed department-specific, multi-step prompts with guardrails against hallucination, validated by clinicians.",
+    },
+    slides: 4,
   },
   phonitale: {
     slug: "phonitale",
-    title: "PhoniTale : AI Memory Tricks for Foreign Words",
+    title: "PhoniTale: AI Memory Tricks for Foreign Words",
     subtitle: "AI Research Project",
     tagline: "Memorizing foreign words shouldn't feel like torture.",
     period: "March 2025\n- June 2025",
@@ -62,7 +80,7 @@ export const projects: Record<string, ProjectMeta> = {
     relatedLinks: [
       {
         label:
-          "Paper — PhoniTale: Phonologically Grounded Mnemonic Generation for Typologically Distant Language Pairs",
+          "Paper: PhoniTale: Phonologically Grounded Mnemonic Generation for Typologically Distant Language Pairs",
         url: "https://aclanthology.org/2025.emnlp-main.1299/",
       },
       {
@@ -78,10 +96,15 @@ export const projects: Record<string, ProjectMeta> = {
         url: "https://phonitale-react-git-no-auth-su-young-kwons-projects.vercel.app/wodnr/no-auth/round/1/start",
       },
     ],
+    summary: {
+      what: "Built an AI that helps you memorize foreign words by linking them to sound-alike words in your own language. Published at EMNLP 2025.",
+      why: "For languages that sound very different, like English and Korean, LLM-based methods couldn’t produce good mnemonics.",
+      how: "Mapped foreign sounds into native syllables, matched them to real words, and wove them into a memorable sentence. It worked as well as mnemonics written by human experts.",
+    },
   },
   sommind: {
     slug: "sommind",
-    title: "SomMind — Insomnia Digital Therapeutic",
+    title: "SomMind: Insomnia Digital Therapeutic",
     subtitle: "Digital therapeutic app for severe insomnia",
     tagline: "Healthy sleep starts with a healthy mind.",
     period: "Jun 2022 – Mar 2023",
@@ -98,7 +121,7 @@ export const projects: Record<string, ProjectMeta> = {
   },
   "ai-search": {
     slug: "ai-search",
-    title: "AI Search — Recovering Lost Revenue",
+    title: "AI Search: Recovering Lost Revenue",
     subtitle: "Enhancing search experience & driving sales",
     tagline: "Just type it out. We'll find what you need.",
     period: "May – Aug 2024",
@@ -112,14 +135,20 @@ export const projects: Record<string, ProjectMeta> = {
         url: "https://helloworld.kurly.com/blog/vertex-ai-search-NR/",
       },
       {
-        label: "[YouTube] Next Commerce: Curation and AI — Google Cloud Summit 2024",
+        label: "[YouTube] Next Commerce: Curation and AI, Google Cloud Summit 2024",
         url: "https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333",
       },
     ],
+    summary: {
+      what: "Cut \"no results\" searches from 6.8% to 0.22%, unlocking ₩5B (~$3.6M) in new monthly revenue.",
+      why: "The search engine couldn't handle typos, spacing, or synonyms, so 7% of searches on Kurly's biggest revenue channel hit a dead end.",
+      how: "When the old search came up empty, we fell back to semantic search with Vertex AI, so \"cabage\" still finds cabbage.",
+    },
+    slides: 4,
   },
   "ai-curation": {
     slug: "ai-curation",
-    title: "AI Curation — Scaling Themed Campaigns",
+    title: "AI Curation: Scaling Themed Campaigns",
     subtitle: "AI-driven scaling of themed campaigns",
     tagline: "You name the theme. AI does the rest.",
     period: "Jun – Dec 2024",
@@ -139,10 +168,16 @@ export const projects: Record<string, ProjectMeta> = {
         url: "https://www.viva100.com/article/20250216500401",
       },
     ],
+    summary: {
+      what: "Automated themed campaigns with AI, now running 200+ campaigns across 25% of Kurly's key homepage slots, with no human curation.",
+      why: "With fewer merchandisers, campaigns went stale, sold-out items lingered, and there was no way to scale.",
+      how: "Built a system where you type a theme and AI picks, ranks, and refreshes products every hour. An A/B test showed it performs on par with human curators.",
+    },
+    slides: 4,
   },
   asleeptrack: {
     slug: "asleeptrack",
-    title: "AsleepTrack — B2B Sleep AI Platform",
+    title: "AsleepTrack: B2B Sleep AI Platform",
     subtitle: "Ultimate AI sleep tracking module",
     tagline: "Expand your service horizons with sleep integration.",
     period: "Apr 2023 – Mar 2024",
@@ -162,7 +197,7 @@ export const projects: Record<string, ProjectMeta> = {
   },
   sleepvice: {
     slug: "sleepvice",
-    title: "SleepVice — Alexa Voice App for Sleep",
+    title: "SleepVice: Alexa Voice App for Sleep",
     subtitle: "Alexa voice application for best sleep quality",
     tagline: "Personal sleep coach right by your pillow.",
     period: "Jun 2021 – Jun 2022",
@@ -195,16 +230,8 @@ export const projects: Record<string, ProjectMeta> = {
   },
 };
 
-// Site order, matching docs/projects/README.md — drives prev/next nav on
-// the detail pages. sleepvice ships as a detail page (source content
-// exists) but has no Selected Works card yet — see that file's README
-// for the open placement decision.
-export const projectOrder = [
-  "ai-search",
-  "ai-curation",
-  "asleeptrack",
-  "sommind",
-  "mars",
-  "phonitale",
-  "sleepvice",
-];
+// Published projects, in site order — drives the Selected Works cards, the
+// generated /work routes, and prev/next nav on the detail pages. The
+// remaining case studies (sommind, asleeptrack, sleepvice) keep their
+// metadata and draft detail components but stay unpublished until ready.
+export const projectOrder = ["ai-curation", "ai-search", "mars", "phonitale"];

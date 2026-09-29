@@ -3,20 +3,13 @@ import { cn } from "@/lib/utils";
 import { Accordion } from "@/components/project/Accordion";
 import { ChapterDivider } from "@/components/project/ChapterDivider";
 import { FlexTable } from "@/components/project/FlexTable";
+import { Kicker } from "@/components/project/TenSecondSummary";
 
 // Rebuilt from the redesigned Figma file (Portfolio_Asset, "Projects" page,
 // "Phonitale — Project Detail" frame). The narrative is now a long,
 // chaptered walkthrough (Overview / Process / Evaluation / Reflection)
 // instead of the earlier condensed 5-section version — see the Figma file
 // for the source of truth on copy and layout.
-
-function Kicker({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="w-fit bg-accent px-4 py-1 text-xs font-medium tracking-[3px] text-paper">
-      {children}
-    </span>
-  );
-}
 
 // Shared kicker + title + body shell for every "feature" block. Deliberately
 // NOT the shared <Section> component (src/components/project/Section.tsx) —
@@ -180,46 +173,6 @@ function PipelineDiagram() {
 
 const IMG = "/images/phonitale";
 
-const SUMMARY = [
-  {
-    q: "What?",
-    a: "Built an AI that helps you memorize foreign words by linking them to sound-alike words in your own language — published at EMNLP 2025.",
-  },
-  {
-    q: "Why?",
-    a: "For languages that sound very different, like English and Korean, LLM-based methods couldn’t produce good mnemonics.",
-  },
-  {
-    q: "How?",
-    a: "Mapped foreign sounds into native syllables, matched them to real words, and wove them into a memorable sentence. It worked as well as mnemonics written by human experts.",
-  },
-];
-
-// "10s Summary" strip — What / Why / How in three columns split by vertical
-// hairlines, sitting directly above the hero videos (temporary placement per
-// the Figma frame). Columns stack with horizontal hairlines below md.
-function PhonitaleSummary() {
-  return (
-    <section id="summary" data-chapter="10s Summary" className="mt-4 flex scroll-mt-16 flex-col gap-4 py-10">
-      <Kicker>10s Summary</Kicker>
-      <div className="flex flex-col gap-4 md:flex-row">
-        {SUMMARY.map(({ q, a }, i) => (
-          <div
-            key={q}
-            className={cn(
-              "flex flex-1 flex-col gap-2",
-              i > 0 && "border-t border-line pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0",
-            )}
-          >
-            <h2 className="text-xl font-semibold leading-[1.2] text-ink">{q}</h2>
-            <p className="text-sm leading-normal text-ink-muted">{a}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 // Hero media for the project's ProjectHero slot (passed in from the route
 // page, not rendered by PhonitaleDetail itself). Both source videos are
 // raw 1920x1080 recordings with their real content pillarboxed in black
@@ -234,7 +187,6 @@ function PhonitaleSummary() {
 export function PhonitaleHeroVideos() {
   return (
     <>
-      <PhonitaleSummary />
       <div className="flex flex-col gap-4 xl:flex-row">
         <div className="relative aspect-[1597/1080] w-full max-w-[538px] shrink-0 overflow-hidden rounded-2xl bg-[#E1E6E9] xl:aspect-auto xl:h-[364px] xl:w-[538px]">
           <video
@@ -282,7 +234,7 @@ export function PhonitaleDetail() {
       <PhonitaleSection kicker="MY ROLE" title="Human Evaluation Lead" align="left">
         <div className="flex flex-col gap-3">
           <p className="text-sm leading-relaxed text-ink-muted">
-            As a Visiting Researcher at CMU&rsquo;s School of Computer Science in Spring 2025, I
+            As a Visiting Scholar at CMU&rsquo;s School of Computer Science in Spring 2025, I
             worked with a team on this NLP + HCI research project. I led the human evaluation:
             designing the study, building the web platform to run it, and analyzing the results.
           </p>

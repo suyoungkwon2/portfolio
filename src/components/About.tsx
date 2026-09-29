@@ -3,8 +3,9 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 
-// Opening section of the About page: the "why" behind the work. The
-// landing page carries the proof points; this is where the values live.
+// Opening section of the About page: the "why" behind the work. It names
+// no companies, titles, or metrics on purpose; the landing page and the
+// Experience section right below already carry those.
 export function About() {
   return (
     <section id="about" className="mx-auto max-w-6xl px-6 pb-20 pt-20 md:px-10 md:pb-28 md:pt-28">
@@ -31,25 +32,20 @@ export function About() {
           className="space-y-5 text-lg leading-relaxed text-ink-muted"
         >
           <p>
-            I trained as an industrial designer, and what drew me in was a small moment: the
-            point where a product quietly makes someone&apos;s day easier. My first product
-            job put that to the test. At Asleep, I interviewed middle-aged and older
-            insomnia patients, designed a digital therapeutic around what they could
-            actually use, and took it through clinical trial approval.
+            I grew up in a family that lives with autism. It taught me early to look for the
+            people most products aren&apos;t built for.
           </p>
           <p>
-            That work taught me the lesson I still build around: a product that helps people
-            only keeps helping them if it can sustain itself. So I became the person who
-            carries a product from user research to a business that works, from
-            Asleep&apos;s first B2B revenue line to AI search for 3.5 million grocery
-            shoppers at Kurly.
+            That shapes what I aim for in my work: to address the root of a problem rather
+            than its surface, to solve it in a way that can sustain itself, and to reach
+            people at scale.
           </p>
           <p>
-            &ldquo;Heal the World&rdquo; has been my quiet north star for a long time: build
-            things that leave people a little better off. I&apos;m now pursuing a Master of
-            Design at Carnegie Mellon, and I&apos;m most drawn to healthcare, where
-            I&apos;ve built before, and education, where I want to build next.
+            I&apos;ve worked in UX design, in AI and data, and in building products into
+            businesses, so I tend to see a problem from all three angles. A lasting solution
+            rarely comes from just one.
           </p>
+          <p>The fields I keep coming back to are healthcare, education, and accessibility.</p>
         </motion.div>
       </div>
     </section>

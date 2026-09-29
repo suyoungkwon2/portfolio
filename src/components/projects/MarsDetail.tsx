@@ -17,17 +17,17 @@ export function MarsDetail() {
       <Section kicker="Result" title="2nd place, out of 10 finalist teams" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           Physicians spend up to <strong className="text-ink">30% of their work time</strong>{" "}
-          hand-writing discharge summaries — and Korea&apos;s 2024 medical staffing crisis, which
+          hand-writing discharge summaries, and Korea&apos;s 2024 medical staffing crisis, which
           drove an 86.7% resident resignation rate, made that burden worse. I led a 4-person team
           building a GenAI pipeline that drafts full discharge summaries from real, unstructured
-          patient records — under a 17-day deadline, with no internet access and no model choice
+          patient records, under a 17-day deadline, with no internet access and no model choice
           beyond what the datathon allowed.
         </p>
         <div className="mt-10">
           <StatGrid
             stats={[
-              { value: "1st / 100", label: "Preliminary round — 3-task NLP benchmark" },
-              { value: "2nd / 10", label: "Final round — Excellence Award" },
+              { value: "1st / 100", label: "Preliminary round, 3-task NLP benchmark" },
+              { value: "2nd / 10", label: "Final round, Excellence Award" },
               { value: "3.55 → 3.70", label: "Clinician satisfaction, round 1 → round 2" },
               { value: "400", label: "Real patient records used (final round)" },
             ]}
@@ -40,7 +40,7 @@ export function MarsDetail() {
           {[
             {
               title: "Documentation burden",
-              body: "Physicians manually synthesize sprawling, unstructured clinical data into standardized summaries — up to 30% of total work time.",
+              body: "Physicians manually synthesize sprawling, unstructured clinical data into standardized summaries, up to 30% of total work time.",
             },
             {
               title: "Staffing crisis",
@@ -68,11 +68,11 @@ export function MarsDetail() {
             },
             {
               title: "Define",
-              body: "Set 4 goals — clinical fidelity, factual accuracy, efficiency, fairness — and split the technical problem into data-complexity and clinical-domain challenge tracks.",
+              body: "Set 4 goals (clinical fidelity, factual accuracy, efficiency, fairness) and split the technical problem into data-complexity and clinical-domain challenge tracks.",
             },
             {
               title: "Develop",
-              body: "Built a 3-module pipeline: preprocessing, chained prompting, postprocessing — see architecture below.",
+              body: "Built a 3-module pipeline: preprocessing, chained prompting, postprocessing. See architecture below.",
             },
             {
               title: "Evaluate",
@@ -95,7 +95,7 @@ export function MarsDetail() {
             },
             {
               title: "2 · Prompt",
-              body: "3 chained prompts — role & task setup, then JSON structuring, then patient summary — with dynamic segmentation per hospital department.",
+              body: "3 chained prompts (role & task setup, then JSON structuring, then patient summary) with dynamic segmentation per hospital department.",
             },
             {
               title: "3 · Postprocessing",
@@ -109,7 +109,7 @@ export function MarsDetail() {
           ))}
         </div>
         <ImagePlaceholder
-          label="Diagram — 3-module architecture (preprocessing → prompt → postprocessing)"
+          label="Diagram: 3-module architecture (preprocessing → prompt → postprocessing)"
           aspect="mt-8 aspect-[16/9]"
         />
       </Section>
@@ -128,8 +128,8 @@ export function MarsDetail() {
         />
         <p className="mt-4 text-sm leading-relaxed text-ink-muted">
           Independently, an LLM-judge rubric scored the final system on clinical clarity (3.17/4),
-          conciseness (3.75/4), and hallucination avoidance (3.25/4) against ground-truth summaries
-          — the mixed signal across departments shaped where we&apos;d focus a v2.
+          conciseness (3.75/4), and hallucination avoidance (3.25/4) against ground-truth summaries.
+          The mixed signal across departments shaped where we&apos;d focus a v2.
         </p>
       </Section>
 

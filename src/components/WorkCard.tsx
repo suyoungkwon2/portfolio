@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import type { WorkItem } from "@/content/works";
 
@@ -36,6 +37,16 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
                 className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
               />
             </div>
+          </div>
+        ) : work.thumbnail ? (
+          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-ink">
+            <Image
+              src={work.thumbnail}
+              alt=""
+              fill
+              sizes="(min-width: 1152px) 524px, (min-width: 640px) 50vw, 100vw"
+              className="object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
+            />
           </div>
         ) : (
           <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-ink">

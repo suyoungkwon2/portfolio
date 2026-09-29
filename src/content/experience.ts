@@ -22,7 +22,8 @@ export type ExperienceItem = {
 
 // Real role history, copied as closely as possible from LinkedIn
 // (linkedin.com/in/suyoungkwon) as of Sep 2026, cross-referenced against
-// CV_SuyoungKwon_2pages.pdf and docs/projects/*.md.
+// CV_SuyoungKwon_1page_PM.pdf (Sep 2026; wins on titles and dates) and
+// docs/projects/*.md.
 export const experience: ExperienceItem[] = [
   {
     org: "Carnegie Mellon University",
@@ -30,7 +31,7 @@ export const experience: ExperienceItem[] = [
     link: "https://www.design.cmu.edu/about-our-programs/masters-degrees/master-design-design-interactions",
     category: "professional",
     role: "Research Assistant, School of Design",
-    period: "Aug 2026 — Present",
+    period: "Aug 2026 – Present",
     location: "Pittsburgh, PA",
     description: "Researching spatial interaction at the intersection of design and HCI.",
     highlights: [
@@ -43,7 +44,7 @@ export const experience: ExperienceItem[] = [
     link: "https://www.design.cmu.edu/about-our-programs/masters-degrees/master-design-design-interactions",
     category: "education",
     role: "Master of Design, Design for Interaction (HCI)",
-    period: "Aug 2026 — May 2028 (Expected)",
+    period: "Aug 2026 – May 2028 (Expected)",
     location: "Pittsburgh, PA",
     description: "Fellow, Block Student Fellowship on AI and Society.",
   },
@@ -53,7 +54,7 @@ export const experience: ExperienceItem[] = [
     link: "https://www.kaist.ac.kr/en/",
     category: "education",
     role: "M.S., Information Management (Data Science minor)",
-    period: "Sep 2024 — Aug 2026",
+    period: "Sep 2024 – Jun 2026",
     location: "Seoul & Daejeon, Korea",
     description: "Academic Excellence Scholarship.",
   },
@@ -62,8 +63,8 @@ export const experience: ExperienceItem[] = [
     logo: "/images/logo_cmucs.jpeg",
     link: "https://www.cs.cmu.edu/",
     category: "professional",
-    role: "Visiting Researcher, School of Computer Science",
-    period: "Mar 2025 — Jun 2025",
+    role: "Visiting Scholar, School of Computer Science",
+    period: "Jan 2025 – Jul 2025",
     location: "Pittsburgh, PA",
     description:
       "Researched LLM-based vocabulary learning: co-first-authored publication at EMNLP 2025 Main.",
@@ -79,14 +80,14 @@ export const experience: ExperienceItem[] = [
     link: "https://www.kurly.com/main",
     category: "professional",
     role: "AI Product Manager",
-    period: "Mar 2024 — Dec 2024",
+    period: "Mar 2024 – Dec 2024",
     location: "Seoul, South Korea",
     description:
       "Led Kurly's AI transformation, scoping and shipping AI systems across search, recommendation, merchandising, and product data for a 3.5M MAU grocery platform.",
     highlights: [
-      "AI Search with Google Cloud Vertex AI: Cut product-search no-result rate from 6.80% to 0.22% and raised product-search click-through rate (CTR) from 58.60% to 60.14% by implementing AI search — presented at Google Cloud Summit Seoul 2024",
-      "Reduced AI search operating costs 30% below pilot-stage levels by building a proxy server for the production system",
+      "AI Search with Google Cloud Vertex AI: Cut product-search no-result rate from 6.80% to 0.22% and raised product-search click-through rate (CTR) from 58.60% to 60.14% by implementing AI search, presented at Google Cloud Summit Seoul 2024",
       "Generative AI Copilot for Curated Collections: Automated 25% of key homepage sections with AI recommendation system across 200+ campaign topics while improving product diversity",
+      "Reduced AI search operating costs 30% below pilot-stage levels by building a proxy server for the production system",
       "Real-time Popular Product Recommendations for Kurly Now: Built a time-of-day popular product recommendation system for instant delivery, reducing manual curation work",
       "AI Recipe Suite with Google Korea: Directed R&D on recipe generation, recipe image generation, and product recommendation, grounding features in Kurly's customer data",
       "Product Information Automation: Used OCR and LLMs to extract and structure regulatory product information, building AI-ready product data",
@@ -97,12 +98,12 @@ export const experience: ExperienceItem[] = [
     logo: "/images/logo_asleep.jpeg",
     link: "https://www.asleep.ai/en/home",
     category: "professional",
-    role: "Product Manager → UX Team Lead → Head of Sleep Track Platform",
-    period: "Apr 2021 — Mar 2024",
+    role: "Product Manager & Cross-Functional Team Manager",
+    period: "Apr 2021 – Mar 2024",
     location: "Seoul, South Korea",
     subRoles: [
       {
-        role: "Head of Sleep Track Platform / B2B SaaS Product Manager",
+        role: "Product Manager & Cross-Functional Team Manager (SaaS)",
         period: "Apr 2023 – Mar 2024",
         description:
           "Asleep is an AI sleep-tech startup that analyzes sleep through everyday devices without wearables. I joined as the 10th employee and grew with the company from Seed to Series B.",
@@ -115,7 +116,7 @@ export const experience: ExperienceItem[] = [
         ],
       },
       {
-        role: "UX Team Lead / DTx Product Manager",
+        role: "Product Manager & Cross-Functional Team Manager (DTx)",
         period: "Sep 2021 – Mar 2023",
         highlights: [
           "Led an insomnia CBT-I digital therapeutic (software as a medical device) in partnership with Seoul National University Bundang Hospital",
@@ -125,8 +126,8 @@ export const experience: ExperienceItem[] = [
         ],
       },
       {
-        role: "B2C App Product Manager",
-        period: "Apr 2021 – Aug 2021",
+        role: "Product Manager",
+        period: "Apr 2021 – Sep 2021",
         highlights: [
           "Launched Asleep's first AI sleep analysis MVP app, building the initial user base",
           "Co-developed the Sleepvice Amazon Alexa Skill with Amazon's Alexa Startup team, making Asleep the first official Amazon collaborator startup in Korea and contributing to its $12M Series B ([News](https://medigatenews.com/news/2902071943))",
@@ -140,7 +141,7 @@ export const experience: ExperienceItem[] = [
     link: "https://id-eng.kookmin.ac.kr/id-eng/index.do",
     category: "education",
     role: "Bachelor of Fine Arts, Industrial Design (UX Focused)",
-    period: "2013 — 2018",
+    period: "2013 – 2018",
     location: "Seoul, South Korea",
     description: "Academic Excellence Scholarship.",
   },
@@ -150,7 +151,7 @@ export const experience: ExperienceItem[] = [
     link: "https://www.lg.com/us/",
     category: "professional",
     role: "Product UX Designer, Freelance",
-    period: "Nov 2015 — Dec 2015",
+    period: "Nov 2015 – Dec 2015",
     location: "Seoul Incheon Metropolitan Area",
     description:
       "Facilitated ideation workshops with designers, executives, engineers, and end-users at LG Electronics R&D Center to develop future concepts for home appliances.",

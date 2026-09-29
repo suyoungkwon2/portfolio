@@ -6,9 +6,9 @@ import { Footer } from "@/components/Footer";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "About — Suyoung Kwon",
+  title: "About | Suyoung Kwon",
   description:
-    "Suyoung (Mel) Kwon — why I build, where I've built, and the recognition along the way.",
+    "Suyoung (Mel) Kwon: why I build, where I've built, and the recognition along the way.",
 };
 
 export default function AboutPage() {

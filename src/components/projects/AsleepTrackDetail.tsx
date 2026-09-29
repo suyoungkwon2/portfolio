@@ -12,9 +12,9 @@ import { StatGrid } from "@/components/project/Stat";
 export function AsleepTrackDetail() {
   return (
     <>
-      <Section kicker="Result" title="$60K+ MRR — the company's first B2B revenue line" wide>
+      <Section kicker="Result" title="$60K+ MRR, the company's first B2B revenue line" wide>
         <p className="text-base leading-relaxed text-ink-muted">
-          Asleep had built the most accurate non-contact sleep-tracking AI available — but no
+          Asleep had built the most accurate non-contact sleep-tracking AI available, but no
           corporate client could integrate the raw model without months of custom engineering. I
           led the team that packaged it into AsleepTrack: a unified API/SDK/Dashboard platform
           that any client could plug in.
@@ -25,7 +25,7 @@ export function AsleepTrackDetail() {
               { value: "$60K+ MRR", label: "First B2B revenue line, launched from zero" },
               { value: "3 months", label: "From launch to first signed clients" },
               { value: "8,500", label: "Daily active users at 4 months post-launch" },
-              { value: "0.80", label: "Accuracy — best of any tracker on the market" },
+              { value: "0.80", label: "Accuracy, best of any tracker on the market" },
             ]}
           />
         </div>
@@ -51,7 +51,7 @@ export function AsleepTrackDetail() {
         </div>
       </Section>
 
-      <Section kicker="Platform" title="API, SDK, Dashboard, and Docs — one integration surface" wide>
+      <Section kicker="Platform" title="API, SDK, Dashboard, and Docs: one integration surface" wide>
         <div className="grid gap-6 sm:grid-cols-2">
           {[
             {
@@ -60,7 +60,7 @@ export function AsleepTrackDetail() {
             },
             {
               title: "SDK",
-              body: "Handles audio recording, preprocessing, and API calls — clients ship with a fraction of the integration work.",
+              body: "Handles audio recording, preprocessing, and API calls, so clients ship with a fraction of the integration work.",
             },
             {
               title: "Dashboard",
@@ -78,11 +78,11 @@ export function AsleepTrackDetail() {
           ))}
         </div>
         <p className="mt-6 text-sm leading-relaxed text-ink-muted">
-          Pricing was usage-based &mdash; clients pay only for successful analysis sessions, lowering
+          Pricing was usage-based: clients pay only for successful analysis sessions, lowering
           the barrier to a first pilot.
         </p>
         <ImagePlaceholder
-          label="Diagram — system architecture (client SDK ↔ API/AI engine ↔ dashboard & dev portal)"
+          label="Diagram: system architecture (client SDK ↔ API/AI engine ↔ dashboard & dev portal)"
           aspect="mt-8 aspect-[16/9]"
         />
       </Section>
@@ -101,7 +101,7 @@ export function AsleepTrackDetail() {
             <h3 className="font-display text-base font-medium text-ink">Pipeline health</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink-muted">
               As of month 12: 8 enterprises at first meeting → 10 in PoC → 5 under contract → 3
-              launched → 2 scaling up — a funnel with real depth behind the headline clients.
+              launched → 2 scaling up: a funnel with real depth behind the headline clients.
             </p>
           </div>
         </div>

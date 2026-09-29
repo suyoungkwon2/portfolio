@@ -14,7 +14,7 @@ export function SomMindDetail() {
     <>
       <Section kicker="Result" title="From patient interviews to a certified clinical trial" wide>
         <p className="text-base leading-relaxed text-ink-muted">
-          CBT-i is the gold-standard, drug-free treatment for chronic insomnia — but cost and
+          CBT-i is the gold-standard, drug-free treatment for chronic insomnia, but cost and
           access barriers push patients toward medication instead. I owned product, clinical
           program design, and regulatory strategy for SomMind, a mobile CBT-i program built with
           Seoul National University Bundang Hospital, from the first patient interview through
@@ -41,7 +41,7 @@ export function SomMindDetail() {
             },
             {
               title: "Adherence fatigue",
-              body: "Paper sleep diaries felt tedious — a compulsion that lowered rather than raised adherence.",
+              body: "Paper sleep diaries felt tedious, a compulsion that lowered rather than raised adherence.",
             },
             {
               title: "Therapist shortage",
@@ -56,7 +56,7 @@ export function SomMindDetail() {
         </div>
         <p className="mt-6 text-sm leading-relaxed text-ink-muted">
           Competitor review (Sleepio, PillowRx) found the same pattern from a different angle:
-          cognitively overloaded content, dated UX, and web-only access — none solved for
+          cognitively overloaded content, dated UX, and web-only access. None solved for
           adherence.
         </p>
       </Section>
@@ -65,19 +65,19 @@ export function SomMindDetail() {
         <ProcessSteps
           steps={[
             {
-              title: "Week 1 — Commencement",
+              title: "Week 1: Commencement",
               body: "Pre-treatment assessment, app onboarding, Sleep Restriction Therapy launch.",
             },
             {
-              title: "Week 2 — Foundation",
+              title: "Week 2: Foundation",
               body: "Stimulus control + sleep hygiene education, relaxation training begins.",
             },
             {
-              title: "Week 3 — Deepening",
+              title: "Week 3: Deepening",
               body: "Cognitive therapy layered on top of hygiene and relaxation modules.",
             },
             {
-              title: "Week 4 — Consolidation",
+              title: "Week 4: Consolidation",
               body: "Relapse prevention and final assessment, alongside daily sleep-diary tracking throughout.",
             },
           ]}
@@ -85,7 +85,7 @@ export function SomMindDetail() {
         <p className="mt-6 text-sm leading-relaxed text-ink-muted">
           Target users met DSM-5 insomnia criteria (Insomnia Severity Index ≥ 8, Beck Depression
           Inventory &lt; 29). Content was built as ~7-minute animated micro-lessons rather than long
-          reading — designed for adherence, including for older users less comfortable with dense
+          reading, designed for adherence, including for older users less comfortable with dense
           app UIs.
         </p>
       </Section>
@@ -103,7 +103,7 @@ export function SomMindDetail() {
             },
             {
               title: "Objective data tracking",
-              body: "26 sleep metrics captured automatically — score, efficiency, latency, sleep stages, snoring.",
+              body: "26 sleep metrics captured automatically: score, efficiency, latency, sleep stages, snoring.",
             },
             {
               title: "Proactive nudging",
@@ -117,7 +117,7 @@ export function SomMindDetail() {
           ))}
         </div>
         <ImagePlaceholder
-          label="Screenshots — onboarding, weekly prescription, micro-learning player, sleep report"
+          label="Screenshots: onboarding, weekly prescription, micro-learning player, sleep report"
           aspect="mt-8 aspect-[16/9]"
         />
       </Section>

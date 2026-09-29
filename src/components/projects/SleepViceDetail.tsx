@@ -14,8 +14,8 @@ export function SleepViceDetail() {
     <>
       <Section kicker="Result" title="Korea's first official Amazon collaboration startup" wide>
         <p className="text-base leading-relaxed text-ink-muted">
-          A 3-person task force — business development, engineering, and me on product & voice
-          design — built an Alexa Skill that layers Asleep&apos;s sleep-tracking AI onto the Amazon
+          A 3-person task force (business development, engineering, and me on product & voice
+          design) built an Alexa Skill that layers Asleep&apos;s sleep-tracking AI onto the Amazon
           Echo, giving real-time voice feedback and environmental control based on sleep stage.
         </p>
         <div className="mt-10">
@@ -58,7 +58,7 @@ export function SleepViceDetail() {
         </div>
         <p className="mt-6 text-sm leading-relaxed text-ink-muted">
           Securing the partnership itself took direct outreach to the Alexa Fund and Alexa
-          Startups teams — the plan was explicit: launch as a 3rd-party Skill, then earn a path to
+          Startups teams. The plan was explicit: launch as a 3rd-party Skill, then earn a path to
           becoming a native Alexa feature.
         </p>
       </Section>
@@ -83,10 +83,10 @@ export function SleepViceDetail() {
           />
         </div>
         <p className="mt-4 text-sm leading-relaxed text-ink-muted">
-          The v2 rewrite followed three explicit rules — <strong className="text-ink">be
+          The v2 rewrite followed three explicit rules: <strong className="text-ink">be
           concise</strong> (shorter response segments), <strong className="text-ink">be
           friendly</strong> (SSML-driven tone variation), <strong className="text-ink">be
-          helpful</strong> (contextual guidance added) — and every headline metric moved up in
+          helpful</strong> (contextual guidance added). Every headline metric moved up in
           response, at the modest cost of ease-of-use and utterance-recognition scores.
         </p>
       </Section>
@@ -94,14 +94,14 @@ export function SleepViceDetail() {
       <Section kicker="Product" title="Voice-first sleep coaching, plus real-world light control" wide>
         <p className="text-sm leading-relaxed text-ink-muted">
           Beyond tracking and reporting, SleepVice drove a Philips Hue-connected lighting sequence
-          synced to sleep stage — gradually dimming at sleep onset, dark through the night, then
+          synced to sleep stage, gradually dimming at sleep onset, dark through the night, then
           brightening before a data-driven wake time. Example exchange:{" "}
           <em>&ldquo;Can you recommend the best sleep time for me?&rdquo;</em> →{" "}
           <em>&ldquo;Sleep from 6hr 30min to 7hr 20min&rdquo;</em>, generated from the user&apos;s own
           REM patterns.
         </p>
         <ImagePlaceholder
-          label="Mockup — Alexa device with voice-response speech bubble, light-control sequence"
+          label="Mockup: Alexa device with voice-response speech bubble, light-control sequence"
           aspect="mt-8 aspect-[16/9]"
         />
       </Section>

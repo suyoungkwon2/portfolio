@@ -3,9 +3,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://suyoungkwon.com"),
-  title: "Suyoung Kwon — Product Manager",
+  title: "Suyoung Kwon | Product Manager",
   description:
-    "Suyoung (Mel) Kwon — Product Manager building healthcare, education, and AI products with measurable business impact.",
+    "Suyoung (Mel) Kwon, a Product Manager building healthcare, education, and AI products with measurable business impact.",
 };
 
 export default function RootLayout({

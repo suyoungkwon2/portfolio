@@ -11,7 +11,7 @@ export function PullQuote({
         {children}
       </p>
       {attribution && (
-        <cite className="mt-3 block text-sm not-italic text-ink-muted">— {attribution}</cite>
+        <cite className="mt-3 block text-sm not-italic text-ink-muted">{attribution}</cite>
       )}
     </blockquote>
   );

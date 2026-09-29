@@ -72,7 +72,7 @@ export function ProjectHero({
 
         {heroMedia ?? (
           <ImagePlaceholder
-            label={`Hero image — ${meta.title}`}
+            label={`Hero image: ${meta.title}`}
             aspect="mt-14 aspect-[16/9] md:aspect-[21/9]"
           />
         )}

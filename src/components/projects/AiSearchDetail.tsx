@@ -15,7 +15,7 @@ export function AiSearchDetail() {
       <Section kicker="Result" title="No-result searches cut from 6.8% to 0.22%" wide>
         <p className="text-base leading-relaxed text-ink-muted">
           6–7% of daily searches on Kurly&apos;s e-commerce platform (3.5M MAU) returned{" "}
-          <strong className="text-ink">zero results</strong> — a direct revenue leak, since search
+          <strong className="text-ink">zero results</strong>, a direct revenue leak, since search
           drives the largest share of purchases. With the search engineering team unable to
           rebuild the core engine, I scoped a bounded AI layer on top of it: only intercept when
           the legacy engine already failed.
@@ -34,10 +34,10 @@ export function AiSearchDetail() {
 
       <Section kicker="Solution" title="Only fire when the legacy engine already gave up" wide>
         <p className="text-sm leading-relaxed text-ink-muted">
-          The legacy search used exact lexical matching — a single typo, extra space, or synonym
+          The legacy search used exact lexical matching: a single typo, extra space, or synonym
           (&ldquo;Cabage,&rdquo; &ldquo;Ca bbage,&rdquo; &ldquo;Lettuce&rdquo;) returned nothing. Google Vertex AI Search, layered on
           top of Kurly&apos;s existing GCP data, could interpret intent instead of just matching
-          strings — without touching the legacy engine at all.
+          strings, without touching the legacy engine at all.
         </p>
         <div className="mt-6 rounded-2xl border border-line p-6">
           <p className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
@@ -64,7 +64,7 @@ export function AiSearchDetail() {
         />
         <p className="mt-4 text-sm leading-relaxed text-ink-muted">
           Hypothesis validated across every KPI. Within the searches that used to fail, CTR rose
-          from 3.83% to 26.50% — those queries now lead to products instead of a dead end.
+          from 3.83% to 26.50%, so those queries now lead to products instead of a dead end.
         </p>
       </Section>
 
@@ -92,7 +92,7 @@ export function AiSearchDetail() {
           <strong className="text-ink">Google Cloud Summit Seoul 2024</strong>.
         </p>
         <ImagePlaceholder
-          label="Screenshots — before/after search result, Looker dashboard, Google Cloud Summit stage"
+          label="Screenshots: before/after search result, Looker dashboard, Google Cloud Summit stage"
           aspect="mt-8 aspect-[16/9]"
         />
       </Section>
