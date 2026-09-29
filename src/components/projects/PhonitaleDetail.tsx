@@ -180,6 +180,46 @@ function PipelineDiagram() {
 
 const IMG = "/images/phonitale";
 
+const SUMMARY = [
+  {
+    q: "What?",
+    a: "Built an AI that helps you memorize foreign words by linking them to sound-alike words in your own language — published at EMNLP 2025.",
+  },
+  {
+    q: "Why?",
+    a: "For languages that sound very different, like English and Korean, LLM-based methods couldn’t produce good mnemonics.",
+  },
+  {
+    q: "How?",
+    a: "Mapped foreign sounds into native syllables, matched them to real words, and wove them into a memorable sentence. It worked as well as mnemonics written by human experts.",
+  },
+];
+
+// "10s Summary" strip — What / Why / How in three columns split by vertical
+// hairlines, sitting directly above the hero videos (temporary placement per
+// the Figma frame). Columns stack with horizontal hairlines below md.
+function PhonitaleSummary() {
+  return (
+    <section className="mt-4 flex flex-col gap-4 py-10">
+      <Kicker>10s Summary</Kicker>
+      <div className="flex flex-col gap-4 md:flex-row">
+        {SUMMARY.map(({ q, a }, i) => (
+          <div
+            key={q}
+            className={cn(
+              "flex flex-1 flex-col gap-2",
+              i > 0 && "border-t border-line pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0",
+            )}
+          >
+            <h2 className="text-xl font-semibold leading-[1.2] text-ink">{q}</h2>
+            <p className="text-sm leading-normal text-ink-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 // Hero media for the project's ProjectHero slot (passed in from the route
 // page, not rendered by PhonitaleDetail itself). Both source videos are
 // raw 1920x1080 recordings with their real content pillarboxed in black
@@ -193,21 +233,12 @@ const IMG = "/images/phonitale";
 // Below xl the two stack full-width instead of squeezing into a row.
 export function PhonitaleHeroVideos() {
   return (
-    <div className="mt-14 flex flex-col gap-4 xl:flex-row">
-      <div className="relative aspect-[1597/1080] w-full max-w-[538px] shrink-0 overflow-hidden rounded-2xl bg-[#E1E6E9] xl:aspect-auto xl:h-[364px] xl:w-[538px]">
-        <video
-          src={`${IMG}/vid_architecture.mp4`}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
-        />
-      </div>
-      <div className="flex items-center justify-center overflow-hidden rounded-2xl bg-[#E1E6E9] py-[12px] xl:h-[364px] xl:flex-1">
-        <div className="relative aspect-[440/340] w-full max-w-[440px] overflow-hidden rounded-[15px]">
+    <>
+      <PhonitaleSummary />
+      <div className="flex flex-col gap-4 xl:flex-row">
+        <div className="relative aspect-[1597/1080] w-full max-w-[538px] shrink-0 overflow-hidden rounded-2xl bg-[#E1E6E9] xl:aspect-auto xl:h-[364px] xl:w-[538px]">
           <video
-            src={`${IMG}/vid_web.mp4`}
+            src={`${IMG}/vid_architecture.mp4`}
             autoPlay
             muted
             loop
@@ -215,8 +246,20 @@ export function PhonitaleHeroVideos() {
             className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
           />
         </div>
+        <div className="flex items-center justify-center overflow-hidden rounded-2xl bg-[#E1E6E9] py-[12px] xl:h-[364px] xl:flex-1">
+          <div className="relative aspect-[440/340] w-full max-w-[440px] overflow-hidden rounded-[15px]">
+            <video
+              src={`${IMG}/vid_web.mp4`}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

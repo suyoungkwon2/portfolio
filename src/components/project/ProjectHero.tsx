@@ -37,7 +37,7 @@ export function ProjectHero({
           <p className="instrument-serif-regular-italic mt-6 text-2xl text-ink md:text-3xl">
             &ldquo;{meta.tagline}&rdquo;
           </p>
-          <h1 className="font-display mt-4 text-4xl font-medium tracking-tight text-ink text-balance sm:text-5xl md:text-[clamp(1.75rem,4vw,3.6rem)]">
+          <h1 className="font-display mt-4 text-4xl font-medium tracking-tight text-ink text-balance sm:text-5xl md:text-[clamp(1.75rem,4vw,3.25rem)]">
             {meta.title}
           </h1>
           <p className="mt-4 text-lg text-ink-muted md:text-xl">{meta.subtitle}</p>

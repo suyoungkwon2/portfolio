@@ -22,11 +22,28 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
       transition={{ duration: 0.5, delay: (index % 2) * 0.08, ease: "easeOut" }}
     >
       <Link href={`/work/${work.slug}`} className="group block">
-        <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-ink">
-          <div
-            className={`h-full w-full bg-gradient-to-br ${sectorAccent[work.sector]} transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]`}
-          />
-        </div>
+        {work.video ? (
+          // Same framing as the case study's hero demo block: the clip sits
+          // in a rounded 440:340 window centered on a light gray panel.
+          <div className="flex aspect-[16/10] items-center justify-center overflow-hidden rounded-2xl bg-[#E1E6E9] py-3">
+            <div className="relative aspect-[440/340] h-full overflow-hidden rounded-[15px] transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]">
+              <video
+                src={work.video}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-ink">
+            <div
+              className={`h-full w-full bg-gradient-to-br ${sectorAccent[work.sector]} transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]`}
+            />
+          </div>
+        )}
 
         {/* Title and headline result only; the case study page has the rest. */}
         <div className="mt-4 flex flex-col gap-1">

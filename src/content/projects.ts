@@ -51,7 +51,7 @@ export const projects: Record<string, ProjectMeta> = {
   },
   phonitale: {
     slug: "phonitale",
-    title: "Phonitale : AI-powered mnemonic foreign vocab learning",
+    title: "PhoniTale : AI Memory Tricks for Foreign Words",
     subtitle: "AI Research Project",
     tagline: "Memorizing foreign words shouldn't feel like torture.",
     period: "March 2025\n- June 2025",

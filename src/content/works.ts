@@ -8,6 +8,8 @@ export type WorkItem = {
   summary: string;
   metrics?: string;
   year: string;
+  // Looping demo clip shown in place of the gradient thumbnail.
+  video?: string;
 };
 
 // Real case studies, sourced and cross-referenced from
@@ -69,11 +71,12 @@ export const works: WorkItem[] = [
     slug: "phonitale",
     sector: "AI Research",
     tag: "Published Research",
-    title: "Phonitale — AI Vocabulary Mnemonics",
+    title: "PhoniTale : AI Memory Tricks for Foreign Words",
     summary:
       "Designed an NLP pipeline that generates phonologically grounded mnemonics for learners of typologically distant languages, matching the recall rate of human-authored study aids.",
     metrics: "Published, EMNLP 2025 Main Conference",
     year: "2025",
+    video: "/images/phonitale/vid_web.mp4",
   },
 ];
 
