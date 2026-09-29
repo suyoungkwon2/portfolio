@@ -200,7 +200,7 @@ const SUMMARY = [
 // the Figma frame). Columns stack with horizontal hairlines below md.
 function PhonitaleSummary() {
   return (
-    <section className="mt-4 flex flex-col gap-4 py-10">
+    <section id="summary" data-chapter="10s Summary" className="mt-4 flex scroll-mt-16 flex-col gap-4 py-10">
       <Kicker>10s Summary</Kicker>
       <div className="flex flex-col gap-4 md:flex-row">
         {SUMMARY.map(({ q, a }, i) => (

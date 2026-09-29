@@ -1,9 +1,14 @@
 // Marks a new chapter inside a long case study (Overview / Process /
 // Evaluation / Reflection) — a centered label between two rules, with an
-// italic one-line summary of what the chapter covers.
+// italic one-line summary of what the chapter covers. The id and
+// data-chapter attribute register it with ProjectSideNav.
 export function ChapterDivider({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-2 px-6 py-10 md:px-[88px]">
+    <div
+      id={title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}
+      data-chapter={title}
+      className="mx-auto flex max-w-[1200px] scroll-mt-16 flex-col items-center gap-2 px-6 py-10 md:px-[88px]"
+    >
       <div className="flex w-full items-center gap-8">
         <div className="h-px flex-1 bg-line" />
         <span className="font-display text-xl font-semibold text-accent sm:text-2xl">{title}</span>

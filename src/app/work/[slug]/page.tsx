@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Nav } from "@/components/Nav";
 import { ProjectFooterNav } from "@/components/project/ProjectFooterNav";
 import { ProjectHero } from "@/components/project/ProjectHero";
+import { ProjectSideNav } from "@/components/project/ProjectSideNav";
 import { RelatedLinks } from "@/components/project/RelatedLinks";
 import { AiCurationDetail } from "@/components/projects/AiCurationDetail";
 import { AiSearchDetail } from "@/components/projects/AiSearchDetail";
@@ -63,6 +64,7 @@ export default async function ProjectPage({
       <main>
         <ProjectHero meta={meta} heroMedia={slug === "phonitale" ? <PhonitaleHeroVideos /> : undefined} />
         <Detail />
+        <ProjectSideNav />
         <RelatedLinks links={meta.relatedLinks} />
         <ProjectFooterNav
           prev={prevSlug ? { slug: prevSlug, title: projects[prevSlug].title } : undefined}
