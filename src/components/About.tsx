@@ -42,10 +42,11 @@ export function About() {
           </p>
           <p>
             I&apos;ve worked in UX design, in AI and data, and in building products into
-            businesses, so I tend to see a problem from all three angles. A lasting solution
-            rarely comes from just one.
+            businesses, so I tend to see a problem from all three angles.
           </p>
-          <p>The fields I keep coming back to are healthcare, education, and accessibility.</p>
+          <p>
+            I love working with talented people on cross-functional teams toward a shared goal.
+          </p>
         </motion.div>
       </div>
     </section>
