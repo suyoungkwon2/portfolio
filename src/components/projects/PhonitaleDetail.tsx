@@ -269,7 +269,7 @@ export function PhonitaleDetail() {
           </div>
           <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded-lg md:h-[368px] md:w-[500px]">
             <Image
-              src={`${IMG}/img_result_1.png`}
+              src={`${IMG}/img_result_1.webp`}
               alt="Presenting the PhoniTale poster at EMNLP 2025"
               fill
               sizes="(min-width: 768px) 500px, 100vw"
@@ -309,7 +309,7 @@ export function PhonitaleDetail() {
           vocabulary just wouldn&rsquo;t stick.
         </p>
         <div className="relative aspect-[2048/2313] w-full max-w-[900px] overflow-hidden rounded-lg">
-          <Image src={`${IMG}/background-gre-photo.png`} alt="Studying vocabulary flashcards for the GRE" fill sizes="(min-width: 900px) 900px, 100vw" className="object-cover" />
+          <Image src={`${IMG}/background-gre-photo.webp`} alt="Studying vocabulary flashcards for the GRE" fill sizes="(min-width: 900px) 900px, 100vw" className="object-cover" />
         </div>
       </PhonitaleSection>
 

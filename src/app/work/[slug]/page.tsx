@@ -19,6 +19,9 @@ const detailComponents: Record<string, React.ComponentType> = {
   phonitale: PhonitaleDetail,
 };
 
+// Static export: only the published slugs exist; anything else is the 404 page.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return projectOrder.map((slug) => ({ slug }));
 }

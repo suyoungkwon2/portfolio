@@ -1,0 +1,40 @@
+name: Deploy
+
+# Builds the static export and publishes it to the gh-pages branch, which
+# GitHub Pages serves at suyoungkwon.com (CNAME and .nojekyll come from
+# public/). The previous Jekyll site is preserved on the legacy-site branch
+# and the jekyll-final tag.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: out
+          clean: true

@@ -19,7 +19,7 @@ export function About() {
           className="group aspect-[4/5] w-full max-w-[280px] justify-self-center overflow-hidden rounded-[5px] md:w-72 md:justify-self-start"
         >
           <img
-            src="/images/mel_profile.jpg"
+            src="/images/mel_profile.webp"
             alt="Suyoung Mel Kwon"
             className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
