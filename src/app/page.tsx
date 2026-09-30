@@ -2,6 +2,7 @@ import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { Media } from "@/components/Media";
 import { Nav } from "@/components/Nav";
+import { News } from "@/components/News";
 import { Publication } from "@/components/Publication";
 import { SelectedWorks } from "@/components/SelectedWorks";
 
@@ -17,6 +18,7 @@ export default function Home() {
         <SelectedWorks />
         <Publication />
         <Media />
+        <News />
       </main>
       <Footer />
     </>

@@ -9,7 +9,7 @@ import { SectionHeading } from "./SectionHeading";
 // read as visual proof rather than a list of text links.
 export function Media() {
   return (
-    <section id="media" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
+    <section id="media" className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
       <SectionHeading kicker="In the Media" title="Where the work was featured." />
 
       <div className="mt-16 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">

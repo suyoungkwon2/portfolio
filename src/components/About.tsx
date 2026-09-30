@@ -8,7 +8,7 @@ import { SectionHeading } from "./SectionHeading";
 // Experience section right below already carry those.
 export function About() {
   return (
-    <section id="about" className="mx-auto max-w-6xl px-6 pb-20 pt-20 md:px-10 md:pb-28 md:pt-28">
+    <section id="about" className="mx-auto max-w-6xl px-6 pb-14 pt-20 md:px-10 md:pb-20 md:pt-28">
       <SectionHeading kicker="About" title="Product, with a reason to build it." />
 
       <div className="mt-12 grid gap-10 md:grid-cols-[auto_1fr] md:items-start">

@@ -4,7 +4,7 @@ import { WorkCard } from "./WorkCard";
 
 export function SelectedWorks() {
   return (
-    <section id="work" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
+    <section id="work" className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
       <SectionHeading kicker="Work" title="What I've built." />
 
       <div className="mt-16 flex flex-col gap-20">

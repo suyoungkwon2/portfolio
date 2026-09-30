@@ -26,7 +26,7 @@ const hasEqualContribution = publications.some((item) =>
 
 export function Publication() {
   return (
-    <section id="publication" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
+    <section id="publication" className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
       <SectionHeading kicker="Publication" title="What I've published." />
 
       <div className="mt-10 flex flex-col">

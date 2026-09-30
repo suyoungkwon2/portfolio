@@ -92,4 +92,5 @@ export const works: WorkItem[] = projectOrder.map(
   (slug) => allWorks.find((w) => w.slug === slug)!,
 );
 
-export const workSectors: WorkSector[] = ["Projects", "AI Research"];
+// AI Research leads for now (temporary ordering).
+export const workSectors: WorkSector[] = ["AI Research", "Projects"];

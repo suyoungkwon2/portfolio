@@ -6,7 +6,7 @@ import { SectionHeading } from "./SectionHeading";
 
 export function Awards() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
+    <section className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
       <SectionHeading kicker="Recognition" title="Recognition along the way." />
 
       <div className="mt-16 flex flex-col">
