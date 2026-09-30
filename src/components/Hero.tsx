@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
-import { useMotionValueEvent, useScroll } from "framer-motion";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
 import { HeroBackground } from "./hero-bg/HeroBackground";
 
 // One point each for business, impact, scale, and AI depth, each tagged with
@@ -25,6 +26,48 @@ function StatValue({ value }: { value: string }) {
     ) : (
       part
     ),
+  );
+}
+
+// The North Star, above the headline's right margin: where the work is headed.
+// Hovering the star or its caption spins the star two full turns on a
+// bouncy spring. Each hover adds another two turns, so it never unwinds
+// backwards; visitors who ask for reduced motion get a still star.
+function NorthStar({ className = "" }: { className?: string }) {
+  const [turns, setTurns] = useState(0);
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      onHoverStart={() => !reduceMotion && setTurns((t) => t + 2)}
+      className={`flex flex-col items-center text-center ${className}`}
+    >
+      <p className="text-[10px] font-medium uppercase tracking-[0.15em] text-ink-muted">Toward</p>
+      <motion.div
+        animate={{ rotate: turns * 360 }}
+        transition={{ type: "spring", stiffness: 140, damping: 11, mass: 0.8 }}
+        className="mt-[7px]"
+      >
+        <Image src="/images/north-star.webp" alt="" width={399} height={400} className="h-auto w-24" />
+      </motion.div>
+      <p className="font-display mt-3 text-sm font-medium leading-snug text-ink-muted">
+        Positive
+        <br />
+        Social Impact
+      </p>
+    </motion.div>
+  );
+}
+
+// Below lg there's no right margin to spare, so the star sits in a small
+// row above the headline instead.
+function NorthStarInline() {
+  return (
+    <div className="mb-6 flex items-center gap-2.5 lg:hidden">
+      <p className="text-[10px] font-medium uppercase tracking-[0.15em] text-ink-muted">Toward</p>
+      <Image src="/images/north-star.webp" alt="" width={399} height={400} className="h-auto w-7" />
+      <p className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">Positive Social Impact</p>
+    </div>
   );
 }
 
@@ -55,7 +98,11 @@ export function Hero() {
           the proof points set as type on a hairline rather than as cards.
           The two italic phrases are the two halves of the thesis (the user
           side and the business side). */}
-      <div className="mx-auto flex min-h-svh max-w-6xl flex-col justify-center px-6 pb-20 pt-[calc(63px+5rem)] md:px-10">
+      <div className="relative mx-auto flex min-h-svh max-w-6xl flex-col justify-center px-6 pb-20 pt-[calc(63px+5rem)] md:px-10">
+        {/* Pinned just below the nav rather than to the headline, so it keeps
+            the same clearance at every viewport height. */}
+        <NorthStar className="absolute right-10 top-[calc(63px+1.5rem+25px)] hidden lg:flex xl:right-[72px]" />
+        <NorthStarInline />
         <h1 className="font-instrument text-[40px] font-normal leading-[1.05] tracking-[-0.01em] text-ink md:text-[70px]">
           I’m Mel.{" "}
           <br />
