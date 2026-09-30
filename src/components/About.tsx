@@ -32,20 +32,21 @@ export function About() {
           className="space-y-5 text-lg leading-relaxed text-ink-muted"
         >
           <p>
-            I grew up in a family that lives with autism. It taught me early to look for the
-            people most products aren&apos;t built for.
+            I grew up in a family that lives with autism. It taught me to pay attention to
+            people&apos;s pain points, to think from the perspective of underserved communities,
+            and to care about work that creates positive social impact.
           </p>
           <p>
-            That shapes what I aim for in my work: to address the root of a problem rather
-            than its surface, to solve it in a way that can sustain itself, and to reach
-            people at scale.
+            In particular, I aim to fix the root of a problem rather than its surface, in a way
+            that can sustain itself and reach people at scale.
           </p>
           <p>
-            I&apos;ve worked in UX design, in AI and data, and in building products into
-            businesses, so I tend to see a problem from all three angles.
+            I&apos;ve worked across UX design, AI and data, and product management, and I bring
+            all three to every problem I take on.
           </p>
           <p>
-            I love working with talented people on cross-functional teams toward a shared goal.
+            Problems like these are rarely solved alone, which is why I love bringing talented
+            people together on cross-functional teams toward a shared goal.
           </p>
         </motion.div>
       </div>
