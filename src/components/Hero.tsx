@@ -4,16 +4,29 @@ import { useRef, useState } from "react";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { HeroBackground } from "./hero-bg/HeroBackground";
 
-// One point each for business, impact, scale, and AI depth. Every one is
-// backed by a case study on the site; keep these in sync with
-// src/content/works.ts.
+// One point each for business, impact, scale, and AI depth, each tagged with
+// its field. Keep these in sync with src/content/works.ts. In `value`,
+// {braces} mark a unit or symbol that renders smaller. "3.5M‑MAU" and
+// "co‑first" use non-breaking hyphens (U+2011) so they never split across
+// lines.
 const proofPoints = [
-  { value: "$60K+", unit: "MRR", label: "A sleep-tech startup's first B2B revenue line, built 0 → 1" },
-  { value: "K-FDA", unit: "approved", label: "Clinical trial for an insomnia digital therapeutic" },
-  { value: "6.8% → 0.22%", unit: "", label: "No-result searches on a 3.5M-MAU grocery platform" },
-  // "co‑first" uses a non-breaking hyphen (U+2011) so it never splits across lines.
-  { value: "AI research", unit: "", label: "Published at EMNLP 2025 Main Conference, co‑first author" },
+  { field: "B2B AI SaaS", value: "$60K+ {MRR}", label: "A sleep-tech startup's first B2B revenue line, built 0 → 1" },
+  { field: "Digital Health", value: "K-FDA {Approved}", label: "Clinical trial for an insomnia digital therapeutic" },
+  { field: "AI Search", value: "6.8{%} → 0.22{%}", label: "No-result searches on a 3.5M‑MAU grocery platform" },
+  { field: "AI Research", value: "EMNLP 2025", label: "Main Conference paper, co‑first author" },
 ];
+
+function StatValue({ value }: { value: string }) {
+  return value.split(/\{(.*?)\}/).map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={i} className="text-[0.6em] tracking-normal">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -62,9 +75,9 @@ export function Hero() {
         <div className="mt-16 grid border-t border-ink/20 sm:grid-cols-2 lg:grid-cols-4">
           {proofPoints.map((p) => (
             <div key={p.value} className="border-b border-ink/10 py-5 sm:pr-8 lg:border-b-0">
-              <p className="font-instrument text-[32px] leading-none text-ink md:text-[36px]">
-                {p.value}
-                {p.unit && <span className="ml-2 text-[0.65em] italic text-ink-muted">{p.unit}</span>}
+              <p className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">{p.field}</p>
+              <p className="font-display mt-3 whitespace-nowrap text-[28px] font-medium leading-none tracking-tight text-ink md:text-[32px]">
+                <StatValue value={p.value} />
               </p>
               <p className="mt-3 max-w-[30ch] text-sm leading-relaxed text-ink-muted">{p.label}</p>
             </div>
