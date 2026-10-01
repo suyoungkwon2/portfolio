@@ -70,7 +70,7 @@ const allWorks: WorkItem[] = [
     title: "MARS: AI Clinical Documentation",
     summary:
       "Led a 4-person team building a 3-module GenAI pipeline that drafts discharge summaries from real patient records, for Seoul National University Bundang Hospital during Korea's national medical staffing crisis.",
-    metrics: "Excellence Award, 2nd of 10 finalists, SNUBH × KAIST Datathon",
+    metrics: "2nd of 100 teams, Seoul National University Hospital Datathon",
     year: "2025",
     thumbnail: "/images/mars/thumbnail.webp",
   },

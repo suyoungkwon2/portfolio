@@ -42,12 +42,12 @@ export const projects: Record<string, ProjectMeta> = {
   mars: {
     slug: "mars",
     title: "MARS: AI Clinical Documentation",
-    subtitle: "Re-engineering clinical workflow with GenAI",
+    subtitle: "Hospital LLM Datathon",
     tagline: "Get time back. Move care forward.",
-    period: "Sep – Oct 2025",
-    role: ["Team Lead", "PM", "AI Research", "Prompt Engineering"],
-    team: ["PM (me)", "2 LLM engineers", "1 clinical advisor"],
-    org: "SNUBH × KAIST Datathon",
+    period: "September 2025\n- October 2025",
+    role: ["Team Lead & PM", "System Design", "Prompt Engineering", "Clinical Evaluation"],
+    team: ["PM (me)", "2 LLM Engineers", "1 Clinical Advisor"],
+    org: "Seoul National University Hospital",
     chips: { domain: "Medical", problem: "Clinical Documentation", tech: ["NLP", "AI"] },
     relatedLinks: [
       {
@@ -77,25 +77,8 @@ export const projects: Record<string, ProjectMeta> = {
     team: ["Evaluation Lead (me)*", "2 engineers*", "1 PhD student", "3 faculty advisors"],
     org: "CMU\nSchool of Computer Science, Language Technology Institute",
     chips: { domain: "Education", problem: "Learning Language", tech: ["NLP", "AI"] },
-    relatedLinks: [
-      {
-        label:
-          "Paper: PhoniTale: Phonologically Grounded Mnemonic Generation for Typologically Distant Language Pairs",
-        url: "https://aclanthology.org/2025.emnlp-main.1299/",
-      },
-      {
-        label: "Poster",
-        url: "https://drive.google.com/file/d/1yHfr4sDJEUUNYvWxDWQx8vFcu5dwbRV9/view?usp=sharing",
-      },
-      {
-        label: "Slide",
-        url: "https://drive.google.com/file/d/1LGc0jKpugwi1ISWm76bRJMKiWknyEXxf/view?usp=sharing",
-      },
-      {
-        label: "Evaluation Web",
-        url: "https://phonitale-react-git-no-auth-su-young-kwons-projects.vercel.app/wodnr/no-auth/round/1/start",
-      },
-    ],
+    // Shown under the Result headline in PhonitaleDetail instead.
+    relatedLinks: [],
     summary: {
       what: "Built an AI that helps you memorize foreign words by linking them to sound-alike words in your own language. Published at EMNLP 2025.",
       why: "For languages that sound very different, like English and Korean, LLM-based methods couldn’t produce good mnemonics.",

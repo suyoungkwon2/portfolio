@@ -11,6 +11,24 @@ import { Kicker } from "@/components/project/TenSecondSummary";
 // instead of the earlier condensed 5-section version — see the Figma file
 // for the source of truth on copy and layout.
 
+// Paper, poster, slides, and the live evaluation platform, listed under the
+// Result headline (this page has no bottom Related Links section).
+const RESULT_LINKS = [
+  { label: "Read Paper", url: "https://aclanthology.org/2025.emnlp-main.1299/" },
+  {
+    label: "Check Poster",
+    url: "https://drive.google.com/file/d/1yHfr4sDJEUUNYvWxDWQx8vFcu5dwbRV9/view?usp=sharing",
+  },
+  {
+    label: "Check Slide",
+    url: "https://drive.google.com/file/d/1LGc0jKpugwi1ISWm76bRJMKiWknyEXxf/view?usp=sharing",
+  },
+  {
+    label: "Try Evaluation Web",
+    url: "https://phonitale-react-git-no-auth-su-young-kwons-projects.vercel.app/wodnr/no-auth/round/1/start",
+  },
+];
+
 // Shared kicker + title + body shell for every "feature" block. Deliberately
 // NOT the shared <Section> component (src/components/project/Section.tsx) —
 // that component's plain-text kicker and py-14/py-20 rhythm is load-bearing
@@ -258,14 +276,20 @@ export function PhonitaleDetail() {
               <br />
               Main Conference
             </p>
-            <a
-              href="https://aclanthology.org/2025.emnlp-main.1299/"
-              target="_blank"
-              rel="noreferrer"
-              className="w-fit text-sm text-ink-muted underline underline-offset-2 hover:text-ink"
-            >
-              Read Paper ↗
-            </a>
+            <ul className="flex flex-col gap-2">
+              {RESULT_LINKS.map((link) => (
+                <li key={link.url}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-fit text-sm text-ink-muted underline underline-offset-2 hover:text-ink"
+                  >
+                    {link.label} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded-lg md:h-[368px] md:w-[500px]">
             <Image
