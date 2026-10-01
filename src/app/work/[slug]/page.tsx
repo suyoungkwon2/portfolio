@@ -8,6 +8,7 @@ import { ProjectSideNav } from "@/components/project/ProjectSideNav";
 import { RelatedLinks } from "@/components/project/RelatedLinks";
 import { SlideDeck } from "@/components/project/SlideDeck";
 import { TenSecondSummary } from "@/components/project/TenSecondSummary";
+import { MarsHeroVideo, MarsOverview } from "@/components/projects/MarsOverview";
 import { PhonitaleDetail, PhonitaleHeroVideos } from "@/components/projects/PhonitaleDetail";
 import { projectOrder, projects } from "@/content/projects";
 
@@ -17,6 +18,12 @@ import { projectOrder, projects } from "@/content/projects";
 // finished.
 const detailComponents: Record<string, React.ComponentType> = {
   phonitale: PhonitaleDetail,
+};
+
+// Rebuilt chapters shown above a project's slides while the rest of its
+// detail page is still the portfolio PDF.
+const introComponents: Record<string, React.ComponentType> = {
+  mars: MarsOverview,
 };
 
 // Static export: only the published slugs exist; anything else is the 404 page.
@@ -48,6 +55,7 @@ export default async function ProjectPage({
   const { slug } = await params;
   const meta = projects[slug];
   const Detail = detailComponents[slug];
+  const Intro = introComponents[slug];
 
   if (!meta || !projectOrder.includes(slug) || (!Detail && !meta.slides)) notFound();
 
@@ -65,10 +73,18 @@ export default async function ProjectPage({
             <>
               {meta.summary && <TenSecondSummary summary={meta.summary} />}
               {slug === "phonitale" && <PhonitaleHeroVideos />}
+              {slug === "mars" && <MarsHeroVideo />}
             </>
           }
         />
-        {Detail ? <Detail /> : <SlideDeck slug={slug} title={meta.title} count={meta.slides ?? 0} />}
+        {Detail ? (
+          <Detail />
+        ) : (
+          <>
+            {Intro && <Intro />}
+            <SlideDeck slug={slug} title={meta.title} count={meta.slides ?? 0} />
+          </>
+        )}
         <ProjectSideNav />
         <RelatedLinks links={meta.relatedLinks} />
         <ProjectFooterNav

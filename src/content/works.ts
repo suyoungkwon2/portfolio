@@ -14,6 +14,11 @@ export type WorkItem = {
   thumbnail?: string;
   // Looping demo clip shown in place of the thumbnail.
   video?: string;
+  // "framed" (default) sits the clip in a small window on a gray panel, for
+  // UI recordings; "full" fills the whole card, for full-bleed footage.
+  videoLayout?: "framed" | "full";
+  // Still shown until the video loads (its first frame).
+  videoPoster?: string;
 };
 
 // Real case studies, sourced and cross-referenced from
@@ -73,6 +78,9 @@ const allWorks: WorkItem[] = [
     metrics: "2nd of 100 teams, Seoul National University Hospital Datathon",
     year: "2025",
     thumbnail: "/images/mars/thumbnail.webp",
+    video: "/images/mars/vid_hero.mp4",
+    videoLayout: "full",
+    videoPoster: "/images/mars/vid_hero_poster.webp",
   },
   {
     slug: "phonitale",

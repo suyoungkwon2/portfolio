@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Accordion } from "@/components/project/Accordion";
 import { ChapterDivider } from "@/components/project/ChapterDivider";
 import { FlexTable } from "@/components/project/FlexTable";
+import { CaseSection, IconStat, ResultLinks } from "@/components/project/CaseSection";
 import { Kicker } from "@/components/project/TenSecondSummary";
 
 // Rebuilt from the redesigned Figma file (Portfolio_Asset, "Projects" page,
@@ -29,66 +30,10 @@ const RESULT_LINKS = [
   },
 ];
 
-// Shared kicker + title + body shell for every "feature" block. Deliberately
-// NOT the shared <Section> component (src/components/project/Section.tsx) —
-// that component's plain-text kicker and py-14/py-20 rhythm is load-bearing
-// for every other case study on the site, and this redesign's filled-pill
-// kicker + tighter px-[88px] py-10 spacing is specific to this page.
-function PhonitaleSection({
-  kicker,
-  title,
-  align = "center",
-  children,
-}: {
-  kicker: string;
-  title: string;
-  align?: "left" | "center";
-  children: React.ReactNode;
-}) {
-  const centered = align === "center";
-  return (
-    <section className="mx-auto flex max-w-[1200px] flex-col gap-4 px-6 py-8 md:px-[88px] md:py-10">
-      <Kicker>{kicker}</Kicker>
-      <h2
-        className={`mt-4 font-display text-2xl font-semibold leading-tight text-ink sm:text-3xl ${
-          centered ? "text-center" : ""
-        }`}
-      >
-        {title}
-      </h2>
-      <div className={`flex flex-col gap-6 ${centered ? "items-center text-center" : ""}`}>
-        {children}
-      </div>
-    </section>
-  );
-}
-
 function ExampleBox({ children, bordered = true, fit = false }: { children: React.ReactNode; bordered?: boolean; fit?: boolean }) {
   return (
     <div className={cn("p-6", fit ? "mx-auto w-fit" : "w-full", bordered && "rounded-2xl border border-line bg-paper")}>
       <div className="flex flex-col gap-4">{children}</div>
-    </div>
-  );
-}
-
-function IconStat({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-1 flex-col items-center gap-4">
-      <div className="flex h-[150px] w-full items-center justify-center overflow-hidden bg-line">
-        {icon}
-      </div>
-      <div className="flex flex-col gap-1.5 text-center">
-        <p className="font-display text-xl font-semibold text-accent">{title}</p>
-        <p className="text-sm leading-snug text-ink-muted">{description}</p>
-      </div>
     </div>
   );
 }
@@ -238,7 +183,7 @@ export function PhonitaleDetail() {
     <>
       <ChapterDivider title="Overview" subtitle="What is PhoniTale, and what did I do here?" />
 
-      <PhonitaleSection kicker="OVERVIEW" title="PhoniTale" align="left">
+      <CaseSection kicker="OVERVIEW" title="PhoniTale" align="left">
         <div className="flex flex-col gap-3">
           <p className="text-sm leading-relaxed text-ink-muted">: from Phonology + Mnemonic + Tale</p>
           <p className="text-sm leading-relaxed text-ink-muted">
@@ -247,9 +192,9 @@ export function PhonitaleDetail() {
             with completely different sound systems.
           </p>
         </div>
-      </PhonitaleSection>
+      </CaseSection>
 
-      <PhonitaleSection kicker="MY ROLE" title="Human Evaluation Lead" align="left">
+      <CaseSection kicker="MY ROLE" title="Human Evaluation Lead" align="left">
         <div className="flex flex-col gap-3">
           <p className="text-sm leading-relaxed text-ink-muted">
             As a Visiting Scholar at CMU&rsquo;s School of Computer Science in Spring 2025, I
@@ -262,7 +207,7 @@ export function PhonitaleDetail() {
             teammates.
           </p>
         </div>
-      </PhonitaleSection>
+      </CaseSection>
 
       {/* Result — structural exception: hero row + 4-up icon stat grid */}
       <section className="mx-auto flex max-w-[1200px] flex-col gap-6 px-6 py-8 md:px-[88px] md:py-10">
@@ -276,20 +221,7 @@ export function PhonitaleDetail() {
               <br />
               Main Conference
             </p>
-            <ul className="flex flex-col gap-2">
-              {RESULT_LINKS.map((link) => (
-                <li key={link.url}>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-fit text-sm text-ink-muted underline underline-offset-2 hover:text-ink"
-                  >
-                    {link.label} ↗
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <ResultLinks links={RESULT_LINKS} />
           </div>
           <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded-lg md:h-[368px] md:w-[500px]">
             <Image
@@ -327,7 +259,7 @@ export function PhonitaleDetail() {
 
       <ChapterDivider title="Process" subtitle="Why did this project start, and how did we approach it?" />
 
-      <PhonitaleSection kicker="BACKGROUND" title="It All Started with Our Own Frustration">
+      <CaseSection kicker="BACKGROUND" title="It All Started with Our Own Frustration">
         <p className="w-full text-sm leading-relaxed text-ink-muted">
           We were studying for the GRE (grad school applications in the U.S.), and English
           vocabulary just wouldn&rsquo;t stick.
@@ -335,9 +267,9 @@ export function PhonitaleDetail() {
         <div className="relative aspect-[2048/2313] w-full max-w-[900px] overflow-hidden rounded-lg">
           <Image src={`${IMG}/background-gre-photo.webp`} alt="Studying vocabulary flashcards for the GRE" fill sizes="(min-width: 900px) 900px, 100vw" className="object-cover" />
         </div>
-      </PhonitaleSection>
+      </CaseSection>
 
-      <PhonitaleSection kicker="PROBLEM" title="So Why Did the LLM Get It So Wrong?">
+      <CaseSection kicker="PROBLEM" title="So Why Did the LLM Get It So Wrong?">
         <p className="w-full text-sm leading-relaxed text-ink-muted">
           English and Korean don&rsquo;t sound alike. Not even close. Here&rsquo;s what LLMs miss:
         </p>
@@ -390,9 +322,9 @@ export function PhonitaleDetail() {
             </div>
           ))}
         </ExampleBox>
-      </PhonitaleSection>
+      </CaseSection>
 
-      <PhonitaleSection kicker="Goal" title="We Shaped Three Goals">
+      <CaseSection kicker="Goal" title="We Shaped Three Goals">
         <div className="flex w-full flex-col gap-8 sm:flex-row">
           <IconStat
             icon={
@@ -419,9 +351,9 @@ export function PhonitaleDetail() {
             description="Build a system that works for any two languages with different sound systems"
           />
         </div>
-      </PhonitaleSection>
+      </CaseSection>
 
-      <PhonitaleSection kicker="APPROACH" title={'We Designed PhoniTale to Really "Listen"'}>
+      <CaseSection kicker="APPROACH" title={'We Designed PhoniTale to Really "Listen"'}>
         <p className="w-full text-sm leading-relaxed text-ink-muted">
           See how &ldquo;Squander&rdquo; becomes a Korean keyword, and then a memorable cue.
           <br />
@@ -435,11 +367,11 @@ export function PhonitaleDetail() {
             </div>
           </div>
         </Accordion>
-      </PhonitaleSection>
+      </CaseSection>
 
       <ChapterDivider title="Evaluation" subtitle="What did I design to prove our idea and how did it turn out?" />
 
-      <PhonitaleSection kicker="OBJECTIVE" title="Here's What We Set Out to Prove">
+      <CaseSection kicker="OBJECTIVE" title="Here's What We Set Out to Prove">
         <ol className="w-full list-decimal space-y-1 pl-6 text-left font-display text-xl font-semibold text-accent sm:text-center sm:list-inside sm:pl-0">
           <li>PhoniTale matches human-expert mnemonics.</li>
           <li>It outperforms older AI-based methods.</li>
@@ -483,9 +415,9 @@ export function PhonitaleDetail() {
             ]}
           />
         </Accordion>
-      </PhonitaleSection>
+      </CaseSection>
 
-      <PhonitaleSection kicker="EVALUATION DESIGN" title="So Here's How I Designed the Test">
+      <CaseSection kicker="EVALUATION DESIGN" title="So Here's How I Designed the Test">
         <p className="w-full text-sm leading-relaxed text-ink-muted">
           To prove it, I designed a study measuring PhoniTale&rsquo;s effectiveness with real human
           learners, both quantitatively and qualitatively.
@@ -604,9 +536,9 @@ export function PhonitaleDetail() {
             ]}
           />
         </Accordion>
-      </PhonitaleSection>
+      </CaseSection>
 
-      <PhonitaleSection kicker="PLATFORM DESIGN" title="How I Approached the Platform Design">
+      <CaseSection kicker="PLATFORM DESIGN" title="How I Approached the Platform Design">
         <p className="w-full text-sm leading-relaxed text-ink-muted">
           A simple, focused interface built specifically for running this evaluation.
         </p>
@@ -691,9 +623,9 @@ export function PhonitaleDetail() {
             </div>
           </div>
         </div>
-      </PhonitaleSection>
+      </CaseSection>
 
-      <PhonitaleSection kicker="PLATFORM DEVELOPMENT" title="From Design to Fully Working Product">
+      <CaseSection kicker="PLATFORM DEVELOPMENT" title="From Design to Fully Working Product">
         <p className="w-full text-sm leading-relaxed text-ink-muted">
           In spring 2025, vibe coding was just taking off, and I wanted to try it firsthand.
           <br />
@@ -733,9 +665,9 @@ export function PhonitaleDetail() {
             Try It Yourself!
           </a>
         </div>
-      </PhonitaleSection>
+      </CaseSection>
 
-      <PhonitaleSection kicker="FINDINGS" title="The Data Proved PhoniTale Works!">
+      <CaseSection kicker="FINDINGS" title="The Data Proved PhoniTale Works!">
         <p className="w-full text-sm leading-relaxed text-ink-muted">
           I analyzed data from 51 participants, collected through the platform, to test both
           goals, and the results confirmed them.
@@ -774,7 +706,7 @@ export function PhonitaleDetail() {
             </div>
           </div>
         </div>
-      </PhonitaleSection>
+      </CaseSection>
 
       <ChapterDivider title="Reflection" subtitle="What did I experience and learn?" />
 

@@ -49,17 +49,8 @@ export const projects: Record<string, ProjectMeta> = {
     team: ["PM (me)", "2 LLM Engineers", "1 Clinical Advisor"],
     org: "Seoul National University Hospital",
     chips: { domain: "Medical", problem: "Clinical Documentation", tech: ["NLP", "AI"] },
-    relatedLinks: [
-      {
-        label:
-          "KAIST College of Business Wins Excellence Award at 'M.A.R.S. Medical Record Generation Datathon'",
-        url: "https://www.joongang.co.kr/article/25379464",
-      },
-      {
-        label: "LinkedIn Post",
-        url: "https://www.linkedin.com/posts/kaist-college-of-business_kcb-kaistqsvsmpqxmukr-tcustwswmtxuqsvsmpqxmukr-activity-7392430373407756288-_pUX",
-      },
-    ],
+    // News and LinkedIn links are shown under the Result headline in MarsOverview.
+    relatedLinks: [],
     summary: {
       what: "Built an LLM system that writes discharge summaries from real hospital records. Won 2nd place in Seoul National University Bundang Hospital's datathon.",
       why: "Doctors spend up to 30% of their time turning messy notes into discharge summaries, and a national strike left them even more short-staffed.",

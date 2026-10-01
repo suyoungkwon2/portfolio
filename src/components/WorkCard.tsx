@@ -23,7 +23,19 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
       transition={{ duration: 0.5, delay: (index % 2) * 0.08, ease: "easeOut" }}
     >
       <Link href={`/work/${work.slug}`} className="group block">
-        {work.video ? (
+        {work.video && work.videoLayout === "full" ? (
+          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-line">
+            <video
+              src={work.video}
+              poster={work.videoPoster}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
+            />
+          </div>
+        ) : work.video ? (
           // Same framing as the case study's hero demo block: the clip sits
           // in a rounded 440:340 window centered on a light gray panel.
           <div className="flex aspect-[16/10] items-center justify-center overflow-hidden rounded-2xl bg-[#E1E6E9] py-3">
