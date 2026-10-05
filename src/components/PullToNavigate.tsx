@@ -1,16 +1,11 @@
 "use client";
 
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { animate, motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { linkClass } from "./ContactLinks";
 import { markPullNavigation, type PullDirection } from "@/lib/pullNavigation";
 
 type Page = { href: string; label: string };
@@ -20,16 +15,21 @@ const THRESHOLD = 64;
 // Each px of scroll moves the content this much, so it gives a little.
 const RESISTANCE = 0.9;
 const MAX_PULL = 120;
-// A wheel burst that was already running when the page hit an end (trackpad
-// momentum) shouldn't count; pulling arms only after this much quiet.
-const ARM_AFTER_IDLE_MS = 220;
+// Trackpad momentum (the glide after a flick) that carries the page into
+// an end shouldn't count. A pull arms on a fresh push: either after this
+// much quiet, or when the scroll speeds up again (momentum only slows down),
+// which catches a new swipe made while the last one is still gliding.
+const ARM_AFTER_IDLE_MS = 160;
+const FRESH_PUSH_RATIO = 1.5;
+// Ignore pulls right after arriving, while the page is still sliding in, so
+// one long swipe can't skip a short page.
+const SETTLE_MS = 700;
 // Slow, gentle scrolling has gaps between wheel events; don't snap back
 // in the middle of one.
 const RELEASE_AFTER_IDLE_MS = 300;
 
 const atBottom = () =>
-  window.innerHeight + window.scrollY >=
-  document.documentElement.scrollHeight - 2;
+  window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
 const atTop = () => window.scrollY <= 0;
 
 // Pull-to-refresh, but sideways through the site: at the end of the page,
@@ -57,6 +57,7 @@ export function PullToNavigate({
   const ring = useTransform(progress, (p) => 1 - p);
   const grow = useTransform(progress, [0, 1], [1, 1.25]);
   const fade = useMotionValue(1);
+  const [ready, setReady] = useState(false);
   const going = useRef(false);
 
   const go = useCallback(
@@ -86,21 +87,27 @@ export function PullToNavigate({
   useEffect(() => {
     const setPull = (v: number) => {
       if (going.current) return;
-      pull.set(
-        Math.min(hasNext ? MAX_PULL : 0, Math.max(hasPrev ? -MAX_PULL : 0, v)),
-      );
+      const clamped = Math.min(hasNext ? MAX_PULL : 0, Math.max(hasPrev ? -MAX_PULL : 0, v));
+      pull.set(clamped);
+      setReady(clamped >= THRESHOLD);
     };
 
     // Wheel / trackpad: there's no "release", so crossing the line opens it.
     let armed: PullDirection | null = null;
     // Counts as recent activity, so momentum carried over from the page that
     // was just left can't arm a pull here.
-    let lastWheel = performance.now();
+    const mountedAt = performance.now();
+    let lastWheel = mountedAt;
+    let lastDelta = 0;
     let releaseTimer: ReturnType<typeof setTimeout> | undefined;
     const onWheel = (e: WheelEvent) => {
       const now = performance.now();
       const idle = now - lastWheel;
+      const speedingUp =
+        Math.sign(e.deltaY) === Math.sign(lastDelta) &&
+        Math.abs(e.deltaY) > Math.abs(lastDelta) * FRESH_PUSH_RATIO + 2;
       lastWheel = now;
+      lastDelta = e.deltaY;
       const direction: PullDirection | null =
         e.deltaY > 0 && hasNext && atBottom()
           ? "next"
@@ -109,7 +116,8 @@ export function PullToNavigate({
             : null;
       if (direction !== armed) {
         if (armed) setPull(0);
-        armed = direction && idle >= ARM_AFTER_IDLE_MS ? direction : null;
+        const fresh = idle >= ARM_AFTER_IDLE_MS || speedingUp;
+        armed = direction && fresh && now - mountedAt > SETTLE_MS ? direction : null;
       }
       if (!armed) return;
       setPull(pull.get() + e.deltaY * RESISTANCE);
@@ -136,8 +144,7 @@ export function PullToNavigate({
     };
     const onTouchEnd = () => {
       const v = pull.get();
-      if (startY !== null && Math.abs(v) >= THRESHOLD)
-        go(v > 0 ? "next" : "prev");
+      if (startY !== null && Math.abs(v) >= THRESHOLD) go(v > 0 ? "next" : "prev");
       else setPull(0);
       startY = null;
     };
@@ -168,12 +175,11 @@ export function PullToNavigate({
         <div className="flex justify-center pb-16 pt-14">
           <Link
             href={next.href}
-            aria-label={next.label}
             onClick={(e) => {
               e.preventDefault();
               go("next");
             }}
-            className="rounded-full p-2 text-ink transition-opacity hover:opacity-70"
+            className="group flex flex-col items-center gap-3 text-ink"
           >
             <motion.span
               aria-hidden
@@ -203,6 +209,9 @@ export function PullToNavigate({
               </svg>
               <ArrowDown className="size-4" />
             </motion.span>
+            <span className={linkClass}>
+              {ready ? "Opening…" : `Keep scrolling for ${next.label}`}
+            </span>
           </Link>
         </div>
       )}

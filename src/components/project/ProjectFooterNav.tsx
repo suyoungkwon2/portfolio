@@ -1,34 +1,34 @@
 import Link from "next/link";
+import type { WorkItem } from "@/content/works";
+import { cn } from "@/lib/utils";
+import { WorkThumbnail } from "../WorkCard";
 
-type NavTarget = { slug: string; title: string };
-
-export function ProjectFooterNav({ prev, next }: { prev?: NavTarget; next?: NavTarget }) {
+// Previous / next case study, each with its card thumbnail under the
+// title so the way on is easy to spot.
+export function ProjectFooterNav({ prev, next }: { prev?: WorkItem; next?: WorkItem }) {
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 border-t border-line px-6 py-16 sm:flex-row sm:items-start sm:justify-between md:px-10">
-      <div>
-        {prev && (
-          <Link href={`/work/${prev.slug}`} className="group block">
-            <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
-              ← Previous
-            </span>
-            <p className="font-display mt-1.5 text-lg font-medium text-ink transition-colors group-hover:text-accent-3">
-              {prev.title}
-            </p>
-          </Link>
-        )}
-      </div>
-      <div className="sm:text-right">
-        {next && (
-          <Link href={`/work/${next.slug}`} className="group block">
-            <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
-              Next →
-            </span>
-            <p className="font-display mt-1.5 text-lg font-medium text-ink transition-colors group-hover:text-accent-3">
-              {next.title}
-            </p>
-          </Link>
-        )}
-      </div>
+    <div className="mx-auto grid max-w-6xl gap-12 border-t border-line px-6 pb-40 pt-16 sm:grid-cols-2 md:px-10">
+      <div>{prev && <NavLink work={prev} label="← Previous" />}</div>
+      <div>{next && <NavLink work={next} label="Next →" alignEnd />}</div>
     </div>
+  );
+}
+
+function NavLink({ work, label, alignEnd }: { work: WorkItem; label: string; alignEnd?: boolean }) {
+  return (
+    <Link href={`/work/${work.slug}`} className={cn("group block", alignEnd && "sm:text-right")}>
+      <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
+        {label}
+      </span>
+      <p className="font-display mt-1.5 text-lg font-medium text-ink transition-colors group-hover:text-accent-3">
+        {work.title}
+      </p>
+      <div className="mt-4">
+        <WorkThumbnail
+          work={work}
+          sizes="(min-width: 1152px) 500px, (min-width: 640px) 50vw, 100vw"
+        />
+      </div>
+    </Link>
   );
 }

@@ -8,6 +8,7 @@ import { TenSecondSummary } from "@/components/project/TenSecondSummary";
 import { MarsHeroVideo, MarsOverview } from "@/components/projects/MarsOverview";
 import { PhonitaleDetail, PhonitaleHeroVideos } from "@/components/projects/PhonitaleDetail";
 import { projectOrder, projects } from "@/content/projects";
+import { works } from "@/content/works";
 
 // Full case studies, wired in here as each project's web version is
 // finished. Projects without one show their portfolio-PDF slides
@@ -76,8 +77,8 @@ export default async function ProjectPage({
       {meta.slides && <SlideDeck slug={slug} title={meta.title} count={meta.slides} />}
       <RelatedLinks links={meta.relatedLinks} />
       <ProjectFooterNav
-        prev={prevSlug ? { slug: prevSlug, title: projects[prevSlug].title } : undefined}
-        next={nextSlug ? { slug: nextSlug, title: projects[nextSlug].title } : undefined}
+        prev={works.find((w) => w.slug === prevSlug)}
+        next={works.find((w) => w.slug === nextSlug)}
       />
     </main>
   );

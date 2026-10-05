@@ -45,12 +45,13 @@ export const navTree: NavNode[] = [
 
 // Reading order for pulling past the ends of a page (PageChain): keep
 // scrolling at the bottom of one and the next opens; keep scrolling up at
-// the top and the previous one does. Labels name the link for screen readers.
+// the top and the previous one does. `label` finishes "Keep scrolling for …"
+// on the page before.
 export const pageChain = [
-  { href: "/", label: "Home" },
-  { href: "/work/projects", label: "All projects" },
-  { href: "/work/research", label: "Research" },
-  { href: "/work/media", label: "Media" },
-  { href: "/resume", label: "Resume" },
-  { href: "/about", label: "About me" },
+  { href: "/", label: "home" },
+  { href: "/work/projects", label: "all projects" },
+  { href: "/work/research", label: "research" },
+  { href: "/work/media", label: "media" },
+  { href: "/resume", label: "my resume" },
+  { href: "/about", label: "about me" },
 ];

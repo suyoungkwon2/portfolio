@@ -26,76 +26,7 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
       transition={{ duration: 0.5, delay: (index % 2) * 0.08, ease: "easeOut" }}
     >
       <Link href={`/work/${work.slug}`} className="group block">
-        {work.video && work.videoLayout === "full" ? (
-          <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-line">
-            <video
-              src={work.video}
-              poster={work.videoPoster}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
-            />
-          </div>
-        ) : work.video ? (
-          // Same framing as the case study's hero demo block: the clip sits
-          // in a rounded 440:340 window centered on a light gray panel (or
-          // a shader backdrop, when the work has a gradient).
-          <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden rounded-lg bg-[#E1E6E9] py-3">
-            {work.gradient && (
-              <GradientBackdrop
-                colors={work.gradient}
-                seed={work.slug}
-                className="absolute inset-0"
-              />
-            )}
-            <div className="relative aspect-[440/340] h-full overflow-hidden rounded-[7.5px] transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]">
-              <video
-                src={work.video}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
-              />
-            </div>
-          </div>
-        ) : work.gradient ? (
-          <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
-            <GradientBackdrop
-              colors={work.gradient}
-              mesh={work.mesh}
-              seed={work.slug}
-              className="absolute inset-0"
-            />
-            {work.thumbnail && (
-              <Image
-                src={work.thumbnail}
-                alt=""
-                fill
-                sizes="(min-width: 1152px) 524px, (min-width: 640px) 50vw, 100vw"
-                className="object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
-              />
-            )}
-          </div>
-        ) : work.thumbnail ? (
-          <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-ink">
-            <Image
-              src={work.thumbnail}
-              alt=""
-              fill
-              sizes="(min-width: 1152px) 524px, (min-width: 640px) 50vw, 100vw"
-              className="object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
-            />
-          </div>
-        ) : (
-          <div className="aspect-[16/10] overflow-hidden rounded-lg bg-ink">
-            <div
-              className={`h-full w-full bg-gradient-to-br ${sectorAccent[work.sector]} transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]`}
-            />
-          </div>
-        )}
+        <WorkThumbnail work={work} />
 
         {/* Chips, title, and headline result only; the case study page has the rest. */}
         <div className="mt-4 flex flex-col gap-1">
@@ -105,5 +36,83 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
         </div>
       </Link>
     </motion.div>
+  );
+}
+
+// The card's picture: a clip, a shader backdrop with the thumbnail over it,
+// or a plain thumbnail. Also used by the case-study footer's prev/next
+// links. Zooms on hover of the nearest `group`.
+export function WorkThumbnail({
+  work,
+  sizes = "(min-width: 1152px) 524px, (min-width: 640px) 50vw, 100vw",
+}: {
+  work: WorkItem;
+  sizes?: string;
+}) {
+  return work.video && work.videoLayout === "full" ? (
+    <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-line">
+      <video
+        src={work.video}
+        poster={work.videoPoster}
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
+      />
+    </div>
+  ) : work.video ? (
+    // Same framing as the case study's hero demo block: the clip sits
+    // in a rounded 440:340 window centered on a light gray panel (or
+    // a shader backdrop, when the work has a gradient).
+    <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden rounded-lg bg-[#E1E6E9] py-3">
+      {work.gradient && (
+        <GradientBackdrop colors={work.gradient} seed={work.slug} className="absolute inset-0" />
+      )}
+      <div className="relative aspect-[440/340] h-full overflow-hidden rounded-[7.5px] transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]">
+        <video
+          src={work.video}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
+        />
+      </div>
+    </div>
+  ) : work.gradient ? (
+    <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
+      <GradientBackdrop
+        colors={work.gradient}
+        mesh={work.mesh}
+        seed={work.slug}
+        className="absolute inset-0"
+      />
+      {work.thumbnail && (
+        <Image
+          src={work.thumbnail}
+          alt=""
+          fill
+          sizes={sizes}
+          className="object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
+        />
+      )}
+    </div>
+  ) : work.thumbnail ? (
+    <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-ink">
+      <Image
+        src={work.thumbnail}
+        alt=""
+        fill
+        sizes={sizes}
+        className="object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
+      />
+    </div>
+  ) : (
+    <div className="aspect-[16/10] overflow-hidden rounded-lg bg-ink">
+      <div
+        className={`h-full w-full bg-gradient-to-br ${sectorAccent[work.sector]} transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]`}
+      />
+    </div>
   );
 }

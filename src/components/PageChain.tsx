@@ -8,8 +8,7 @@ import { arrivedByPull } from "@/lib/pullNavigation";
 import { PullToNavigate } from "./PullToNavigate";
 
 // trailingSlash export serves /work/projects/; compare paths without it.
-const normalize = (path: string | null) =>
-  (path ?? "/").replace(/(.)\/+$/, "$1");
+const normalize = (path: string | null) => (path ?? "/").replace(/(.)\/+$/, "$1");
 
 // Wraps every page: pages in the reading chain (pageChain) can be pulled
 // past either end into their neighbors. A page opened that way slides in
