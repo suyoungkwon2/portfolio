@@ -1,21 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { pageTitleClass } from "./PageTitle";
+import { heroTitleClass } from "./PageTitle";
 
 // One point each for business, impact, scale, and AI depth, each tagged with
 // its field and where it happened. Keep these in sync with src/content/works.ts. In `value`,
 // {braces} mark a unit or symbol that renders smaller. "3.5M‑MAU" and
 // "co‑first" use non-breaking hyphens (U+2011) so they never split across
-// lines.
+// lines. In `label`, \n marks a line break that applies on desktop only:
+// break between phrases (keeping a/an with its noun), with each line short
+// enough to fit a column at 1512px.
 const proofPoints = [
-  { field: "B2B AI SaaS", org: "Asleep", value: "$60K+ {MRR}", label: "A sleep-tech startup's first B2B revenue line, built 0 → 1" },
-  { field: "Digital Health", org: "Asleep", value: "K-FDA {Approved}", label: "Clinical trial for an insomnia digital therapeutic" },
-  { field: "AI Search", org: "Kurly", value: "6.8{%} → 0.22{%}", label: "No-result searches on a 3.5M‑MAU grocery platform" },
-  { field: "AI Research", org: "CMU LTI", value: "EMNLP 2025", label: "Main Conference paper, co‑first author" },
+  { field: "B2B AI SaaS", org: "Asleep", value: "$60K+ {MRR}", label: "First B2B revenue line,\nbuilt 0 → 1 at a sleep-tech startup" },
+  { field: "Digital Health", org: "Asleep", value: "K-FDA {Approved}", label: "Clinical trial for\nan insomnia digital therapeutic app" },
+  { field: "AI Search", org: "Kurly", value: "$3.5M+ {/mo}", label: "Revenue recovered from\nno-result searches, 3.5M MAU" },
+  { field: "AI Research", org: "CMU LTI", value: "EMNLP 2025", label: "Main Conference paper,\nco‑first author" },
 ];
 
 // The hats behind the work, in order, each with its picture.
@@ -23,7 +25,7 @@ const roles = [
   { title: "Product Manager", src: "/images/img_hero_2productmanager.jpg" },
   { title: "UX Designer", src: "/images/img_hero_3UXdesigner.jpg" },
   { title: "HCI Researcher", src: "/images/img_hero_4HCIresearcher.jpg" },
-  { title: "Master @ CMU", src: "/images/img_hero_5mastercmu.jpg" },
+  { title: "MDes @ CMU", src: "/images/img_hero_5mastercmu.jpg" },
 ];
 
 // Width over height of the photos (1548×908).
@@ -59,7 +61,7 @@ function StatValue({ value }: { value: string }) {
 }
 
 // How long after the page opens the photos spread on their own.
-const SPREAD_DELAY_MS = 1500;
+const SPREAD_DELAY_MS = 300;
 
 // Whether the photos are spread out. They start stacked and spread
 // SPREAD_DELAY_MS after the page opens, or sooner if the visitor scrolls
@@ -247,7 +249,7 @@ export function Hero({ children }: { children?: React.ReactNode }) {
   return (
     <>
       <section id="hero" className="flex flex-col px-6 pb-10 pt-12 md:px-10 md:pt-16">
-        <h1 className={pageTitleClass}>
+        <h1 className={heroTitleClass}>
           I’m Mel,
           <span className="sr-only">
             {" "}
@@ -280,10 +282,22 @@ export function Hero({ children }: { children?: React.ReactNode }) {
                   {p.field}
                   <span className="font-manrope text-[11px] font-medium text-ink-muted">@ {p.org}</span>
                 </p>
-                <p className="font-manrope mt-5 whitespace-nowrap text-[26px] font-semibold leading-none tracking-[-0.03em] text-ink md:text-[30px]">
+                <p className="font-manrope mt-3 whitespace-nowrap text-[26px] font-semibold leading-none tracking-[-0.03em] text-ink md:text-[30px]">
                   <StatValue value={p.value} />
                 </p>
-                <p className="mt-3 max-w-[30ch] text-sm leading-relaxed text-ink-muted">{p.label}</p>
+                <p className="mt-3 max-w-[30ch] text-sm leading-relaxed text-ink-muted lg:max-w-none">
+                  {p.label.split("\n").map((line, j) => (
+                    <Fragment key={line}>
+                      {j > 0 && (
+                        <>
+                          {" "}
+                          <br className="hidden lg:inline" />
+                        </>
+                      )}
+                      {line}
+                    </Fragment>
+                  ))}
+                </p>
               </div>
             ))}
           </div>

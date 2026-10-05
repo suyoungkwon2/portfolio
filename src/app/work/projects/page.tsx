@@ -3,7 +3,6 @@ import { PageTitle } from "@/components/PageTitle";
 import { WorkGrid, worksIn } from "@/components/SelectedWorks";
 
 export const metadata: Metadata = {
-  title: "Projects | Suyoung Kwon",
   description: "Products Suyoung (Mel) Kwon has shipped across AI, B2B SaaS, and digital health.",
 };
 

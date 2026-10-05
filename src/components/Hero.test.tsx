@@ -7,10 +7,10 @@ describe("Hero", () => {
     const { container } = render(<Hero />);
 
     const heading = screen.getByRole("heading", { level: 1 });
-    expect(heading).toHaveTextContent("I’m Mel, Product Manager, UX Designer, HCI Researcher, Master @ CMU");
+    expect(heading).toHaveTextContent("I’m Mel, Product Manager, UX Designer, HCI Researcher, MDes @ CMU");
 
     const stage = container.querySelector("[aria-hidden='true']")!;
-    for (const role of ["Product Manager", "UX Designer", "HCI Researcher", "Master @ CMU"]) {
+    for (const role of ["Product Manager", "UX Designer", "HCI Researcher", "MDes @ CMU"]) {
       expect(stage).toHaveTextContent(role);
     }
     expect(stage.querySelectorAll("img")).toHaveLength(4);

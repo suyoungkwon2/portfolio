@@ -9,6 +9,7 @@ const GA_ID = "G-B2Z4J55FNK";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://suyoungkwon.com"),
+  // Every page keeps this tab title; pages set only their own description.
   title: "Mel Suyoung Kwon",
   description:
     "Suyoung (Mel) Kwon, a Product Manager building healthcare, education, and AI products with measurable business impact.",

@@ -4,7 +4,6 @@ import { PageTitle } from "@/components/PageTitle";
 import { WorkGrid, worksIn } from "@/components/SelectedWorks";
 
 export const metadata: Metadata = {
-  title: "Research | Suyoung Kwon",
   description: "Applied AI research and publications by Suyoung (Mel) Kwon.",
 };
 

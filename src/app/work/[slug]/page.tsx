@@ -39,7 +39,6 @@ export async function generateMetadata({
   const meta = projects[slug];
   if (!meta || !projectOrder.includes(slug)) return {};
   return {
-    title: `${meta.title} | Suyoung Kwon`,
     description: meta.subtitle,
   };
 }

@@ -5,7 +5,6 @@ import { PageTitle } from "@/components/PageTitle";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
-  title: "Resume | Suyoung Kwon",
   description: "Suyoung (Mel) Kwon's resume and contact details.",
 };
 
