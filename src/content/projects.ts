@@ -29,8 +29,8 @@ export type ProjectMeta = {
   relatedLinks: RelatedLink[];
   summary?: ProjectSummary;
   // Number of portfolio-PDF spreads in /public/images/<slug>/slides. Without
-  // a detail component the route shows these slides as the page body; with a
-  // draft one, they follow it.
+  // a detail component the route shows these slides as the page body; with
+  // one, they follow it.
   slides?: number;
 };
 

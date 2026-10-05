@@ -1,7 +1,6 @@
-// A sibling to DataTable for rows that need rich cell content (bulleted
-// lists, links) and fixed-width leading columns — DataTable's semantic
-// <table> forces equal-ish column sizing and plain string cells, which
-// doesn't fit these two comparison tables.
+// Grid-based table for rows that need rich cell content (bulleted lists,
+// links) and fixed-width leading columns, which a semantic <table> with
+// equal-ish column sizing and plain string cells doesn't fit.
 export type FlexColumn = { label: string; width?: number };
 
 export function FlexTable({

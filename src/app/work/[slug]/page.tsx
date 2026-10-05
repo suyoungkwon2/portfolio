@@ -5,22 +5,15 @@ import { ProjectHero } from "@/components/project/ProjectHero";
 import { RelatedLinks } from "@/components/project/RelatedLinks";
 import { SlideDeck } from "@/components/project/SlideDeck";
 import { TenSecondSummary } from "@/components/project/TenSecondSummary";
-import { AsleepTrackDetail } from "@/components/projects/AsleepTrackDetail";
 import { MarsHeroVideo, MarsOverview } from "@/components/projects/MarsOverview";
 import { PhonitaleDetail, PhonitaleHeroVideos } from "@/components/projects/PhonitaleDetail";
-import { SleepViceDetail } from "@/components/projects/SleepViceDetail";
-import { SomMindDetail } from "@/components/projects/SomMindDetail";
 import { projectOrder, projects } from "@/content/projects";
 
-// Full case studies. Published projects without one fall back to their
-// portfolio-PDF slides (meta.slides). Draft detail components for the other
-// projects live in src/components/projects/ and get wired in here as they're
-// finished.
+// Full case studies, wired in here as each project's web version is
+// finished. Projects without one show their portfolio-PDF slides
+// (meta.slides).
 const detailComponents: Record<string, React.ComponentType> = {
   phonitale: PhonitaleDetail,
-  sommind: SomMindDetail,
-  asleeptrack: AsleepTrackDetail,
-  sleepvice: SleepViceDetail,
 };
 
 // Rebuilt chapters shown above a project's slides while the rest of its
