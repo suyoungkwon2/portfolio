@@ -33,17 +33,53 @@ export function PageChain({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Hold a pulled-in page at its landing spot (top going forward, end going
+// back) while the swipe that opened it is still gliding, so trackpad or
+// touch momentum doesn't carry it off, and while late content (fonts,
+// images) is still changing its height. Lets go once the scrolling has been
+// quiet for a moment.
+const HOLD_MIN_MS = 450;
+const HOLD_MAX_MS = 1500;
+const HOLD_QUIET_MS = 150;
+
 function PageEnter({ children }: { children: React.ReactNode }) {
   const [from] = useState(arrivedByPull);
 
-  // Coming back up, pick up where the visitor left this page: its end.
   useLayoutEffect(() => {
-    if (from === "prev") {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: "instant",
-      });
-    }
+    if (!from) return;
+    const root = document.documentElement;
+    const pin = () =>
+      window.scrollTo({ top: from === "prev" ? root.scrollHeight : 0, behavior: "instant" });
+    pin();
+
+    const start = performance.now();
+    let lastInput = start;
+    // Never cancel the wheel itself: a swipe whose first event is cancelled
+    // stays unscrollable to the browser, freezing the page until a click.
+    const onWheel = () => {
+      lastInput = performance.now();
+    };
+    const onScroll = () => pin();
+    const resize = new ResizeObserver(pin);
+    resize.observe(document.body);
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("scroll", onScroll);
+
+    let frame = 0;
+    const release = () => {
+      cancelAnimationFrame(frame);
+      resize.disconnect();
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("scroll", onScroll);
+    };
+    const tick = () => {
+      const now = performance.now();
+      const settled = now - start > HOLD_MIN_MS && now - lastInput > HOLD_QUIET_MS;
+      if (settled || now - start > HOLD_MAX_MS) release();
+      else frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return release;
   }, [from]);
 
   return (
