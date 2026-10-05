@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { navTree, type NavNode } from "@/content/navigation";
+import { caseStudyFolders, isCaseStudyPath, navTree, type NavNode } from "@/content/navigation";
 import { site } from "@/content/site";
 import { cn } from "@/lib/utils";
 
@@ -195,9 +195,14 @@ function NavTree({ pathname }: { pathname: string }) {
   }
   const chapters = useChapters(pathname);
 
-  // Top-level folders start open; nested ones open while you're inside them.
+  // Top-level folders start open; nested ones open while you're inside
+  // them, and on a case study both case-study folders open.
+  const onCaseStudy = isCaseStudyPath(pathname);
   const open = (node: NavNode, depth: number) =>
-    overrides[node.href] ?? (depth === 0 || containsPath(node, pathname));
+    overrides[node.href] ??
+    (depth === 0 ||
+      containsPath(node, pathname) ||
+      (onCaseStudy && caseStudyFolders.includes(node.href)));
   const onToggle = (node: NavNode, depth: number) =>
     setOverrides((o) => ({ ...o, [node.href]: !open(node, depth) }));
 

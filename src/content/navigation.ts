@@ -14,6 +14,11 @@ const workFiles = (sector: WorkSector): NavNode[] =>
     .filter((w) => w.sector === sector)
     .map((w) => ({ label: shortTitle(w.title), href: `/work/${w.slug}` }));
 
+// The two case-study folders. Inside any case study both stay open, so
+// the visitor can see every project and research piece at once.
+export const caseStudyFolders = ["/work/projects", "/work/research"];
+export const isCaseStudyPath = (path: string) => works.some((w) => `/work/${w.slug}` === path);
+
 // The sidebar's folder tree. A folder links to its own page and expands
 // while the visitor is anywhere inside it; published case studies are
 // listed under their sector automatically.

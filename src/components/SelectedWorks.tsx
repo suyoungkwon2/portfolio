@@ -1,4 +1,5 @@
-import { works, workSectors, type WorkItem, type WorkSector } from "@/content/works";
+import { featuredSlugs, works, type WorkItem, type WorkSector } from "@/content/works";
+import { sectionTitleClass } from "./PageTitle";
 import { WorkCard } from "./WorkCard";
 
 export const worksIn = (sector: WorkSector) => works.filter((w) => w.sector === sector);
@@ -13,15 +14,15 @@ export function WorkGrid({ items }: { items: WorkItem[] }) {
   );
 }
 
-// The landing page's case studies: one grid of cards with no heading, so
-// the first row shows right below the hero. Sectors keep their order
-// (workSectors), AI Research first.
+// The landing page's case studies: a short "Selected Projects" pick
+// (featuredSlugs), the strongest and most finished ones.
 export function SelectedWorks() {
-  const ordered = workSectors.flatMap(worksIn);
+  const featured = featuredSlugs.map((slug) => works.find((w) => w.slug === slug)!);
   return (
     <section id="work" className="px-6 pb-14 pt-6 md:px-10 md:pb-20">
-      <div className="grid gap-x-6 gap-y-12 sm:grid-cols-2">
-        {ordered.map((work, i) => (
+      <h2 className={sectionTitleClass}>Selected Projects</h2>
+      <div className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2">
+        {featured.map((work, i) => (
           <WorkCard key={work.slug} work={work} index={i} />
         ))}
       </div>

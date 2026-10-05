@@ -149,5 +149,6 @@ export const works: WorkItem[] = projectOrder.map(
   (slug) => allWorks.find((w) => w.slug === slug)!,
 );
 
-// AI Research leads for now (temporary ordering).
-export const workSectors: WorkSector[] = ["AI Research", "Projects"];
+// The landing page's "Selected Projects", in this order. The rest stay on
+// the Projects and Research pages.
+export const featuredSlugs = ["phonitale", "sommind", "ai-curation", "ai-search"];

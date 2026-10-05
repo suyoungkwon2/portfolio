@@ -7,7 +7,6 @@ import { projects } from "@/content/projects";
 import type { WorkItem } from "@/content/works";
 import { ChipGroup } from "./project/ChipGroup";
 import { GradientBackdrop } from "./GradientBackdrop";
-import { InViewVideo } from "./InViewVideo";
 
 // Placeholder thumbnail tint per sector, until real case-study screenshots
 // replace it — kept as a soft (not saturated) tint to match the image-
@@ -29,9 +28,13 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
       <Link href={`/work/${work.slug}`} className="group block">
         {work.video && work.videoLayout === "full" ? (
           <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-line">
-            <InViewVideo
+            <video
               src={work.video}
               poster={work.videoPoster}
+              autoPlay
+              muted
+              loop
+              playsInline
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
             />
           </div>
@@ -41,11 +44,19 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
           // a shader backdrop, when the work has a gradient).
           <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden rounded-lg bg-[#E1E6E9] py-3">
             {work.gradient && (
-              <GradientBackdrop colors={work.gradient} className="absolute inset-0" />
+              <GradientBackdrop
+                colors={work.gradient}
+                seed={work.slug}
+                className="absolute inset-0"
+              />
             )}
             <div className="relative aspect-[440/340] h-full overflow-hidden rounded-[7.5px] transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]">
-              <InViewVideo
+              <video
                 src={work.video}
+                autoPlay
+                muted
+                loop
+                playsInline
                 className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
               />
             </div>
@@ -55,6 +66,7 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
             <GradientBackdrop
               colors={work.gradient}
               mesh={work.mesh}
+              seed={work.slug}
               className="absolute inset-0"
             />
             {work.thumbnail && (

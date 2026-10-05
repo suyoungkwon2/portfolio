@@ -47,8 +47,8 @@ export const projects: Record<string, ProjectMeta> = {
     subtitle: "Hospital LLM Datathon",
     tagline: "Get time back. Move care forward.",
     period: "September 2025\n- October 2025",
-    role: ["Team Lead & PM", "System Design", "Prompt Engineering", "Clinical Evaluation"],
-    team: ["PM (Me)", "2 LLM Engineers", "1 Clinical Advisor"],
+    role: ["Team Lead", "System Design", "Prompt Engineering", "Clinical Evaluation"],
+    team: ["Team Lead (Me)", "2 LLM Engineers", "1 Clinical Advisor"],
     org: "Seoul National University Hospital",
     chips: { type: "AI Research", domain: "Healthcare", proof: "Award Winner" },
     // News and LinkedIn links are shown under the Result headline in MarsOverview.
@@ -84,7 +84,7 @@ export const projects: Record<string, ProjectMeta> = {
     subtitle: "Digital Therapeutic App",
     tagline: "Healthy sleep starts with a healthy mind.",
     period: "June 2022\n- March 2023",
-    role: ["Team Lead", "PM", "Clinical Program & Trial Design", "Regulatory"],
+    role: ["Team Lead", "PM", "UX Design", "Clinical Program & Trial Design", "Regulatory"],
     team: [
       "Team Lead & PM (Me)",
       "Medical Director",
@@ -113,8 +113,8 @@ export const projects: Record<string, ProjectMeta> = {
     subtitle: "AI Transformation",
     tagline: "Just type it out. We'll find what you need.",
     period: "May 2024\n- August 2024",
-    role: ["PM", "A/B Test Design", "CEO Communication", "QA"],
-    team: ["PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
+    role: ["AI PM", "A/B Test Design", "CEO Communication", "QA"],
+    team: ["AI PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
     org: "Kurly",
     chips: { type: "AI Transformation", domain: "Commerce", proof: "A/B Validated" },
     relatedLinks: [
@@ -140,8 +140,8 @@ export const projects: Record<string, ProjectMeta> = {
     subtitle: "Internal Tool + AI Transformation",
     tagline: "You name the theme. AI does the rest.",
     period: "June 2024\n- December 2024",
-    role: ["PM", "A/B Test Design", "UX Research", "CEO Communication"],
-    team: ["PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
+    role: ["AI PM", "UX Design", "UX Research", "A/B Test Design", "CEO Communication"],
+    team: ["AI PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
     org: "Kurly",
     chips: { type: "Automation · Internal Tool", domain: "Commerce", proof: "A/B Validated" },
     relatedLinks: [
@@ -201,7 +201,7 @@ export const projects: Record<string, ProjectMeta> = {
     subtitle: "Alexa Voice App (Skill)",
     tagline: "Personal sleep coach right by your pillow.",
     period: "June 2021\n- June 2022",
-    role: ["PM", "VUI Design", "UX Research"],
+    role: ["PM", "Voice User Interface Design", "UX Research"],
     team: ["PM & VUI Designer (Me)", "Business Developer", "Software Engineer"],
     org: "Asleep",
     chips: { type: "0→1", domain: "Voice UX", proof: "Amazon Partner" },
@@ -240,11 +240,11 @@ export const projects: Record<string, ProjectMeta> = {
 // match the Selected Works sections. Drives the cards, the generated /work
 // routes, and prev/next nav on the detail pages.
 export const projectOrder = [
-  "mars",
   "phonitale",
-  "sommind",
+  "mars",
   "ai-curation",
   "ai-search",
+  "sommind",
   "sleepvice",
   "asleeptrack",
 ];
