@@ -6,7 +6,7 @@ import { Fragment, useMemo, useState } from "react";
 import { renderLinks } from "@/lib/renderLinks";
 import { experience, type ExperienceCategory, type ExperienceSubRole } from "@/content/experience";
 import { MoreToggle, Reveal } from "./Disclosure";
-import { PageTitle } from "./PageTitle";
+import { sectionTitleClass } from "./PageTitle";
 
 type Filter = ExperienceCategory | "all";
 
@@ -80,10 +80,10 @@ export function Experience() {
   );
 
   return (
-    <section className="px-6 pb-14 pt-12 md:px-10 md:pb-20 md:pt-16">
-      <PageTitle>Where I&apos;ve built</PageTitle>
+    <section id="experience" className="px-6 py-14 md:px-10 md:py-20">
+      <h2 className={sectionTitleClass}>What I&apos;ve been up to</h2>
 
-      <div className="mt-8 flex items-center gap-3 text-sm">
+      <div className="mt-5 flex items-center gap-3 text-sm">
         {filters.map((f, i) => (
           <Fragment key={f.key}>
             {i > 0 && <span className="text-line">|</span>}
@@ -103,13 +103,15 @@ export function Experience() {
       </div>
 
       <div className="mt-8 flex flex-col">
-        {filtered.map((item, i) => (
+        {filtered.map((item) => (
+          // Each row fades in on its own as it enters the viewport, so no
+          // per-index delay: that made rows further down the list lag.
           <motion.div
             key={`${item.org}-${item.role}`}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
+            viewport={{ once: true, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             className="grid gap-2 border-t border-line py-5 first:border-t-0 md:grid-cols-[3fr_7fr] md:gap-8"
           >
             <div className="flex gap-3">

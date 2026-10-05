@@ -119,7 +119,7 @@ export const experience: ExperienceItem[] = [
     logo: "/images/logo_kmu.jpeg",
     link: "https://id-eng.kookmin.ac.kr/id-eng/index.do",
     category: "education",
-    role: "Bachelor of Fine Arts, Industrial Design (UX Focused)",
+    role: "Bachelor of Fine Arts, Industrial Design (UX/UI Focused)",
     period: "2013 – 2018",
     location: "Seoul, South Korea",
     description: "Academic Excellence Scholarship.",

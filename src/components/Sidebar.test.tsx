@@ -18,7 +18,7 @@ describe("Sidebar", () => {
     expect(screen.getAllByRole("link", { name: "Suyoung Mel Kwon, home" })[0]).toHaveAttribute("href", "/");
     expect(tree().getByRole("link", { name: "Work" })).toHaveAttribute("aria-current", "page");
     expect(tree().getByRole("link", { name: "Resume" })).toHaveAttribute("href", "/resume");
-    expect(tree().getByRole("link", { name: "Experience" })).toHaveAttribute("href", "/about/experience");
+    expect(tree().getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
   });
 
   it("keeps nested folders closed until the visitor is inside them", () => {
@@ -37,11 +37,10 @@ describe("Sidebar", () => {
     expect(tree().getByRole("link", { name: "Research" })).not.toHaveAttribute("aria-current");
   });
 
-  it("marks Hello Visitor, not the About folder, on /about", () => {
+  it("marks About on /about", () => {
     nav.pathname = "/about";
     render(<Sidebar />);
 
-    expect(tree().getByRole("link", { name: "Hello Visitor" })).toHaveAttribute("aria-current", "page");
-    expect(tree().getByRole("link", { name: "About" })).not.toHaveAttribute("aria-current");
+    expect(tree().getByRole("link", { name: "About" })).toHaveAttribute("aria-current", "page");
   });
 });

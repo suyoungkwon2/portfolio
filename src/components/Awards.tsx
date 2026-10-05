@@ -10,13 +10,13 @@ export function Awards() {
       <h2 className={sectionTitleClass}>Recognition along the way</h2>
 
       <div className="mt-5 flex flex-col">
-        {awards.map((award, i) => (
+        {awards.map((award) => (
           <motion.div
             key={`${award.title}-${award.year}`}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.4, delay: i * 0.06, ease: "easeOut" }}
+            viewport={{ once: true, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             className="flex items-center justify-between gap-4 border-t border-line py-5 first:border-t-0"
           >
             <div>

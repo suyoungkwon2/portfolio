@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { About } from "@/components/About";
-import { News } from "@/components/News";
+import { Awards } from "@/components/Awards";
+import { Experience } from "@/components/Experience";
 
 export const metadata: Metadata = {
-  description: "Suyoung (Mel) Kwon: why I build, and what I've been up to lately.",
+  description: "Suyoung (Mel) Kwon: why I build, where I've studied and built, and the recognition along the way.",
 };
 
-// Hello Visitor: the person behind the work, then the latest news.
+// The person behind the work, then the path so far.
 export default function AboutPage() {
   return (
     <main>
       <About />
-      <News />
+      <Experience />
+      <Awards />
     </main>
   );
 }

@@ -35,12 +35,5 @@ export const navTree: NavNode[] = [
     ],
   },
   { label: "Resume", href: "/resume" },
-  {
-    label: "About",
-    href: "/about",
-    children: [
-      { label: "Hello Visitor", href: "/about" },
-      { label: "Experience", href: "/about/experience" },
-    ],
-  },
+  { label: "About", href: "/about" },
 ];
