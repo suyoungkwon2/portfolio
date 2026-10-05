@@ -1,7 +1,7 @@
 // Marks a new chapter inside a long case study (Overview / Process /
 // Evaluation / Reflection) — a centered label between two rules, with an
 // italic one-line summary of what the chapter covers. The id and
-// data-chapter attribute register it with ProjectSideNav.
+// data-chapter attribute register it in the sidebar tree.
 export function ChapterDivider({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div

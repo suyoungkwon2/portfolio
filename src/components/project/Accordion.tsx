@@ -23,7 +23,7 @@ export function Accordion({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex items-center gap-2 rounded-2xl border border-line px-10 py-4 text-sm text-ink-muted transition-colors hover:border-accent hover:text-ink"
+        className="flex items-center gap-2 rounded-lg border border-line px-10 py-4 text-sm text-ink-muted transition-colors hover:border-accent hover:text-ink"
       >
         {label}
         <svg

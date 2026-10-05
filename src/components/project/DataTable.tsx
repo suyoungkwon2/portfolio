@@ -11,7 +11,7 @@ export function DataTable({
   highlightRow?: number;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-line">
+    <div className="overflow-x-auto rounded-md border border-line">
       <table className="w-full min-w-[480px] border-collapse text-sm">
         <thead>
           <tr className="border-b border-line bg-paper-2">

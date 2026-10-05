@@ -22,7 +22,7 @@ const RESULT_LINKS = [
 // the landing card reuses the same file.
 export function MarsHeroVideo() {
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-line">
+    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-line">
       <video
         src={`${IMG}/vid_hero.mp4`}
         poster={`${IMG}/vid_hero_poster.webp`}

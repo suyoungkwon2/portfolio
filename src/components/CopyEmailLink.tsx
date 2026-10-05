@@ -23,7 +23,15 @@ async function copyText(text: string) {
   }
 }
 
-export function CopyEmailLink({ email, className }: { email: string; className?: string }) {
+export function CopyEmailLink({
+  email,
+  className,
+  children = "Email",
+}: {
+  email: string;
+  className?: string;
+  children?: React.ReactNode;
+}) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -38,7 +46,7 @@ export function CopyEmailLink({ email, className }: { email: string; className?:
   return (
     <span className="relative inline-flex justify-center">
       <button type="button" onClick={handleClick} className={className}>
-        Email
+        {children}
       </button>
       <span
         role="status"

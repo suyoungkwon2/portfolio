@@ -7,10 +7,10 @@ import { SectionHeading } from "./SectionHeading";
 // before scrolling; the bottom fade hints there's more.
 export function News() {
   return (
-    <section id="news" className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
+    <section id="news" className="px-6 py-14 md:px-10 md:py-20">
       <SectionHeading kicker="News" title="What I've been up to." />
 
-      <div className="relative mt-12 overflow-hidden rounded-2xl border border-line bg-white">
+      <div className="relative mt-12 overflow-hidden rounded-lg border border-line bg-white">
         <ul
           tabIndex={0}
           aria-label="News, scrollable"

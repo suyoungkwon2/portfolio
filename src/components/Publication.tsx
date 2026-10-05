@@ -26,7 +26,7 @@ const hasEqualContribution = publications.some((item) =>
 
 export function Publication() {
   return (
-    <section id="publication" className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
+    <section id="publication" className="scroll-mt-14 px-6 py-14 md:px-10 md:py-20 lg:scroll-mt-0">
       <SectionHeading kicker="Publication" title="What I've published." />
 
       <div className="mt-10 flex flex-col">
@@ -43,7 +43,7 @@ export function Publication() {
               href={item.link}
               target="_blank"
               rel="noreferrer"
-              className="block w-full shrink-0 overflow-hidden rounded-xl bg-paper-2"
+              className="block w-full shrink-0 overflow-hidden rounded-md bg-paper-2"
               style={{ aspectRatio: `${item.imageWidth} / ${item.imageHeight}` }}
             >
               <Image

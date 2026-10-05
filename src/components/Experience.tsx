@@ -80,7 +80,7 @@ export function Experience() {
   );
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
+    <section className="px-6 py-14 md:px-10 md:py-20">
       <SectionHeading kicker="Experience" title="Where I've built." />
 
       <div className="mt-8 flex items-center gap-3 text-sm">

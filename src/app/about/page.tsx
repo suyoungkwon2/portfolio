@@ -1,26 +1,18 @@
 import type { Metadata } from "next";
 import { About } from "@/components/About";
-import { Awards } from "@/components/Awards";
-import { Experience } from "@/components/Experience";
-import { Footer } from "@/components/Footer";
-import { Nav } from "@/components/Nav";
+import { News } from "@/components/News";
 
 export const metadata: Metadata = {
   title: "About | Suyoung Kwon",
-  description:
-    "Suyoung (Mel) Kwon: why I build, where I've built, and the recognition along the way.",
+  description: "Suyoung (Mel) Kwon: why I build, and what I've been up to lately.",
 };
 
+// Hello Visitor: the person behind the work, then the latest news.
 export default function AboutPage() {
   return (
-    <>
-      <Nav />
-      <main>
-        <About />
-        <Experience />
-        <Awards />
-      </main>
-      <Footer />
-    </>
+    <main>
+      <About />
+      <News />
+    </main>
   );
 }

@@ -39,7 +39,7 @@ export function AiSearchDetail() {
           top of Kurly&apos;s existing GCP data, could interpret intent instead of just matching
           strings, without touching the legacy engine at all.
         </p>
-        <div className="mt-6 rounded-2xl border border-line p-6">
+        <div className="mt-6 rounded-lg border border-line p-6">
           <p className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
             Conditional trigger flow
           </p>

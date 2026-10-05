@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import type { WorkItem } from "@/content/works";
+import { InViewVideo } from "./InViewVideo";
 
 // Placeholder thumbnail tint per sector, until real case-study screenshots
 // replace it — kept as a soft (not saturated) tint to match the image-
@@ -19,39 +20,31 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
     <motion.div
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={{ once: true }}
       transition={{ duration: 0.5, delay: (index % 2) * 0.08, ease: "easeOut" }}
     >
       <Link href={`/work/${work.slug}`} className="group block">
         {work.video && work.videoLayout === "full" ? (
-          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-line">
-            <video
+          <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-line">
+            <InViewVideo
               src={work.video}
               poster={work.videoPoster}
-              autoPlay
-              muted
-              loop
-              playsInline
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
             />
           </div>
         ) : work.video ? (
           // Same framing as the case study's hero demo block: the clip sits
           // in a rounded 440:340 window centered on a light gray panel.
-          <div className="flex aspect-[16/10] items-center justify-center overflow-hidden rounded-2xl bg-[#E1E6E9] py-3">
-            <div className="relative aspect-[440/340] h-full overflow-hidden rounded-[15px] transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]">
-              <video
+          <div className="flex aspect-[16/10] items-center justify-center overflow-hidden rounded-lg bg-[#E1E6E9] py-3">
+            <div className="relative aspect-[440/340] h-full overflow-hidden rounded-[7.5px] transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]">
+              <InViewVideo
                 src={work.video}
-                autoPlay
-                muted
-                loop
-                playsInline
                 className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
               />
             </div>
           </div>
         ) : work.thumbnail ? (
-          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-ink">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-ink">
             <Image
               src={work.thumbnail}
               alt=""
@@ -61,7 +54,7 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
             />
           </div>
         ) : (
-          <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-ink">
+          <div className="aspect-[16/10] overflow-hidden rounded-lg bg-ink">
             <div
               className={`h-full w-full bg-gradient-to-br ${sectorAccent[work.sector]} transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]`}
             />

@@ -21,7 +21,7 @@ export function SlideDeck({ slug, title, count }: { slug: string; title: string;
               width={2400}
               height={1699}
               sizes="(min-width: 1152px) 1072px, 100vw"
-              className="h-auto w-full rounded-lg border border-line"
+              className="h-auto w-full rounded border border-line"
             />
           </a>
         );

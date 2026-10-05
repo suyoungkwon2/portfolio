@@ -1,43 +1,35 @@
 @import "tailwindcss";
 
 /*
- * Color system — cool/navy-leaning, near-monochrome by design.
- *
- * Neutrals (paper/ink/line) are true grays with zero warm cast — this is
- * where "cool" mostly lives, since they cover ~90% of the UI (backgrounds,
- * body text, borders). Reserve the 5 brand colors below strictly for point-
- * of-interest moments: section eyebrows, category tags, metrics, hover
- * states. Never use a brand color for a large surface or body copy — that's
- * what makes them still read as "accents" against an otherwise black/white
- * site instead of turning the whole thing purple/green.
- *
- * Brand palette (from the approved swatch) and their assigned roles:
- *   Twilight Indigo  #2F3061 -> --color-accent      (primary point color)
- *   Lavender         #DED9E2 -> --color-accent-soft (primary's light tint)
- *   Jungle Teal      #55917F -> --color-accent-2    (secondary point color)
- *   Tea Green        #D4F0A8 -> --color-accent-2-soft (secondary's light tint)
- *   Soft Periwinkle  #9C85D6 -> --color-accent-3    (interaction accent —
- *     hover/focus states, a third category if one appears later)
- * Lavender doubles as accent-3's soft companion too (same indigo/violet
- * family as periwinkle), so there's no separate --color-accent-3-soft.
+ * Color system: black and white, with one point color.
+ * Neutrals are true grays with no warm or cool cast and cover nearly all
+ * of the UI. Twilight Indigo (#2F3061) is the only color, reserved for
+ * point moments: section eyebrows, metrics, labels, and hover states.
+ * Never use it for large surfaces or body copy.
+ *   --color-accent         -> indigo, eyebrows, labels, metrics
+ *   --color-accent-soft    -> light gray fill (chips, table headers)
+ *   --color-accent-2       -> dark gray, secondary labels
+ *   --color-accent-2-soft  -> light gray fill
+ *   --color-accent-3       -> indigo, the hover/interaction state
  */
 @theme {
-  --color-paper: #fafafa;
-  --color-paper-2: #eef0f3;
-  --color-ink: #1a1a1a;
-  --color-ink-muted: #5b6472;
-  --color-line: #e3e6ea;
+  --color-paper: #ffffff;
+  --color-paper-2: #f4f4f4;
+  --color-ink: #111111;
+  --color-ink-muted: #6b6b6b;
+  --color-line: #e6e6e6;
 
   --color-accent: #2f3061;
-  --color-accent-soft: #ded9e2;
-  --color-accent-2: #55917f;
-  --color-accent-2-soft: #d4f0a8;
-  --color-accent-3: #9c85d6;
+  --color-accent-soft: #ededed;
+  --color-accent-2: #3d3d3d;
+  --color-accent-2-soft: #f0f0f0;
+  --color-accent-3: #2f3061;
 
   --font-display: "Aspekta", sans-serif;
   --font-aspekta: "Aspekta", sans-serif;
   --font-sans: "Inter", sans-serif;
   --font-instrument: "Instrument Serif", serif;
+  --font-manrope: "Manrope", sans-serif;
 }
 
 @font-face {

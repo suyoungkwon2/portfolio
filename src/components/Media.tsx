@@ -9,7 +9,7 @@ import { SectionHeading } from "./SectionHeading";
 // read as visual proof rather than a list of text links.
 export function Media() {
   return (
-    <section id="media" className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
+    <section id="media" className="px-6 py-14 md:px-10 md:py-20">
       <SectionHeading kicker="In the Media" title="Where the work was featured." />
 
       <div className="mt-16 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
@@ -22,7 +22,7 @@ export function Media() {
             transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: "easeOut" }}
           >
             <a href={item.href} target="_blank" rel="noopener noreferrer" className="group block">
-              <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-ink">
+              <div className="relative aspect-[3/2] overflow-hidden rounded-lg bg-ink">
                 <Image
                   src={item.image}
                   alt=""

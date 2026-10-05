@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Footer } from "@/components/Footer";
-import { Nav } from "@/components/Nav";
 import { ProjectFooterNav } from "@/components/project/ProjectFooterNav";
 import { ProjectHero } from "@/components/project/ProjectHero";
-import { ProjectSideNav } from "@/components/project/ProjectSideNav";
 import { RelatedLinks } from "@/components/project/RelatedLinks";
 import { SlideDeck } from "@/components/project/SlideDeck";
 import { TenSecondSummary } from "@/components/project/TenSecondSummary";
@@ -64,35 +61,30 @@ export default async function ProjectPage({
   const nextSlug = projectOrder[(index + 1) % projectOrder.length];
 
   return (
-    <>
-      <Nav />
-      <main>
-        <ProjectHero
-          meta={meta}
-          heroMedia={
-            <>
-              {meta.summary && <TenSecondSummary summary={meta.summary} />}
-              {slug === "phonitale" && <PhonitaleHeroVideos />}
-              {slug === "mars" && <MarsHeroVideo />}
-            </>
-          }
-        />
-        {Detail ? (
-          <Detail />
-        ) : (
+    <main>
+      <ProjectHero
+        meta={meta}
+        heroMedia={
           <>
-            {Intro && <Intro />}
-            <SlideDeck slug={slug} title={meta.title} count={meta.slides ?? 0} />
+            {meta.summary && <TenSecondSummary summary={meta.summary} />}
+            {slug === "phonitale" && <PhonitaleHeroVideos />}
+            {slug === "mars" && <MarsHeroVideo />}
           </>
-        )}
-        <ProjectSideNav />
-        <RelatedLinks links={meta.relatedLinks} />
-        <ProjectFooterNav
-          prev={prevSlug ? { slug: prevSlug, title: projects[prevSlug].title } : undefined}
-          next={nextSlug ? { slug: nextSlug, title: projects[nextSlug].title } : undefined}
-        />
-      </main>
-      <Footer />
-    </>
+        }
+      />
+      {Detail ? (
+        <Detail />
+      ) : (
+        <>
+          {Intro && <Intro />}
+          <SlideDeck slug={slug} title={meta.title} count={meta.slides ?? 0} />
+        </>
+      )}
+      <RelatedLinks links={meta.relatedLinks} />
+      <ProjectFooterNav
+        prev={prevSlug ? { slug: prevSlug, title: projects[prevSlug].title } : undefined}
+        next={nextSlug ? { slug: nextSlug, title: projects[nextSlug].title } : undefined}
+      />
+    </main>
   );
 }

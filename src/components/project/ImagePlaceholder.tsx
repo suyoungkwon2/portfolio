@@ -16,7 +16,7 @@ export function ImagePlaceholder({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-2xl border border-dashed border-line bg-paper-2 px-6 text-center",
+        "flex items-center justify-center rounded-lg border border-dashed border-line bg-paper-2 px-6 text-center",
         aspect,
         className,
       )}

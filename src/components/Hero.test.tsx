@@ -3,12 +3,13 @@ import { describe, expect, it } from "vitest";
 import { Hero } from "./Hero";
 
 describe("Hero", () => {
-  it("renders the full headline text", () => {
+  it("names every role in the headline and shows the first one", () => {
     render(<Hero />);
 
     const heading = screen.getByRole("heading", { level: 1 });
     expect(heading).toHaveTextContent(
-      "I’m Mel. I find what people need, then make it work as a business.",
+      "I’m Mel, Product Manager, UX Designer, HCI Researcher, Master @ CMU",
     );
+    expect(screen.getByText("Product Manager", { selector: "span[class*='whitespace-nowrap']" })).toBeInTheDocument();
   });
 });

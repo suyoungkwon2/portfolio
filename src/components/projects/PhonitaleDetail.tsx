@@ -32,7 +32,7 @@ const RESULT_LINKS = [
 
 function ExampleBox({ children, bordered = true, fit = false }: { children: React.ReactNode; bordered?: boolean; fit?: boolean }) {
   return (
-    <div className={cn("p-6", fit ? "mx-auto w-fit" : "w-full", bordered && "rounded-2xl border border-line bg-paper")}>
+    <div className={cn("p-6", fit ? "mx-auto w-fit" : "w-full", bordered && "rounded-lg border border-line bg-paper")}>
       <div className="flex flex-col gap-4">{children}</div>
     </div>
   );
@@ -105,7 +105,7 @@ function PipelineDiagram() {
   ];
 
   return (
-    <div className="w-full rounded-[10px] bg-[#e3e6ea] p-4">
+    <div className="w-full rounded-[5px] bg-[#e3e6ea] p-4">
       <div className="mb-3 flex justify-start">
         <Image src={`${IMG}/img_approach_1.png`} alt="PhoniTale: from Phonology + Mnemonic + Tale" width={500} height={40} unoptimized className="h-auto w-[500px] max-w-full" />
       </div>
@@ -151,7 +151,7 @@ export function PhonitaleHeroVideos() {
   return (
     <>
       <div className="flex flex-col gap-4 xl:flex-row">
-        <div className="relative aspect-[1597/1080] w-full max-w-[538px] shrink-0 overflow-hidden rounded-2xl bg-[#E1E6E9] xl:aspect-auto xl:h-[364px] xl:w-[538px]">
+        <div className="relative aspect-[1597/1080] w-full max-w-[538px] shrink-0 overflow-hidden rounded-lg bg-[#E1E6E9] xl:aspect-auto xl:h-[364px] xl:w-[538px]">
           <video
             src={`${IMG}/vid_architecture.mp4`}
             autoPlay
@@ -161,8 +161,8 @@ export function PhonitaleHeroVideos() {
             className="absolute -left-[2px] top-0 h-full w-[calc(100%+4px)] max-w-none object-cover"
           />
         </div>
-        <div className="flex items-center justify-center overflow-hidden rounded-2xl bg-[#E1E6E9] py-[12px] xl:h-[364px] xl:flex-1">
-          <div className="relative aspect-[440/340] w-full max-w-[440px] overflow-hidden rounded-[15px]">
+        <div className="flex items-center justify-center overflow-hidden rounded-lg bg-[#E1E6E9] py-[12px] xl:h-[364px] xl:flex-1">
+          <div className="relative aspect-[440/340] w-full max-w-[440px] overflow-hidden rounded-[7.5px]">
             <video
               src={`${IMG}/vid_web.mp4`}
               autoPlay
@@ -223,7 +223,7 @@ export function PhonitaleDetail() {
             </p>
             <ResultLinks links={RESULT_LINKS} />
           </div>
-          <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded-lg md:h-[368px] md:w-[500px]">
+          <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded md:h-[368px] md:w-[500px]">
             <Image
               src={`${IMG}/img_result_1.webp`}
               alt="Presenting the PhoniTale poster at EMNLP 2025"
@@ -264,7 +264,7 @@ export function PhonitaleDetail() {
           We were studying for the GRE (grad school applications in the U.S.), and English
           vocabulary just wouldn&rsquo;t stick.
         </p>
-        <div className="relative aspect-[2048/2313] w-full max-w-[900px] overflow-hidden rounded-lg">
+        <div className="relative aspect-[2048/2313] w-full max-w-[900px] overflow-hidden rounded">
           <Image src={`${IMG}/background-gre-photo.webp`} alt="Studying vocabulary flashcards for the GRE" fill sizes="(min-width: 900px) 900px, 100vw" className="object-cover" />
         </div>
       </CaseSection>
@@ -361,7 +361,7 @@ export function PhonitaleDetail() {
         </p>
         <PipelineDiagram />
         <Accordion label="See Detailed Architecture">
-          <div className="w-full overflow-hidden rounded-2xl border border-line p-6">
+          <div className="w-full overflow-hidden rounded-lg border border-line p-6">
             <div className="relative w-full" style={{ aspectRatio: "3575/1612" }}>
               <Image src={`${IMG}/approach-architecture-diagram.png`} alt="Detailed PhoniTale pipeline architecture diagram" fill className="object-contain" />
             </div>
@@ -424,7 +424,7 @@ export function PhonitaleDetail() {
         </p>
 
         <div className="flex w-full flex-col items-center gap-5 md:flex-row">
-          <div className="relative h-[140px] w-full shrink-0 rounded-[10px] bg-line md:w-[640px]">
+          <div className="relative h-[140px] w-full shrink-0 rounded-[5px] bg-line md:w-[640px]">
             <Image src={`${IMG}/img_evaluationdesign_1.png`} alt="KSS (Human Expert) vs OGR (Older SOTA) vs PHT (Our Model), N = 17 each" fill unoptimized className="object-contain p-6" />
           </div>
           <div className="flex-1 text-left">
@@ -438,7 +438,7 @@ export function PhonitaleDetail() {
         </div>
 
         <div className="flex w-full flex-col items-center gap-5 md:flex-row">
-          <div className="relative h-[140px] w-full shrink-0 rounded-[10px] bg-line md:w-[640px]">
+          <div className="relative h-[140px] w-full shrink-0 rounded-[5px] bg-line md:w-[640px]">
             <Image src={`${IMG}/img_evaluationdesign_2.png`} alt="Instruction → Learning → Testing (Recognition → Generation) → Survey, 3 sets" fill unoptimized className="object-contain p-6" />
           </div>
           <div className="flex-1 text-left">
@@ -452,7 +452,7 @@ export function PhonitaleDetail() {
         </div>
 
         <div className="flex w-full flex-col items-center gap-5 md:flex-row">
-          <div className="relative flex h-[140px] w-full shrink-0 items-end justify-center overflow-hidden rounded-[10px] bg-line px-6 pt-6 md:w-[640px]">
+          <div className="relative flex h-[140px] w-full shrink-0 items-end justify-center overflow-hidden rounded-[5px] bg-line px-6 pt-6 md:w-[640px]">
             <Image
               src={`${IMG}/img_evaluationdesign_3.png`}
               alt="PhoniTale evaluation web platform screenshot"
@@ -549,7 +549,7 @@ export function PhonitaleDetail() {
             Mapped the essential flow participants needed to follow, based on the evaluation
             procedure.
           </p>
-          <div className="relative mt-2 w-full overflow-hidden rounded-[10px] bg-line p-4">
+          <div className="relative mt-2 w-full overflow-hidden rounded-[5px] bg-line p-4">
             <Image
               src={`${IMG}/img_design_keypath.png`}
               alt="Key path flow diagram"
@@ -566,7 +566,7 @@ export function PhonitaleDetail() {
             Studied existing language-learning apps to explore layout patterns and core UX
             decisions.
           </p>
-          <div className="relative mt-2 w-full overflow-hidden rounded-[10px] bg-line p-4">
+          <div className="relative mt-2 w-full overflow-hidden rounded-[5px] bg-line p-4">
             <Image
               src={`${IMG}/img_design_wireframe.png`}
               alt="Wireframe exploration"
@@ -585,7 +585,7 @@ export function PhonitaleDetail() {
           </p>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-6">
+            <div className="flex flex-1 flex-col items-center gap-4 rounded-[5px] bg-line px-6 py-6">
               <p className="w-full text-left font-display text-lg font-semibold text-accent">Key Component</p>
               <div className="relative h-[233px] w-full max-w-[400px] overflow-hidden rounded-sm">
                 <Image src={`${IMG}/img_design_keycomponent.png`} alt="Key component mockup" fill className="object-contain" />
@@ -596,7 +596,7 @@ export function PhonitaleDetail() {
                 story, making the logic behind each cue visually clear at a glance.
               </p>
             </div>
-            <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-6">
+            <div className="flex flex-1 flex-col items-center gap-4 rounded-[5px] bg-line px-6 py-6">
               <p className="w-full text-left font-display text-lg font-semibold text-accent">Learning</p>
               <div className="relative h-[329px] w-full max-w-[400px] overflow-hidden rounded-sm">
                 <Image src={`${IMG}/img_design_learning.png`} alt="Learning screen mockup" fill className="object-contain" />
@@ -605,7 +605,7 @@ export function PhonitaleDetail() {
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-6">
+            <div className="flex flex-1 flex-col items-center gap-4 rounded-[5px] bg-line px-6 py-6">
               <p className="w-full text-left font-display text-lg font-semibold text-accent">Test - Recognition</p>
               <div className="relative h-[252px] w-full max-w-[400px] overflow-hidden rounded-sm">
                 <Image src={`${IMG}/img_design_recognition.png`} alt="Recognition test mockup" fill className="object-contain" />
@@ -615,7 +615,7 @@ export function PhonitaleDetail() {
                 <Image src={`${IMG}/img_design_generation.png`} alt="Generation test mockup" fill className="object-contain" />
               </div>
             </div>
-            <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-6">
+            <div className="flex flex-1 flex-col items-center gap-4 rounded-[5px] bg-line px-6 py-6">
               <p className="w-full text-left font-display text-lg font-semibold text-accent">Survey</p>
               <div className="relative h-[473px] w-full max-w-[400px] overflow-hidden rounded-sm">
                 <Image src={`${IMG}/img_design_survey.png`} alt="Survey screen mockup" fill className="object-contain" />
@@ -633,7 +633,7 @@ export function PhonitaleDetail() {
         </p>
 
         <div className="flex w-full flex-col gap-4 md:flex-row">
-          <div className="flex flex-1 flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-5">
+          <div className="flex flex-1 flex-col items-center gap-4 rounded-[5px] bg-line px-6 py-5">
             <p className="w-full text-left font-display text-xl font-semibold text-accent">System Architecture</p>
             <div className="relative h-[140px] w-full max-w-[640px]">
               <Image
@@ -644,7 +644,7 @@ export function PhonitaleDetail() {
               />
             </div>
           </div>
-          <div className="flex w-full flex-col items-center gap-4 rounded-[10px] bg-line px-6 py-5 md:w-[250px]">
+          <div className="flex w-full flex-col items-center gap-4 rounded-[5px] bg-line px-6 py-5 md:w-[250px]">
             <p className="w-full text-left font-display text-xl font-semibold text-accent">Tools</p>
             <div className="relative h-[160px] w-full max-w-[220px]">
               <Image src={`${IMG}/img_development_tools.png`} alt="Cursor and Claude" fill className="object-contain" />
@@ -652,7 +652,7 @@ export function PhonitaleDetail() {
           </div>
         </div>
 
-        <div className="flex w-full flex-col items-center gap-4 rounded-[10px] bg-line p-4">
+        <div className="flex w-full flex-col items-center gap-4 rounded-[5px] bg-line p-4">
           <div className="relative h-[450px] w-full max-w-[800px] overflow-hidden rounded shadow">
             <Image src={`${IMG}/platform-demo.gif`} alt="Demo of the PhoniTale evaluation platform" fill unoptimized className="object-cover" />
           </div>
@@ -673,7 +673,7 @@ export function PhonitaleDetail() {
           goals, and the results confirmed them.
         </p>
         <div className="flex w-full flex-col gap-6 md:flex-row md:items-center">
-          <div className="relative w-full shrink-0 overflow-hidden rounded-[10px] bg-line p-[30px] md:w-fit">
+          <div className="relative w-full shrink-0 overflow-hidden rounded-[5px] bg-line p-[30px] md:w-fit">
             <Image
               src={`${IMG}/img_findings.png`}
               alt="Chart comparing recognition and generation recall across the three groups"

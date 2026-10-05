@@ -1,5 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
+import { Sidebar } from "@/components/Sidebar";
 import "./globals.css";
 
 // Same GA4 property as the previous Jekyll site, so traffic history carries
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
   title: "Suyoung Kwon | Product Manager",
   description:
     "Suyoung (Mel) Kwon, a Product Manager building healthcare, education, and AI products with measurable business impact.",
+  icons: { icon: "/images/logo_mk_small.png", apple: "/images/logo_mk_small.png" },
 };
 
 export default function RootLayout({
@@ -24,11 +26,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400..800&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Sidebar />
+        <div className="lg:pl-60">{children}</div>
+      </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId={GA_ID} />}
     </html>
   );

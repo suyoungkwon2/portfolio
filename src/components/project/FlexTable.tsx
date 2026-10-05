@@ -14,7 +14,7 @@ export function FlexTable({
   highlightRow?: number;
 }) {
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-line text-sm">
+    <div className="w-full overflow-hidden rounded-md border border-line text-sm">
       <div className="flex gap-4 border-b border-line bg-paper-2 px-4 py-3 font-medium text-ink">
         {columns.map((col, i) => (
           <div
