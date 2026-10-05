@@ -1,9 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import { Fragment } from "react";
-import { publications, type PublicationAuthor } from "@/content/publications";
+import { publications, type PublicationAuthor, type PublicationCategory } from "@/content/publications";
+import { linkClass } from "./ContactLinks";
 import { sectionTitleClass } from "./PageTitle";
 
 function renderAuthors(authors: PublicationAuthor[]) {
@@ -20,6 +22,11 @@ function renderAuthors(authors: PublicationAuthor[]) {
   ));
 }
 
+const linkLabel: Record<PublicationCategory, string> = {
+  paper: "Read paper",
+  patent: "Check patent",
+};
+
 const hasEqualContribution = publications.some((item) =>
   item.authors.some((author) => author.equalContribution),
 );
@@ -30,20 +37,17 @@ export function Publication() {
       <h2 className={sectionTitleClass}>What I&apos;ve published</h2>
 
       <div className="mt-5 flex flex-col">
-        {publications.map((item, i) => (
+        {publications.map((item) => (
           <motion.div
             key={item.title}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
+            viewport={{ once: true, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             className="grid gap-4 border-t border-line py-6 first:border-t-0 md:grid-cols-[320px_1fr] md:items-start md:gap-6"
           >
-            <a
-              href={item.link}
-              target="_blank"
-              rel="noreferrer"
-              className="block w-full shrink-0 overflow-hidden rounded-md bg-paper-2"
+            <div
+              className="w-full shrink-0 overflow-hidden rounded-md bg-paper-2"
               style={{ aspectRatio: `${item.imageWidth} / ${item.imageHeight}` }}
             >
               <Image
@@ -53,21 +57,12 @@ export function Publication() {
                 height={item.imageHeight}
                 className="h-full w-full object-cover"
               />
-            </a>
+            </div>
             <div className="md:max-w-[80%]">
               <p className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
                 {item.venue} · {item.date}
               </p>
-              <h3 className="font-display mt-1 text-xl font-medium">
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-ink no-underline transition-colors hover:text-accent-3"
-                >
-                  {item.title}
-                </a>
-              </h3>
+              <h3 className="font-display mt-1 text-xl font-medium text-ink">{item.title}</h3>
               <p className="mt-2 text-sm text-ink-muted">{renderAuthors(item.authors)}</p>
               <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-[21px] text-ink">
                 <li>
@@ -77,6 +72,12 @@ export function Publication() {
                   <span className="font-medium text-ink">Role:</span> {item.role}
                 </li>
               </ul>
+              <div className="mt-4">
+                <a href={item.link} target="_blank" rel="noreferrer" className={linkClass}>
+                  {linkLabel[item.category]}
+                  <ArrowUpRight aria-hidden className="size-3.5" />
+                </a>
+              </div>
             </div>
           </motion.div>
         ))}

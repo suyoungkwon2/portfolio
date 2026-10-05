@@ -2,7 +2,8 @@ import { ArrowUpRight, Copy } from "lucide-react";
 import { site } from "@/content/site";
 import { CopyEmailLink } from "./CopyEmailLink";
 
-const linkClass = "inline-flex items-center gap-1.5 text-sm leading-[21px] text-ink no-underline transition-colors hover:text-accent-3";
+// Also used for the publication links on Research.
+export const linkClass = "inline-flex items-center gap-1.5 text-sm leading-[21px] text-ink no-underline transition-colors hover:text-accent-3";
 
 const links = [
   { label: "LinkedIn", href: site.linkedinHref },
