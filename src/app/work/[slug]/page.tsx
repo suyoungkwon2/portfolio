@@ -59,8 +59,10 @@ export default async function ProjectPage({
   const prevSlug = projectOrder[index - 1];
   const nextSlug = projectOrder[(index + 1) % projectOrder.length];
 
+  // Case studies keep the original type (Inter body, Aspekta display);
+  // the rest of the site is set in Manrope (app/layout.tsx).
   return (
-    <main>
+    <main className="[--font-display:Aspekta,sans-serif] [font-family:Inter,sans-serif]">
       <ProjectHero
         meta={meta}
         heroMedia={

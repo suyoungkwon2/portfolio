@@ -31,7 +31,11 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">
+      {/* Manrope everywhere: the body font and font-display both point at
+          it (globals.css sets body's font from --font-sans, so the variable
+          is what has to change). Case study pages switch back to Inter and
+          Aspekta (work/[slug]). */}
+      <body className="antialiased [--font-display:var(--font-manrope)] [--font-sans:var(--font-manrope)]">
         <Sidebar />
         {/* Layout units for page headlines and the landing hero, from lg up.
             --u is 1% of the content width (capped; 320px is the sidebar plus
