@@ -118,6 +118,14 @@ function TreeItem({
           )}
         >
           {node.label}
+          {node.featured && (
+            <>
+              <span aria-hidden className="ml-1.5 text-[10px] text-ink-muted">
+                ✦
+              </span>
+              <span className="sr-only">, selected project</span>
+            </>
+          )}
         </Link>
         {isFolder && (
           <button

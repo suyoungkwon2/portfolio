@@ -1,9 +1,11 @@
-import { works, type WorkSector } from "./works";
+import { featuredSlugs, works, type WorkSector } from "./works";
 
 export type NavNode = {
   label: string;
   href: string;
   children?: NavNode[];
+  // One of the landing page's Selected Projects; marked ✦ in the sidebar.
+  featured?: boolean;
 };
 
 // "M.A.R.S: AI Clinical Documentation" -> "M.A.R.S"
@@ -12,7 +14,11 @@ const shortTitle = (title: string) => title.split(":")[0];
 const workFiles = (sector: WorkSector): NavNode[] =>
   works
     .filter((w) => w.sector === sector)
-    .map((w) => ({ label: shortTitle(w.title), href: `/work/${w.slug}` }));
+    .map((w) => ({
+      label: shortTitle(w.title),
+      href: `/work/${w.slug}`,
+      featured: featuredSlugs.includes(w.slug),
+    }));
 
 // The two case-study folders. Inside any case study both stay open, so
 // the visitor can see every project and research piece at once.
