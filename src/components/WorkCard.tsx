@@ -35,8 +35,12 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
           </div>
         ) : work.video ? (
           // Same framing as the case study's hero demo block: the clip sits
-          // in a rounded 440:340 window centered on a light gray panel.
-          <div className="flex aspect-[16/10] items-center justify-center overflow-hidden rounded-lg bg-[#E1E6E9] py-3">
+          // in a rounded 440:340 window centered on a light gray panel (or
+          // a shader backdrop, when the work has a gradient).
+          <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden rounded-lg bg-[#E1E6E9] py-3">
+            {work.gradient && (
+              <GradientBackdrop colors={work.gradient} className="absolute inset-0" />
+            )}
             <div className="relative aspect-[440/340] h-full overflow-hidden rounded-[7.5px] transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]">
               <InViewVideo
                 src={work.video}
@@ -46,7 +50,11 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
           </div>
         ) : work.gradient ? (
           <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
-            <GradientBackdrop colors={work.gradient} className="absolute inset-0" />
+            <GradientBackdrop
+              colors={work.gradient}
+              mesh={work.mesh}
+              className="absolute inset-0"
+            />
             {work.thumbnail && (
               <Image
                 src={work.thumbnail}

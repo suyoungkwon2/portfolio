@@ -7,7 +7,18 @@ import { useEffect, useState } from "react";
 // same colors sits underneath, so the card is never blank while WebGL
 // starts up (or if it can't). The shader pauses itself offscreen and in
 // background tabs; with reduced motion it renders one still frame.
-export function GradientBackdrop({ colors, className }: { colors: string[]; className?: string }) {
+export type MeshSettings = { distortion?: number; swirl?: number; offsetY?: number };
+
+export function GradientBackdrop({
+  colors,
+  mesh,
+  className,
+}: {
+  colors: string[];
+  // Per-card overrides of the default shape below.
+  mesh?: MeshSettings;
+  className?: string;
+}) {
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -25,9 +36,10 @@ export function GradientBackdrop({ colors, className }: { colors: string[]; clas
     >
       <MeshGradient
         colors={colors}
-        distortion={0.7}
-        swirl={0.2}
-        speed={reduceMotion ? 0 : 0.35}
+        distortion={mesh?.distortion ?? 0.7}
+        swirl={mesh?.swirl ?? 0.2}
+        offsetY={mesh?.offsetY ?? 0}
+        speed={reduceMotion ? 0 : 0.45}
         className="h-full w-full"
       />
     </div>

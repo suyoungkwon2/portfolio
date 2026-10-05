@@ -1,3 +1,4 @@
+import type { MeshSettings } from "@/components/GradientBackdrop";
 import { projectOrder } from "./projects";
 
 export type WorkSector = "Projects" | "AI Research";
@@ -15,21 +16,37 @@ export type WorkItem = {
   // Colors for a slowly moving mesh-gradient backdrop. With a thumbnail,
   // the image (a transparent PNG) sits on top of it.
   gradient?: string[];
+  // Overrides for the backdrop's mesh shape (distortion, swirl, offsetY).
+  mesh?: MeshSettings;
   // Looping demo clip shown in place of the thumbnail.
   video?: string;
-  // "framed" (default) sits the clip in a small window on a gray panel, for
-  // UI recordings; "full" fills the whole card, for full-bleed footage.
+  // "framed" (default) sits the clip in a small window on a gray panel (or
+  // the gradient backdrop), for UI recordings; "full" fills the whole card,
+  // for full-bleed footage.
   videoLayout?: "framed" | "full";
   // Still shown until the video loads (its first frame).
   videoPoster?: string;
 };
 
-// Asleep's lavender-blue, from the SomMind key visual: base, periwinkle,
-// near-white highlight, and a softened brand blue, plus one accent each:
-// lilac for SomMind, a warm lamp yellow for AsleepTrack.
-const ASLEEP_BASE = ["#C9D1E5", "#A8B5F3", "#EEF2FC", "#8AA2F4"];
-const SOMMIND_GRADIENT = [...ASLEEP_BASE, "#D4C8F4"];
-const ASLEEPTRACK_GRADIENT = [...ASLEEP_BASE, "#F4E7B4"];
+// Shader backdrop palettes. Mesh gradients blend in RGB, so two far-apart
+// hues meet in gray; keeping light tones between them keeps the mix bright.
+//
+// Asleep's lavender-blue, from the SomMind key visual, with a lilac accent.
+const SOMMIND_GRADIENT = ["#C9D1E5", "#A8B5F3", "#EEF2FC", "#8AA2F4", "#D4C8F4"];
+// The same family for AsleepTrack, minus the deep blue, with a soft mint
+// beside a cool white so it fades into the blues through light, not gray.
+const ASLEEPTRACK_GRADIENT = ["#C9D1E5", "#A8B5F3", "#EEF2FC", "#C8EEDF", "#F2FBF8"];
+// Kurly's navy, from the AI Search / AI Curation key visuals: mostly navy
+// with a lifted blue. The accents (lavender / purple) are mixed about halfway
+// toward navy so they read as a soft tint, not a bright glow.
+const KURLY_NAVY = ["#0F122E", "#1A1E44", "#0F122E", "#151A3C", "#0F122E"];
+const AI_SEARCH_GRADIENT = [...KURLY_NAVY, "#6B63A8"];
+const AI_CURATION_GRADIENT = [...KURLY_NAVY, "#5738A0"];
+// Calmer shape for the Kurly cards: little distortion and no swirl, with
+// the color spots shifted vertically.
+const KURLY_MESH = { distortion: 0.12, swirl: 0, offsetY: 0.2 };
+// PhoniTale's gray demo panel with a little SomMind sky blue mixed in.
+const PHONITALE_GRADIENT = ["#E1E6E9", "#D3DCF0", "#EEF2FC", "#BFCBF2"];
 
 // Real case studies, sourced and cross-referenced from
 // docs/projects/*.md (portfolio PDF + CVs + legacy-jekyll write-ups).
@@ -46,6 +63,8 @@ const allWorks: WorkItem[] = [
     metrics: "No-result rate 6.8% → 0.22% · 30% lower operating cost",
     year: "2024",
     thumbnail: "/images/ai-search/thumbnail.webp",
+    gradient: AI_SEARCH_GRADIENT,
+    mesh: KURLY_MESH,
   },
   {
     slug: "ai-curation",
@@ -57,6 +76,8 @@ const allWorks: WorkItem[] = [
     metrics: "25% of homepage slots · 200+ campaigns, zero manual ops",
     year: "2024",
     thumbnail: "/images/ai-curation/thumbnail.webp",
+    gradient: AI_CURATION_GRADIENT,
+    mesh: KURLY_MESH,
   },
   {
     slug: "asleeptrack",
@@ -91,6 +112,9 @@ const allWorks: WorkItem[] = [
       "Led product and voice design for an Alexa Skill that brings Asleep's sleep-tracking AI to the Echo, with sleep-stage smart alarms and lighting, refined through two rounds of usability testing.",
     metrics: "Korea's first official Amazon Alexa startup partner · CES 2022",
     year: "2021–22",
+    video: "/images/sleepvice/vid_thumbnail.mp4",
+    videoLayout: "full",
+    videoPoster: "/images/sleepvice/vid_thumbnail_poster.webp",
   },
   {
     slug: "mars",
@@ -116,6 +140,7 @@ const allWorks: WorkItem[] = [
     metrics: "Published, EMNLP 2025 Main Conference",
     year: "2025",
     video: "/images/phonitale/vid_web.mp4",
+    gradient: PHONITALE_GRADIENT,
   },
 ];
 
