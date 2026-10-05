@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 export const heroTitleClass =
   "font-manrope text-[38px] font-semibold leading-[1.3] tracking-[-0.03em] text-ink md:text-[52px] lg:text-[calc(var(--f)*4.6)]";
 
-// A section title within a page (Resume's "Get in touch", About's news).
+// A section title within a page: Resume's "Get in touch", About's news,
+// Experience's recognition, Research's publications.
 export const sectionTitleClass = "font-manrope text-xl font-semibold tracking-[-0.02em] text-ink md:text-2xl";
 
 // The headline at the top of every other page, in the same spot and face

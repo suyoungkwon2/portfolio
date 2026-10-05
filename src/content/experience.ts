@@ -84,14 +84,6 @@ export const experience: ExperienceItem[] = [
     location: "Seoul, South Korea",
     description:
       "Led Kurly's AI transformation, scoping and shipping AI systems across search, recommendation, merchandising, and product data for a 3.5M MAU grocery platform.",
-    highlights: [
-      "AI Search with Google Cloud Vertex AI: Cut product-search no-result rate from 6.80% to 0.22% and raised product-search click-through rate (CTR) from 58.60% to 60.14% by implementing AI search, presented at Google Cloud Summit Seoul 2024",
-      "Generative AI Copilot for Curated Collections: Automated 25% of key homepage sections with AI recommendation system across 200+ campaign topics while improving product diversity",
-      "Reduced AI search operating costs 30% below pilot-stage levels by building a proxy server for the production system",
-      "Real-time Popular Product Recommendations for Kurly Now: Built a time-of-day popular product recommendation system for instant delivery, reducing manual curation work",
-      "AI Recipe Suite with Google Korea: Directed R&D on recipe generation, recipe image generation, and product recommendation, grounding features in Kurly's customer data",
-      "Product Information Automation: Used OCR and LLMs to extract and structure regulatory product information, building AI-ready product data",
-    ],
   },
   {
     org: "Asleep",
@@ -106,32 +98,19 @@ export const experience: ExperienceItem[] = [
         role: "Product Manager & Cross-Functional Team Manager (SaaS)",
         period: "Apr 2023 – Mar 2024",
         description:
-          "Asleep is an AI sleep-tech startup that analyzes sleep through everyday devices without wearables. I joined as the 10th employee and grew with the company from Seed to Series B.",
-        highlights: [
-          "Led end-to-end development process of Sleep Track, a B2B AI SaaS platform (API, SDK, Dashboard) that made AI sleep analysis easy for enterprise clients to adopt",
-          "Reached $60K+ MRR within three months of launch, securing the company's first platform revenue",
-          "Uncovered clients' adoption barriers through hands-on integration consulting, turning them into onboarding and product improvements",
-          "Led a cross-functional team of 10 (front-end, back-end, product design, QA), aligning C-level, BD, and marketing on the roadmap",
-          "Presented Asleep and its sleep-tracking platform in AWS's partner showcase video ([Video](https://www.youtube.com/watch?v=ZKWwMvpdFZ0&t=26s))",
-        ],
+          "I joined as the 10th employee and grew with the company from Seed to Series B. Led end-to-end development process of Sleep Track, a B2B AI SaaS platform (API, SDK, Dashboard) that made AI sleep analysis easy for enterprise clients to adopt.",
       },
       {
         role: "Product Manager & Cross-Functional Team Manager (DTx)",
         period: "Sep 2021 – Mar 2023",
-        highlights: [
-          "Led an insomnia CBT-I digital therapeutic (software as a medical device) in partnership with Seoul National University Bundang Hospital",
-          "Conducted interviews and usability tests with middle-to-senior-aged insomnia patients to design around their digital fluency needs",
-          "Managed the end-to-end regulatory process, securing KGMP certification and K-FDA clinical trial approval",
-          "Led the UX team for Asleep's consumer mobile sleep app",
-        ],
+        description:
+          "Led an insomnia CBT-I digital therapeutic (software as a medical device) in partnership with Seoul National University Bundang Hospital.",
       },
       {
         role: "Product Manager",
         period: "Apr 2021 – Sep 2021",
-        highlights: [
-          "Launched Asleep's first AI sleep analysis MVP app, building the initial user base",
-          "Co-developed the Sleepvice Amazon Alexa Skill with Amazon's Alexa Startup team, making Asleep the first official Amazon collaborator startup in Korea and contributing to its $12M Series B ([News](https://medigatenews.com/news/2902071943))",
-        ],
+        description:
+          "Designed the UX of Asleep's first B2C app and the voice interface for the Sleepvice Amazon Alexa Skill.",
       },
     ],
   },

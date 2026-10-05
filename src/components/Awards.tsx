@@ -2,14 +2,14 @@
 
 import { motion } from "framer-motion";
 import { awards } from "@/content/awards";
-import { SectionHeading } from "./SectionHeading";
+import { sectionTitleClass } from "./PageTitle";
 
 export function Awards() {
   return (
     <section className="px-6 py-14 md:px-10 md:py-20">
-      <SectionHeading kicker="Recognition" title="Recognition along the way." />
+      <h2 className={sectionTitleClass}>Recognition along the way</h2>
 
-      <div className="mt-16 flex flex-col">
+      <div className="mt-5 flex flex-col">
         {awards.map((award, i) => (
           <motion.div
             key={`${award.title}-${award.year}`}

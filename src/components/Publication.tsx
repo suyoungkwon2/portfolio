@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Fragment } from "react";
 import { publications, type PublicationAuthor } from "@/content/publications";
-import { SectionHeading } from "./SectionHeading";
+import { sectionTitleClass } from "./PageTitle";
 
 function renderAuthors(authors: PublicationAuthor[]) {
   return authors.map((author, i) => (
@@ -27,9 +27,9 @@ const hasEqualContribution = publications.some((item) =>
 export function Publication() {
   return (
     <section id="publication" className="scroll-mt-14 px-6 py-14 md:px-10 md:py-20 lg:scroll-mt-0">
-      <SectionHeading kicker="Publication" title="What I've published." />
+      <h2 className={sectionTitleClass}>What I&apos;ve published</h2>
 
-      <div className="mt-10 flex flex-col">
+      <div className="mt-5 flex flex-col">
         {publications.map((item, i) => (
           <motion.div
             key={item.title}
