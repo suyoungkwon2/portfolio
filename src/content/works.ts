@@ -69,6 +69,16 @@ const allWorks: WorkItem[] = [
     year: "2022–23",
   },
   {
+    slug: "sleepvice",
+    sector: "Projects",
+    tag: "0 → 1 · Voice UX",
+    title: "SleepVice: Alexa Voice App for Sleep",
+    summary:
+      "Led product and voice design for an Alexa Skill that brings Asleep's sleep-tracking AI to the Echo, with sleep-stage smart alarms and lighting, refined through two rounds of usability testing.",
+    metrics: "Korea's first official Amazon Alexa startup partner · CES 2022",
+    year: "2021–22",
+  },
+  {
     slug: "mars",
     sector: "AI Research",
     tag: "Applied AI Research",

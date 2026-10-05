@@ -5,8 +5,11 @@ import { ProjectHero } from "@/components/project/ProjectHero";
 import { RelatedLinks } from "@/components/project/RelatedLinks";
 import { SlideDeck } from "@/components/project/SlideDeck";
 import { TenSecondSummary } from "@/components/project/TenSecondSummary";
+import { AsleepTrackDetail } from "@/components/projects/AsleepTrackDetail";
 import { MarsHeroVideo, MarsOverview } from "@/components/projects/MarsOverview";
 import { PhonitaleDetail, PhonitaleHeroVideos } from "@/components/projects/PhonitaleDetail";
+import { SleepViceDetail } from "@/components/projects/SleepViceDetail";
+import { SomMindDetail } from "@/components/projects/SomMindDetail";
 import { projectOrder, projects } from "@/content/projects";
 
 // Full case studies. Published projects without one fall back to their
@@ -15,6 +18,9 @@ import { projectOrder, projects } from "@/content/projects";
 // finished.
 const detailComponents: Record<string, React.ComponentType> = {
   phonitale: PhonitaleDetail,
+  sommind: SomMindDetail,
+  asleeptrack: AsleepTrackDetail,
+  sleepvice: SleepViceDetail,
 };
 
 // Rebuilt chapters shown above a project's slides while the rest of its
@@ -73,14 +79,8 @@ export default async function ProjectPage({
           </>
         }
       />
-      {Detail ? (
-        <Detail />
-      ) : (
-        <>
-          {Intro && <Intro />}
-          <SlideDeck slug={slug} title={meta.title} count={meta.slides ?? 0} />
-        </>
-      )}
+      {Detail ? <Detail /> : Intro && <Intro />}
+      {meta.slides && <SlideDeck slug={slug} title={meta.title} count={meta.slides} />}
       <RelatedLinks links={meta.relatedLinks} />
       <ProjectFooterNav
         prev={prevSlug ? { slug: prevSlug, title: projects[prevSlug].title } : undefined}

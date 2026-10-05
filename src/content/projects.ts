@@ -28,9 +28,9 @@ export type ProjectMeta = {
   chips: ProjectChips;
   relatedLinks: RelatedLink[];
   summary?: ProjectSummary;
-  // Number of portfolio-PDF spreads in /public/images/<slug>/slides. Set on
-  // projects that don't have a full detail page yet; the route shows these
-  // slides as the page body instead.
+  // Number of portfolio-PDF spreads in /public/images/<slug>/slides. Without
+  // a detail component the route shows these slides as the page body; with a
+  // draft one, they follow it.
   slides?: number;
 };
 
@@ -92,6 +92,12 @@ export const projects: Record<string, ProjectMeta> = {
         url: "https://drive.google.com/file/d/1Pq8vjPSfQrwcYdiOhIpOvGTcVKvJTh6Q/view?usp=sharing",
       },
     ],
+    summary: {
+      what: "Built a 4-week insomnia therapy app with Seoul National University Bundang Hospital, so a clinic-only treatment can be done at home. It earned medical-device certification and K-FDA approval for its clinical trial.",
+      why: "The best drug-free treatment for insomnia means weekly clinic visits, paper sleep diaries, and too few trained therapists, so most patients end up relying on sleeping pills instead.",
+      how: "Broke the therapy into short animated lessons and a quick daily sleep diary, and had the app adjust each patient's bedtime every week based on how they actually slept.",
+    },
+    slides: 5,
   },
   "ai-search": {
     slug: "ai-search",
@@ -168,6 +174,12 @@ export const projects: Record<string, ProjectMeta> = {
         url: "https://youtu.be/KekgHje_LNU?si=13DuZC0CJOKpM1vL",
       },
     ],
+    summary: {
+      what: "Turned Asleep's sleep-tracking AI into an API, SDK, and dashboard that other companies plug into their own apps. It became the company's first B2B revenue line, at $60K+ MRR.",
+      why: "Asleep's AI tracked sleep more accurately than Apple Watch or Fitbit, but plugging the raw model into a client's product was so hard that no one could adopt it at scale.",
+      how: "Wrapped the model in a simple module that needs only a phone microphone, with docs and pay-as-you-go pricing. SK Telecom, LG, and KB Healthcare signed on within 3 months of launch.",
+    },
+    slides: 4,
   },
   sleepvice: {
     slug: "sleepvice",
@@ -201,11 +213,24 @@ export const projects: Record<string, ProjectMeta> = {
         url: "https://youtu.be/0YZh3R8lwuI",
       },
     ],
+    summary: {
+      what: "Built an Alexa voice app that tracks your sleep and coaches you through the night. It made Asleep Korea's first official Amazon Alexa startup partner and landed a spot at CES 2022.",
+      why: "50 to 70 million Americans have a sleep disorder, and the bedroom itself (light, noise, routine) is a big part of it. Asleep's AI could read sleep stages but had no way to act on the room.",
+      how: "Designed voice conversations for sleep reports, smart alarms, and lights that dim and brighten with your sleep stage. Two rounds of user testing made it shorter and friendlier, raising task success from 83% to 88%.",
+    },
+    slides: 4,
   },
 };
 
-// Published projects, in site order — drives the Selected Works cards, the
-// generated /work routes, and prev/next nav on the detail pages. The
-// remaining case studies (sommind, asleeptrack, sleepvice) keep their
-// metadata and draft detail components but stay unpublished until ready.
-export const projectOrder = ["ai-curation", "ai-search", "mars", "phonitale"];
+// Published projects, in site order: AI Research first, then Projects, to
+// match the Selected Works sections. Drives the cards, the generated /work
+// routes, and prev/next nav on the detail pages.
+export const projectOrder = [
+  "mars",
+  "phonitale",
+  "sommind",
+  "ai-curation",
+  "ai-search",
+  "sleepvice",
+  "asleeptrack",
+];
