@@ -23,10 +23,10 @@ function NavLink({ work, label, alignEnd }: { work: WorkItem; label: string; ali
       <p className="font-display mt-1.5 text-lg font-medium text-ink transition-colors group-hover:text-accent-3">
         {work.title}
       </p>
-      <div className="mt-4">
+      <div className={cn("mt-4 w-2/3", alignEnd && "sm:ml-auto")}>
         <WorkThumbnail
           work={work}
-          sizes="(min-width: 1152px) 500px, (min-width: 640px) 50vw, 100vw"
+          sizes="(min-width: 1152px) 340px, (min-width: 640px) 34vw, 67vw"
         />
       </div>
     </Link>
