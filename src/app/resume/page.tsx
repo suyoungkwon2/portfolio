@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Copy } from "lucide-react";
 import { CopyEmailLink } from "@/components/CopyEmailLink";
 import { PageTitle } from "@/components/PageTitle";
 import { site } from "@/content/site";
@@ -8,53 +8,62 @@ export const metadata: Metadata = {
   description: "Suyoung (Mel) Kwon's resume and contact details.",
 };
 
-const valueClass = "text-ink no-underline transition-colors hover:text-accent-3";
+const contactLinkClass = "inline-flex items-center gap-1.5 text-sm leading-[21px] text-ink no-underline transition-colors hover:text-accent-3";
 
 const contacts = [
-  { label: "LinkedIn", value: "linkedin.com/in/suyoungkwon", href: site.linkedinHref },
-  { label: "GitHub", value: "github.com/suyoungkwon2", href: site.githubHref },
+  { label: "LinkedIn", href: site.linkedinHref },
+  { label: "GitHub", href: site.githubHref },
 ];
 
-// Resume and Contact in one place: the PDF first, then every way to reach me.
+// Resume and Contact in one place: the two resume versions first, then
+// every way to reach me.
 export default function ResumePage() {
   return (
     <main>
       <section className="px-6 pb-14 pt-12 md:px-10 md:pb-20 md:pt-16">
-        <PageTitle>My resume, and how to reach me</PageTitle>
+        <PageTitle>Resume</PageTitle>
 
-        <a
-          href={site.resumeHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-12 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-opacity hover:opacity-80"
-        >
-          View resume (PDF)
-          <ArrowUpRight aria-hidden className="size-4" />
-        </a>
-        <p className="mt-4 text-sm text-ink-muted">{site.availability}</p>
+        <div className="mt-6 max-w-2xl space-y-[21px] text-sm leading-[21px] text-ink">
+          <p>My role combined product management and product design.</p>
+          <p>
+            I took products from initial idea to launch, balancing user needs, business goals, and technical
+            constraints, while also owning user research, wireframing, and prototyping.
+          </p>
+          <p>Each resume below covers the same work from one role&apos;s perspective.</p>
+        </div>
+
+        <div className="mt-10 flex flex-wrap gap-4">
+          {site.resumes.map((r) => (
+            <a
+              key={r.label}
+              href={r.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-w-44 items-center justify-center bg-ink px-8 py-3.5 text-base font-medium text-paper transition-opacity hover:opacity-80"
+            >
+              {`{ ${r.label} }`}
+            </a>
+          ))}
+        </div>
 
         <div id="contact" className="mt-20 scroll-mt-14 lg:scroll-mt-0">
-          <span className="text-xs font-medium uppercase tracking-[0.25em] text-accent">Contact</span>
-          <dl className="mt-6 max-w-2xl border-t border-line">
-            <div className="grid grid-cols-[7rem_1fr] items-baseline gap-4 border-b border-line py-4">
-              <dt className="text-sm text-ink-muted">Email</dt>
-              <dd className="justify-self-start">
-                <CopyEmailLink email={site.email} className={`${valueClass} text-left`}>
-                  {site.email}
-                </CopyEmailLink>
-              </dd>
-            </div>
+          <h2 className="font-manrope text-xl font-semibold tracking-[-0.02em] text-ink md:text-2xl">Get in touch</h2>
+          <ul className="mt-5 space-y-2">
+            <li>
+              <CopyEmailLink email={site.email} className={`${contactLinkClass} text-left`}>
+                Copy email
+                <Copy aria-hidden className="size-3.5" />
+              </CopyEmailLink>
+            </li>
             {contacts.map((c) => (
-              <div key={c.label} className="grid grid-cols-[7rem_1fr] items-baseline gap-4 border-b border-line py-4">
-                <dt className="text-sm text-ink-muted">{c.label}</dt>
-                <dd>
-                  <a href={c.href} target="_blank" rel="noopener noreferrer" className={valueClass}>
-                    {c.value}
-                  </a>
-                </dd>
-              </div>
+              <li key={c.label}>
+                <a href={c.href} target="_blank" rel="noopener noreferrer" className={contactLinkClass}>
+                  {c.label}
+                  <ArrowUpRight aria-hidden className="size-3.5" />
+                </a>
+              </li>
             ))}
-          </dl>
+          </ul>
         </div>
       </section>
     </main>
