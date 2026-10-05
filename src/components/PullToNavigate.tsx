@@ -27,6 +27,13 @@ const SETTLE_MS = 700;
 // Slow, gentle scrolling has gaps between wheel events; don't snap back
 // in the middle of one.
 const RELEASE_AFTER_IDLE_MS = 300;
+// After the old page has faded, wait for the swipe's momentum to die down
+// before opening the new one, so the glide can't carry the new page off its
+// landing spot (and nothing on the new page has to fight it). Momentum is
+// over once wheel events stop or shrink to a crawl; never wait past the cap.
+const MOMENTUM_QUIET_MS = 80;
+const MOMENTUM_CRAWL_PX = 3;
+const MOMENTUM_WAIT_MAX_MS = 700;
 
 const atBottom = () =>
   window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
@@ -59,6 +66,8 @@ export function PullToNavigate({
   const fade = useMotionValue(1);
   const [ready, setReady] = useState(false);
   const going = useRef(false);
+  // Last wheel event, kept up to date even while navigating.
+  const lastWheelEvent = useRef({ at: 0, delta: 0 });
 
   const go = useCallback(
     (direction: PullDirection) => {
@@ -73,10 +82,19 @@ export function PullToNavigate({
       // Leave the top while the old page is fully faded, so the new one
       // doesn't flash in at the old scroll position first. (Going back, the
       // new page puts itself at its own end.)
-      setTimeout(() => {
+      const started = performance.now();
+      const open = () => {
+        const now = performance.now();
+        const { at, delta } = lastWheelEvent.current;
+        const settled = now - at > MOMENTUM_QUIET_MS || Math.abs(delta) <= MOMENTUM_CRAWL_PX;
+        if (!settled && now - started < MOMENTUM_WAIT_MAX_MS) {
+          requestAnimationFrame(open);
+          return;
+        }
         window.scrollTo({ top: 0, behavior: "instant" });
         router.push(page.href, { scroll: false });
-      }, 280);
+      };
+      setTimeout(open, 280);
     },
     [next, prev, router, pull, fade],
   );
@@ -102,6 +120,7 @@ export function PullToNavigate({
     let releaseTimer: ReturnType<typeof setTimeout> | undefined;
     const onWheel = (e: WheelEvent) => {
       const now = performance.now();
+      lastWheelEvent.current = { at: now, delta: e.deltaY };
       const idle = now - lastWheel;
       const speedingUp =
         Math.sign(e.deltaY) === Math.sign(lastDelta) &&

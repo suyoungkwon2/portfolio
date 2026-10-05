@@ -33,14 +33,11 @@ export function PageChain({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Hold a pulled-in page at its landing spot (top going forward, end going
-// back) only while the swipe that opened it is still gliding, so trackpad
-// momentum doesn't carry it off. Momentum only slows down, so the first
-// wheel event that is faster than the last one (or comes after a pause) is
-// the visitor's own new swipe: let go right then, so it scrolls smoothly.
-const HOLD_MAX_MS = 1200;
-const HOLD_QUIET_MS = 100;
-const FRESH_PUSH_RATIO = 1.5;
+// Coming back up, a pulled-in page lands at its end. PullToNavigate waits
+// out the swipe's momentum before opening it, so nothing here fights the
+// scroll; the end is only re-found while late content (fonts, images) grows
+// the page, until the visitor scrolls on their own.
+const FOLLOW_END_MAX_MS = 1500;
 
 function PageEnter({ children }: { children: React.ReactNode }) {
   const [from] = useState(arrivedByPull);
@@ -51,47 +48,22 @@ function PageEnter({ children }: { children: React.ReactNode }) {
     const pin = () =>
       window.scrollTo({ top: from === "prev" ? root.scrollHeight : 0, behavior: "instant" });
     pin();
+    if (from !== "prev") return;
 
-    const start = performance.now();
-    let lastInput = start;
-    let lastDelta = 0;
-    // Never cancel the wheel itself: a swipe whose first event is cancelled
-    // stays unscrollable to the browser, freezing the page until a click.
-    const onWheel = (e: WheelEvent) => {
-      const now = performance.now();
-      const fresh =
-        (lastDelta !== 0 && now - lastInput > HOLD_QUIET_MS) ||
-        Math.sign(e.deltaY) !== Math.sign(lastDelta) ||
-        Math.abs(e.deltaY) > Math.abs(lastDelta) * FRESH_PUSH_RATIO + 2;
-      lastInput = now;
-      // The very first event can't be told apart yet; treat it as glide.
-      if (fresh && lastDelta !== 0) return release();
-      lastDelta = e.deltaY;
-    };
-    const onScroll = () => pin();
     const resize = new ResizeObserver(pin);
     resize.observe(document.body);
-    window.addEventListener("wheel", onWheel, { passive: true });
-    window.addEventListener("scroll", onScroll);
-    // Touch has no momentum events to read; a finger on the screen is
-    // always the visitor's own scroll.
-    window.addEventListener("touchstart", release, { passive: true });
-
-    let frame = 0;
-    function release() {
-      cancelAnimationFrame(frame);
+    const stop = () => {
+      clearTimeout(timer);
       resize.disconnect();
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("touchstart", release);
-    }
-    const tick = () => {
-      const now = performance.now();
-      if (now - lastInput > HOLD_QUIET_MS || now - start > HOLD_MAX_MS) release();
-      else frame = requestAnimationFrame(tick);
+      window.removeEventListener("wheel", stop);
+      window.removeEventListener("touchstart", stop);
+      window.removeEventListener("keydown", stop);
     };
-    frame = requestAnimationFrame(tick);
-    return release;
+    const timer = setTimeout(stop, FOLLOW_END_MAX_MS);
+    window.addEventListener("wheel", stop, { passive: true });
+    window.addEventListener("touchstart", stop, { passive: true });
+    window.addEventListener("keydown", stop);
+    return stop;
   }, [from]);
 
   return (
