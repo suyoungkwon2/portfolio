@@ -82,7 +82,7 @@ const allWorks: WorkItem[] = [
     slug: "mars",
     sector: "AI Research",
     tag: "Applied AI Research",
-    title: "MARS: AI Clinical Documentation",
+    title: "M.A.R.S: AI Clinical Documentation",
     summary:
       "Led a 4-person team building a 3-module GenAI pipeline that drafts discharge summaries from real patient records, for Seoul National University Bundang Hospital during Korea's national medical staffing crisis.",
     metrics: "2nd of 100 teams, Seoul National University Hospital Datathon",

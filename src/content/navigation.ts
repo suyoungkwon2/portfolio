@@ -6,7 +6,7 @@ export type NavNode = {
   children?: NavNode[];
 };
 
-// "MARS: AI Clinical Documentation" -> "MARS"
+// "M.A.R.S: AI Clinical Documentation" -> "M.A.R.S"
 const shortTitle = (title: string) => title.split(":")[0];
 
 const workFiles = (sector: WorkSector): NavNode[] =>

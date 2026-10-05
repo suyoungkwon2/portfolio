@@ -23,17 +23,17 @@ describe("Sidebar", () => {
 
   it("keeps nested folders closed until the visitor is inside them", () => {
     render(<Sidebar />);
-    expect(tree().queryByRole("link", { name: "MARS" })).not.toBeInTheDocument();
+    expect(tree().queryByRole("link", { name: "M.A.R.S" })).not.toBeInTheDocument();
 
     fireEvent.click(tree().getByRole("button", { name: "Expand Research" }));
-    expect(tree().getByRole("link", { name: "MARS" })).toHaveAttribute("href", "/work/mars");
+    expect(tree().getByRole("link", { name: "M.A.R.S" })).toHaveAttribute("href", "/work/mars");
   });
 
   it("opens the current project's folder and marks only that row", () => {
     nav.pathname = "/work/mars/";
     render(<Sidebar />);
 
-    expect(tree().getByRole("link", { name: "MARS" })).toHaveAttribute("aria-current", "page");
+    expect(tree().getByRole("link", { name: "M.A.R.S" })).toHaveAttribute("aria-current", "page");
     expect(tree().getByRole("link", { name: "Research" })).not.toHaveAttribute("aria-current");
   });
 

@@ -41,12 +41,12 @@ export type ProjectMeta = {
 export const projects: Record<string, ProjectMeta> = {
   mars: {
     slug: "mars",
-    title: "MARS: AI Clinical Documentation",
+    title: "M.A.R.S: AI Clinical Documentation",
     subtitle: "Hospital LLM Datathon",
     tagline: "Get time back. Move care forward.",
     period: "September 2025\n- October 2025",
     role: ["Team Lead & PM", "System Design", "Prompt Engineering", "Clinical Evaluation"],
-    team: ["PM (me)", "2 LLM Engineers", "1 Clinical Advisor"],
+    team: ["PM (Me)", "2 LLM Engineers", "1 Clinical Advisor"],
     org: "Seoul National University Hospital",
     chips: { domain: "Medical", problem: "Clinical Documentation", tech: ["NLP", "AI"] },
     // News and LinkedIn links are shown under the Result headline in MarsOverview.
@@ -65,7 +65,7 @@ export const projects: Record<string, ProjectMeta> = {
     tagline: "Memorizing foreign words shouldn't feel like torture.",
     period: "March 2025\n- June 2025",
     role: ["Evaluation Design", "UX/UI Design", "Platform Dev", "Data Analysis"],
-    team: ["Evaluation Lead (me)*", "2 engineers*", "1 PhD student", "3 faculty advisors"],
+    team: ["Evaluation Lead (Me)*", "2 Engineers*", "1 PhD Student", "3 Faculty Advisors"],
     org: "CMU\nSchool of Computer Science, Language Technology Institute",
     chips: { domain: "Education", problem: "Learning Language", tech: ["NLP", "AI"] },
     // Shown under the Result headline in PhonitaleDetail instead.
@@ -79,16 +79,22 @@ export const projects: Record<string, ProjectMeta> = {
   sommind: {
     slug: "sommind",
     title: "SomMind: Insomnia Digital Therapeutic",
-    subtitle: "Digital therapeutic app for severe insomnia",
+    subtitle: "Digital Therapeutic App",
     tagline: "Healthy sleep starts with a healthy mind.",
-    period: "Jun 2022 – Mar 2023",
+    period: "June 2022\n- March 2023",
     role: ["Team Lead", "PM", "Clinical Program & Trial Design", "Regulatory"],
-    team: ["Medical director", "product designer", "FE/BE/QA eng", "writer"],
+    team: [
+      "Team Lead & PM (Me)",
+      "Medical Director",
+      "Product Designer",
+      "FE/BE/QA Engineers",
+      "Content Writer",
+    ],
     org: "Asleep × Seoul National University Bundang Hospital",
     chips: { domain: "Digital Health", problem: "Insomnia", tech: ["Digital Therapeutics", "CBT-i"] },
     relatedLinks: [
       {
-        label: "CBT-i DTX Introduction Slide: Symposium Presentation Materials",
+        label: "CBT-i DTx Introduction Slide: Symposium Presentation Materials",
         url: "https://drive.google.com/file/d/1Pq8vjPSfQrwcYdiOhIpOvGTcVKvJTh6Q/view?usp=sharing",
       },
     ],
@@ -102,11 +108,11 @@ export const projects: Record<string, ProjectMeta> = {
   "ai-search": {
     slug: "ai-search",
     title: "AI Search: Recovering Lost Revenue",
-    subtitle: "Enhancing search experience & driving sales",
+    subtitle: "AI Transformation",
     tagline: "Just type it out. We'll find what you need.",
-    period: "May – Aug 2024",
+    period: "May 2024\n- August 2024",
     role: ["PM", "A/B Test Design", "CEO Communication", "QA"],
-    team: ["1 ML engineer", "1 backend engineer"],
+    team: ["PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
     org: "Kurly",
     chips: { domain: "Commerce", problem: "Search UX", tech: ["Vector Search", "AI"] },
     relatedLinks: [
@@ -129,11 +135,11 @@ export const projects: Record<string, ProjectMeta> = {
   "ai-curation": {
     slug: "ai-curation",
     title: "AI Curation: Scaling Themed Campaigns",
-    subtitle: "AI-driven scaling of themed campaigns",
+    subtitle: "Internal Tool + AI Transformation",
     tagline: "You name the theme. AI does the rest.",
-    period: "Jun – Dec 2024",
+    period: "June 2024\n- December 2024",
     role: ["PM", "A/B Test Design", "UX Research", "CEO Communication"],
-    team: ["1 ML engineer", "1 backend engineer"],
+    team: ["PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
     org: "Kurly",
     chips: { domain: "Commerce", problem: "Work Efficiency", tech: ["Vector Search", "AI"] },
     relatedLinks: [
@@ -158,11 +164,17 @@ export const projects: Record<string, ProjectMeta> = {
   asleeptrack: {
     slug: "asleeptrack",
     title: "AsleepTrack: B2B Sleep AI Platform",
-    subtitle: "Ultimate AI sleep tracking module",
+    subtitle: "B2B AI SaaS Platform",
     tagline: "Expand your service horizons with sleep integration.",
-    period: "Apr 2023 – Mar 2024",
+    period: "April 2023\n- March 2024",
     role: ["Team Lead", "PM", "Customer Success", "Dev Docs Management"],
-    team: ["Technical PM", "FE/BE/SDK eng", "QA eng", "product designer"],
+    team: [
+      "Team Lead & PM (Me)",
+      "Technical PM",
+      "FE/BE/SDK Engineers",
+      "QA Engineer",
+      "Product Designer",
+    ],
     org: "Asleep",
     chips: { domain: "B2B SaaS", problem: "AI Integration", tech: ["SaaS", "API/SDK"] },
     relatedLinks: [
@@ -184,11 +196,11 @@ export const projects: Record<string, ProjectMeta> = {
   sleepvice: {
     slug: "sleepvice",
     title: "SleepVice: Alexa Voice App for Sleep",
-    subtitle: "Alexa voice application for best sleep quality",
+    subtitle: "Alexa Voice App (Skill)",
     tagline: "Personal sleep coach right by your pillow.",
-    period: "Jun 2021 – Jun 2022",
+    period: "June 2021\n- June 2022",
     role: ["PM", "VUI Design", "UX Research"],
-    team: ["biz dev", "PM/VUI (me)", "engineer"],
+    team: ["PM & VUI Designer (Me)", "Business Developer", "Software Engineer"],
     org: "Asleep",
     chips: { domain: "Smart Home", problem: "Sleep Distress", tech: ["Alexa", "IoT", "VUI"] },
     relatedLinks: [
