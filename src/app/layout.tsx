@@ -32,7 +32,14 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <Sidebar />
-        <div className="lg:pl-60">{children}</div>
+        {/* Layout units for page headlines and the landing hero, from lg up.
+            --u is 1% of the content width (capped; 320px is the sidebar plus
+            the page gutters). --f, the type unit, follows --u but changes
+            more slowly, so type shrinks less than the layout on narrower
+            screens. */}
+        <div className="lg:pl-60 lg:[--f:calc(2.5px+var(--u)*0.78)] lg:[--u:min(calc((100vw-320px)/100),14.5px)]">
+          {children}
+        </div>
       </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId={GA_ID} />}
     </html>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { pageTitleClass } from "./PageTitle";
 
 // One point each for business, impact, scale, and AI depth, each tagged with
 // its field. Keep these in sync with src/content/works.ts. In `value`,
@@ -85,16 +86,14 @@ export function Hero() {
 
   return (
     <section id="hero" className="flex flex-col px-6 pb-10 pt-12 md:px-10 md:pt-16">
-      {/* From lg up the layout runs on two units. --u is 1% of the content
-          width (capped; 320px is the sidebar plus the page gutters). --f,
-          the type unit, follows --u but changes more slowly, so on narrower
-          screens the text shrinks less and the picture gives up more of
-          its width instead. The text column is sized in --f, so it always
+      {/* From lg up the layout runs on the --u and --f units (app/layout.tsx):
+          on narrower screens the text shrinks less and the picture gives up
+          more of its width instead. The text column is sized in --f, so it always
           wraps the same way; the picture takes the rest of the row (up to
           about 1.8:1) and stretches to the text's height. */}
-      <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-[calc(var(--u)*5.5)] lg:[--f:calc(2.5px+var(--u)*0.78)] lg:[--u:min(calc((100vw-320px)/100),14.5px)]">
+      <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-[calc(var(--u)*5.5)]">
         <div className="min-w-0 lg:w-[calc(var(--f)*60)] lg:shrink-0">
-          <h1 className="font-manrope text-[38px] font-semibold leading-[1.3] tracking-[-0.03em] text-ink md:text-[52px] lg:text-[calc(var(--f)*4.6)]">
+          <h1 className={pageTitleClass}>
             I’m Mel,
             <span className="sr-only">
               {" "}

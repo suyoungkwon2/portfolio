@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function MediaPage() {
   return (
-    <main className="pt-6 md:pt-8">
+    <main>
       <Media />
     </main>
   );

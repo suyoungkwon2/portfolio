@@ -3,16 +3,16 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { media } from "@/content/media";
-import { SectionHeading } from "./SectionHeading";
+import { PageTitle } from "./PageTitle";
 
 // Thumbnail cards, styled like WorkCard, so video and press appearances
 // read as visual proof rather than a list of text links.
 export function Media() {
   return (
-    <section id="media" className="px-6 py-14 md:px-10 md:py-20">
-      <SectionHeading kicker="In the Media" title="Where the work was featured." />
+    <section id="media" className="px-6 pb-14 pt-12 md:px-10 md:pb-20 md:pt-16">
+      <PageTitle>Where the work was featured</PageTitle>
 
-      <div className="mt-16 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
         {media.map((item, i) => (
           <motion.div
             key={item.href}

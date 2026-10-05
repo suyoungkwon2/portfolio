@@ -6,7 +6,7 @@ import { Fragment, useMemo, useState } from "react";
 import { renderLinks } from "@/lib/renderLinks";
 import { experience, type ExperienceCategory, type ExperienceSubRole } from "@/content/experience";
 import { MoreToggle, Reveal } from "./Disclosure";
-import { SectionHeading } from "./SectionHeading";
+import { PageTitle } from "./PageTitle";
 
 type Filter = ExperienceCategory | "all";
 
@@ -80,8 +80,8 @@ export function Experience() {
   );
 
   return (
-    <section className="px-6 py-14 md:px-10 md:py-20">
-      <SectionHeading kicker="Experience" title="Where I've built." />
+    <section className="px-6 pb-14 pt-12 md:px-10 md:pb-20 md:pt-16">
+      <PageTitle>Where I&apos;ve built</PageTitle>
 
       <div className="mt-8 flex items-center gap-3 text-sm">
         {filters.map((f, i) => (

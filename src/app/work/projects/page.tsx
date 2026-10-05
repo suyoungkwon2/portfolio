@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SectionHeading } from "@/components/SectionHeading";
+import { PageTitle } from "@/components/PageTitle";
 import { WorkGrid, worksIn } from "@/components/SelectedWorks";
 
 export const metadata: Metadata = {
@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <main>
-      <section className="px-6 pb-14 pt-20 md:px-10 md:pb-20 md:pt-28">
-        <SectionHeading kicker="Projects" title="What I've shipped." />
-        <div className="mt-16">
+      <section className="px-6 pb-14 pt-12 md:px-10 md:pb-20 md:pt-16">
+        <PageTitle>What I&apos;ve shipped</PageTitle>
+        <div className="mt-12">
           <WorkGrid items={worksIn("Projects")} />
         </div>
       </section>

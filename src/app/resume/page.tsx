@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ArrowUpRight } from "lucide-react";
 import { CopyEmailLink } from "@/components/CopyEmailLink";
-import { SectionHeading } from "@/components/SectionHeading";
+import { PageTitle } from "@/components/PageTitle";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -20,8 +20,8 @@ const contacts = [
 export default function ResumePage() {
   return (
     <main>
-      <section className="px-6 pb-14 pt-20 md:px-10 md:pb-20 md:pt-28">
-        <SectionHeading kicker="Resume" title="My resume, and how to reach me." />
+      <section className="px-6 pb-14 pt-12 md:px-10 md:pb-20 md:pt-16">
+        <PageTitle>My resume, and how to reach me</PageTitle>
 
         <a
           href={site.resumeHref}
