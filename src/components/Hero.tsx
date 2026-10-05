@@ -225,7 +225,9 @@ function RolePhotos({ spread, onSpread }: { spread: boolean; onSpread: () => voi
                 fill
                 priority={i === 0}
                 sizes="(min-width: 1024px) 28vw, 55vw"
-                className="object-cover"
+                // One shared grade (a touch brighter, softer, less saturated)
+                // so the four photos read as a set.
+                className="object-cover brightness-[1.08] contrast-[0.88] saturate-[0.85]"
               />
             </button>
           </motion.div>
