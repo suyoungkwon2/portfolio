@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { ProjectMeta } from "@/content/projects";
-import { Chip } from "./Chip";
+import { ChipGroup } from "./ChipGroup";
 import { ImagePlaceholder } from "./ImagePlaceholder";
 
 // The one piece of template every project detail page shares verbatim —
-// back link, kicker, title, subtitle, tagline, meta grid, chips, hero
+// back link, chips, tagline, title, subtitle, meta grid, hero
 // image. Per-project body composition (below this, in each project's
 // Detail component) is free to differ.
 export function ProjectHero({
@@ -25,15 +25,7 @@ export function ProjectHero({
         </Link>
 
         <div className="mt-8 flex flex-col items-center text-center">
-          <div className="flex flex-wrap justify-center gap-2">
-            <Chip kind="domain">{meta.chips.domain}</Chip>
-            <Chip kind="problem">{meta.chips.problem}</Chip>
-            {meta.chips.tech.map((tech) => (
-              <Chip key={tech} kind="tech">
-                {tech}
-              </Chip>
-            ))}
-          </div>
+          <ChipGroup chips={meta.chips} />
           <p className="instrument-serif-regular-italic mt-6 text-2xl text-ink md:text-3xl">
             &ldquo;{meta.tagline}&rdquo;
           </p>

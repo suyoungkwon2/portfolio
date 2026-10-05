@@ -1,7 +1,9 @@
+// Shown as one joined phrase on the card and the detail hero, always in
+// this order: what kind of project, where, and the strongest proof.
 export type ProjectChips = {
+  type: string;
   domain: string;
-  problem: string;
-  tech: string[];
+  proof: string;
 };
 
 export type RelatedLink = {
@@ -48,7 +50,7 @@ export const projects: Record<string, ProjectMeta> = {
     role: ["Team Lead & PM", "System Design", "Prompt Engineering", "Clinical Evaluation"],
     team: ["PM (Me)", "2 LLM Engineers", "1 Clinical Advisor"],
     org: "Seoul National University Hospital",
-    chips: { domain: "Medical", problem: "Clinical Documentation", tech: ["NLP", "AI"] },
+    chips: { type: "AI Research", domain: "Healthcare", proof: "Award Winner" },
     // News and LinkedIn links are shown under the Result headline in MarsOverview.
     relatedLinks: [],
     summary: {
@@ -67,7 +69,7 @@ export const projects: Record<string, ProjectMeta> = {
     role: ["Evaluation Design", "UX/UI Design", "Platform Dev", "Data Analysis"],
     team: ["Evaluation Lead (Me)*", "2 Engineers*", "1 PhD Student", "3 Faculty Advisors"],
     org: "CMU\nSchool of Computer Science, Language Technology Institute",
-    chips: { domain: "Education", problem: "Learning Language", tech: ["NLP", "AI"] },
+    chips: { type: "AI Research", domain: "Education", proof: "Published" },
     // Shown under the Result headline in PhonitaleDetail instead.
     relatedLinks: [],
     summary: {
@@ -91,7 +93,7 @@ export const projects: Record<string, ProjectMeta> = {
       "Content Writer",
     ],
     org: "Asleep × Seoul National University Bundang Hospital",
-    chips: { domain: "Digital Health", problem: "Insomnia", tech: ["Digital Therapeutics", "CBT-i"] },
+    chips: { type: "0→1", domain: "Healthcare · DTx", proof: "Clinical Trial" },
     relatedLinks: [
       {
         label: "CBT-i DTx Introduction Slide: Symposium Presentation Materials",
@@ -114,7 +116,7 @@ export const projects: Record<string, ProjectMeta> = {
     role: ["PM", "A/B Test Design", "CEO Communication", "QA"],
     team: ["PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
     org: "Kurly",
-    chips: { domain: "Commerce", problem: "Search UX", tech: ["Vector Search", "AI"] },
+    chips: { type: "AI Transformation", domain: "Commerce", proof: "A/B Validated" },
     relatedLinks: [
       {
         label: "Developer Blog",
@@ -141,7 +143,7 @@ export const projects: Record<string, ProjectMeta> = {
     role: ["PM", "A/B Test Design", "UX Research", "CEO Communication"],
     team: ["PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
     org: "Kurly",
-    chips: { domain: "Commerce", problem: "Work Efficiency", tech: ["Vector Search", "AI"] },
+    chips: { type: "Automation · Internal Tool", domain: "Commerce", proof: "A/B Validated" },
     relatedLinks: [
       {
         label:
@@ -176,7 +178,7 @@ export const projects: Record<string, ProjectMeta> = {
       "Product Designer",
     ],
     org: "Asleep",
-    chips: { domain: "B2B SaaS", problem: "AI Integration", tech: ["SaaS", "API/SDK"] },
+    chips: { type: "0→1", domain: "B2B SaaS", proof: "Enterprise Clients" },
     relatedLinks: [
       { label: "AsleepTrack", url: "https://www.asleep.ai/en/home" },
       { label: "Developer Documents", url: "https://docs-en.asleep.ai/" },
@@ -202,7 +204,7 @@ export const projects: Record<string, ProjectMeta> = {
     role: ["PM", "VUI Design", "UX Research"],
     team: ["PM & VUI Designer (Me)", "Business Developer", "Software Engineer"],
     org: "Asleep",
-    chips: { domain: "Smart Home", problem: "Sleep Distress", tech: ["Alexa", "IoT", "VUI"] },
+    chips: { type: "0→1", domain: "Voice UX", proof: "Amazon Partner" },
     relatedLinks: [
       {
         label: "Asleep Becomes Korea's First Official Partner for Amazon Alexa",

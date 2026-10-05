@@ -60,7 +60,7 @@ const allWorks: WorkItem[] = [
     title: "AI Search: Recovering Lost Revenue",
     summary:
       "Shipped a Vertex AI search layer that rescues Kurly's 'No Result' searches, validated on a 3.5M-MAU A/B test, then hardened it for production with caching and cost controls.",
-    metrics: "No-result rate 6.8% → 0.22% · 30% lower operating cost",
+    metrics: "$3.5M+ monthly revenue recovered · No-result rate 6.8% → 0.22%",
     year: "2024",
     thumbnail: "/images/ai-search/thumbnail.webp",
     gradient: AI_SEARCH_GRADIENT,
@@ -73,7 +73,7 @@ const allWorks: WorkItem[] = [
     title: "AI Curation: Scaling Themed Campaigns",
     summary:
       "Built an AI system that lets merchandisers launch themed campaigns from a single input, validated at parity with expert human curation via a 49K-user A/B test.",
-    metrics: "25% of homepage slots · 200+ campaigns, zero manual ops",
+    metrics: "~2 days/week of merchandiser work saved · 25% of homepage slots",
     year: "2024",
     thumbnail: "/images/ai-curation/thumbnail.webp",
     gradient: AI_CURATION_GRADIENT,
@@ -86,7 +86,7 @@ const allWorks: WorkItem[] = [
     title: "AsleepTrack: B2B Sleep AI Platform",
     summary:
       "Took Asleep's sleep-tracking AI from a hard-to-integrate model to a full API/SDK/Dashboard platform, landing SK Telecom, LG, and KB Healthcare as clients within 3 months of launch.",
-    metrics: "$60K+ MRR, the company's first B2B revenue line",
+    metrics: "$60K+ MRR within 3 months of launch · First B2B revenue line",
     year: "2023–24",
     thumbnail: "/images/asleeptrack/thumbnail.webp",
     gradient: ASLEEPTRACK_GRADIENT,
@@ -98,7 +98,7 @@ const allWorks: WorkItem[] = [
     title: "SomMind: Insomnia Digital Therapeutic",
     summary:
       "Owned product, clinical-trial design, and regulatory strategy for a CBT-i mobile app built with Seoul National University Bundang Hospital, from patient research through certified clinical trial approval.",
-    metrics: "KGMP + K-FDA clinical trial approval secured",
+    metrics: "K-GMP certified · K-FDA clinical trial approved",
     year: "2022–23",
     thumbnail: "/images/sommind/thumbnail.webp",
     gradient: SOMMIND_GRADIENT,
@@ -110,7 +110,7 @@ const allWorks: WorkItem[] = [
     title: "SleepVice: Alexa Voice App for Sleep",
     summary:
       "Led product and voice design for an Alexa Skill that brings Asleep's sleep-tracking AI to the Echo, with sleep-stage smart alarms and lighting, refined through two rounds of usability testing.",
-    metrics: "Korea's first official Amazon Alexa startup partner · CES 2022",
+    metrics: "Korea's first Alexa Startups partner · Supported a $12M Series B",
     year: "2021–22",
     video: "/images/sleepvice/vid_thumbnail.mp4",
     videoLayout: "full",
@@ -123,7 +123,7 @@ const allWorks: WorkItem[] = [
     title: "M.A.R.S: AI Clinical Documentation",
     summary:
       "Led a 4-person team building a 3-module GenAI pipeline that drafts discharge summaries from real patient records, for Seoul National University Bundang Hospital during Korea's national medical staffing crisis.",
-    metrics: "2nd of 100 teams, Seoul National University Hospital Datathon",
+    metrics: "2nd of 100 teams · Seoul National University Hospital Datathon",
     year: "2025",
     thumbnail: "/images/mars/thumbnail.webp",
     video: "/images/mars/vid_hero.mp4",
@@ -137,7 +137,7 @@ const allWorks: WorkItem[] = [
     title: "PhoniTale: AI Memory Tricks for Foreign Words",
     summary:
       "Designed an NLP pipeline that generates phonologically grounded mnemonics for learners of typologically distant languages, matching the recall rate of human-authored study aids.",
-    metrics: "Published, EMNLP 2025 Main Conference",
+    metrics: "EMNLP 2025 Main Conference · On par with human experts",
     year: "2025",
     video: "/images/phonitale/vid_web.mp4",
     gradient: PHONITALE_GRADIENT,

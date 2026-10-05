@@ -3,7 +3,9 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { projects } from "@/content/projects";
 import type { WorkItem } from "@/content/works";
+import { ChipGroup } from "./project/ChipGroup";
 import { GradientBackdrop } from "./GradientBackdrop";
 import { InViewVideo } from "./InViewVideo";
 
@@ -83,8 +85,9 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
           </div>
         )}
 
-        {/* Title and headline result only; the case study page has the rest. */}
+        {/* Chips, title, and headline result only; the case study page has the rest. */}
         <div className="mt-4 flex flex-col gap-1">
+          <ChipGroup chips={projects[work.slug].chips} className="mb-2" />
           <h3 className="font-display text-xl font-medium text-ink">{work.title}</h3>
           {work.metrics && <p className="text-sm font-medium text-accent">{work.metrics}</p>}
         </div>
