@@ -40,7 +40,7 @@ export function Media() {
                 <h3 className="font-display text-xl font-medium text-ink transition-colors group-hover:text-accent-3">
                   {item.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-ink-muted">{item.caption}</p>
+                <p className="text-sm leading-[21px] text-ink">{item.caption}</p>
               </div>
             </a>
           </motion.div>

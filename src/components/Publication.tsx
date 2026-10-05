@@ -69,7 +69,7 @@ export function Publication() {
                 </a>
               </h3>
               <p className="mt-2 text-sm text-ink-muted">{renderAuthors(item.authors)}</p>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-ink-muted">
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-[21px] text-ink">
                 <li>
                   <span className="font-medium text-ink">Summary:</span> {item.summary}
                 </li>

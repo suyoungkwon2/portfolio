@@ -22,7 +22,7 @@ const filters: { key: Filter; label: string }[] = [
 const COLLAPSE_OVER = 3;
 const VISIBLE_HIGHLIGHTS = 2;
 
-const listClass = "max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-ink-muted";
+const listClass = "max-w-3xl list-disc space-y-1 pl-5 text-sm leading-[21px] text-ink";
 
 function Highlights({ items, visible }: { items: string[]; visible?: number }) {
   const [open, setOpen] = useState(false);
@@ -63,7 +63,7 @@ function SubRole({ sub, latest }: { sub: ExperienceSubRole; latest: boolean }) {
       <p className="font-medium text-ink">{sub.role}</p>
       <p className="mt-0.5 text-sm text-ink-muted">{sub.period}</p>
       {sub.description && (
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-muted">{sub.description}</p>
+        <p className="mt-2 max-w-3xl text-sm leading-[21px] text-ink">{sub.description}</p>
       )}
       {sub.highlights && sub.highlights.length > 0 && (
         <Highlights items={sub.highlights} visible={latest ? undefined : 0} />
@@ -147,7 +147,7 @@ export function Experience() {
               ) : (
                 <>
                   <p className="font-medium text-ink">{item.role}</p>
-                  <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-muted">
+                  <p className="mt-2 max-w-3xl text-sm leading-[21px] text-ink">
                     {item.description}
                   </p>
                   {item.highlights && item.highlights.length > 0 && (

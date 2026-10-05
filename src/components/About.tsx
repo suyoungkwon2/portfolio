@@ -29,7 +29,7 @@ export function About() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-          className="space-y-5 text-lg leading-relaxed text-ink-muted"
+          className="space-y-[21px] text-sm leading-[21px] text-ink md:max-w-[340px]"
         >
           <p>
             I grew up in a family that lives with autism. It taught me to pay attention to

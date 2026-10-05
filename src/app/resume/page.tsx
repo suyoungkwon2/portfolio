@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ArrowUpRight, Copy } from "lucide-react";
 import { CopyEmailLink } from "@/components/CopyEmailLink";
-import { PageTitle } from "@/components/PageTitle";
+import { PageTitle, sectionTitleClass } from "@/components/PageTitle";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -47,7 +47,7 @@ export default function ResumePage() {
         </div>
 
         <div id="contact" className="mt-20 scroll-mt-14 lg:scroll-mt-0">
-          <h2 className="font-manrope text-xl font-semibold tracking-[-0.02em] text-ink md:text-2xl">Get in touch</h2>
+          <h2 className={sectionTitleClass}>Get in touch</h2>
           <ul className="mt-5 space-y-2">
             <li>
               <CopyEmailLink email={site.email} className={`${contactLinkClass} text-left`}>
