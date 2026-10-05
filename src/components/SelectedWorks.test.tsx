@@ -9,11 +9,10 @@ describe("SelectedWorks", () => {
 
     expect(screen.getByRole("heading", { level: 2, name: "Selected Projects" })).toBeInTheDocument();
 
-    const cardLinks = screen.getAllByRole("link").filter((link) =>
-      link.getAttribute("href")?.startsWith("/work/"),
-    );
-    expect(cardLinks.map((a) => a.getAttribute("href"))).toEqual(
-      featuredSlugs.map((slug) => `/work/${slug}`),
-    );
+    const workLinks = screen
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href"))
+      .filter((href) => href?.startsWith("/work/"));
+    expect(workLinks).toEqual(featuredSlugs.map((slug) => `/work/${slug}`));
   });
 });

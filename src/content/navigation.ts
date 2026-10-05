@@ -42,3 +42,15 @@ export const navTree: NavNode[] = [
   { label: "Resume", href: "/resume" },
   { label: "About", href: "/about" },
 ];
+
+// Reading order for pulling past the ends of a page (PageChain): keep
+// scrolling at the bottom of one and the next opens; keep scrolling up at
+// the top and the previous one does. Labels name the link for screen readers.
+export const pageChain = [
+  { href: "/", label: "Home" },
+  { href: "/work/projects", label: "All projects" },
+  { href: "/work/research", label: "Research" },
+  { href: "/work/media", label: "Media" },
+  { href: "/resume", label: "Resume" },
+  { href: "/about", label: "About me" },
+];

@@ -6,7 +6,7 @@ export const worksIn = (sector: WorkSector) => works.filter((w) => w.sector === 
 
 export function WorkGrid({ items }: { items: WorkItem[] }) {
   return (
-    <div className="grid gap-6 sm:grid-cols-2">
+    <div className="grid gap-x-6 gap-y-12 sm:grid-cols-2">
       {items.map((work, i) => (
         <WorkCard key={work.slug} work={work} index={i} />
       ))}
@@ -19,7 +19,7 @@ export function WorkGrid({ items }: { items: WorkItem[] }) {
 export function SelectedWorks() {
   const featured = featuredSlugs.map((slug) => works.find((w) => w.slug === slug)!);
   return (
-    <section id="work" className="px-6 pb-14 pt-6 md:px-10 md:pb-20">
+    <section id="work" className="px-6 pt-6 md:px-10">
       <h2 className={sectionTitleClass}>Selected Projects</h2>
       <div className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2">
         {featured.map((work, i) => (

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function ResearchPage() {
   return (
     <main>
-      <section className="px-6 pb-14 pt-12 md:px-10 md:pb-20 md:pt-16">
+      <section className="px-6 pb-4 pt-12 md:px-10 md:pt-16">
         <PageTitle>What I&apos;ve researched</PageTitle>
         <div className="mt-12">
           <WorkGrid items={worksIn("AI Research")} />

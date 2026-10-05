@@ -1,5 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
+import { PageChain } from "@/components/PageChain";
 import { Sidebar } from "@/components/Sidebar";
 import "./globals.css";
 
@@ -21,8 +22,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // data-scroll-behavior: page changes jump straight to the top instead of
+  // smooth-scrolling there (globals.css keeps smooth for in-page links).
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -43,7 +46,7 @@ export default function RootLayout({
             more slowly, so type shrinks less than the layout on narrower
             screens. */}
         <div className="lg:pl-60 lg:[--f:calc(2.5px+var(--u)*0.78)] lg:[--u:min(calc((100vw-320px)/100),14.5px)]">
-          {children}
+          <PageChain>{children}</PageChain>
         </div>
       </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId={GA_ID} />}
