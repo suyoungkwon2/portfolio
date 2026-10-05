@@ -68,6 +68,12 @@ export default async function ProjectPage({
         heroMedia={
           <>
             {meta.summary && <TenSecondSummary summary={meta.summary} />}
+            {meta.slides && !Detail && (
+              <p className="mt-6 pb-4 text-center text-base text-ink">
+                I&apos;m redesigning this case study as a web page. Every detail is in the PDF
+                version below.
+              </p>
+            )}
             {slug === "phonitale" && <PhonitaleHeroVideos />}
             {slug === "mars" && <MarsHeroVideo />}
           </>
