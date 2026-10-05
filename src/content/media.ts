@@ -14,7 +14,7 @@ export const media: MediaItem[] = [
     // JoongAng Ilbo, Nov 4 2025.
     kind: "news",
     date: "Nov 2025",
-    title: "M.A.R.S. Datathon Excellence Award",
+    title: "M.A.R.S Datathon Excellence Award",
     caption: "Recognized for an LLM pipeline that drafts hospital discharge summaries.",
     href: "https://www.joongang.co.kr/article/25379464",
     image: "/images/media/mars.jpg",

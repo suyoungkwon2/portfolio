@@ -1,6 +1,6 @@
 // Generic responsive table for benchmark/comparison/before-after data —
 // several case studies (AsleepTrack's accuracy benchmark, AI Search's
-// A/B results, MARS's competition rounds) reduce cleanly to this shape.
+// A/B results, M.A.R.S's competition rounds) reduce cleanly to this shape.
 export function DataTable({
   columns,
   rows,

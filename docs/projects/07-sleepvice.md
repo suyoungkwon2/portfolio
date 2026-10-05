@@ -107,6 +107,6 @@ None found in `legacy-jekyll/SleepVice.md` beyond its own front-matter tags (dom
 
 ## Notes / open questions
 
-- **This is the 7th project from the PDF's table of contents, outside the original 6-project brief** (Healthcare/Education: MARS, Phonitale, SomMind; AI/Business: AI Search, AI Curation, AsleepTrack). It's included here at the site owner's request but is not yet assigned a site section/slot — confirm whether it becomes a 4th Healthcare/Education card, a "bonus" 7th card, or stays reference-only.
+- **This is the 7th project from the PDF's table of contents, outside the original 6-project brief** (Healthcare/Education: M.A.R.S, Phonitale, SomMind; AI/Business: AI Search, AI Curation, AsleepTrack). It's included here at the site owner's request but is not yet assigned a site section/slot — confirm whether it becomes a 4th Healthcare/Education card, a "bonus" 7th card, or stays reference-only.
 - **Duration discrepancy:** portfolio says Jun 2021–Jun 2022; CV's matching role period ("B2C App PM / Product Team") says Apr 2021–Sep 2021. Needs a decision on which range to use, similar to the SomMind duration question.
 - Shares the same Asleep sleep-tracking AI core, Amazon-partnership milestone, and Series B funding contribution referenced in AsleepTrack and (for the Series B point) implicitly overlaps with SomMind's timeline — if both SomMind and SleepVice ship as separate case studies, watch for redundant "Series B" framing across cards.

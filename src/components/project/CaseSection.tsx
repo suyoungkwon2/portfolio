@@ -1,6 +1,6 @@
 import { Kicker } from "@/components/project/TenSecondSummary";
 
-// Building blocks for the chaptered case-study layout (PhoniTale, MARS).
+// Building blocks for the chaptered case-study layout (PhoniTale, M.A.R.S).
 // Deliberately NOT the shared <Section> component (./Section.tsx): that
 // component's plain-text kicker and py-14/py-20 rhythm is load-bearing for
 // the older case studies, while this layout uses a filled-pill kicker and

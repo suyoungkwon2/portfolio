@@ -9,7 +9,7 @@ PDF: **green = domain**, **red = problem**, **blue = tech/system used to solve i
 ## Projects, in site order
 
 ### Healthcare / Education
-1. [MARS](01-mars.md) — Medical Auto-documentation with Real-world Structuring (pdf pp. 3–6)
+1. [M.A.R.S](01-mars.md) — Medical Auto-documentation with Real-world Structuring (pdf pp. 3–6)
 2. [Phonitale](02-phonitale.md) — AI-powered Mnemonic Foreign Vocab Learning (pdf pp. 7–10)
 3. [SomMind](03-sommind.md) — Digital Therapeutic App for Severe Insomnia (pdf pp. 15–19)
 
@@ -39,7 +39,7 @@ May–Aug 2024 and Jun–Dec 2024 respectively.
 duration (Jun 2022 – Mar 2023)**, not the broader DTx-team role tenure (Sep 2021 – Mar 2023). Updated in
 `03-sommind.md`.
 
-✅ **Resolved:** legacy-jekyll `date` fields (PhoniTale 2025-10-01, MARS 2025-11-01) — site owner confirmed
+✅ **Resolved:** legacy-jekyll `date` fields (PhoniTale 2025-10-01, M.A.R.S 2025-11-01) — site owner confirmed
 these should be ignored in favor of the PDF/CV durations already used in `01-mars.md` and `02-phonitale.md`.
 (PhoniTale still has a minor 1-month drift between the PDF "Mar–May 2025" and CV "Mar–Jun 2025" — using CV
 as primary per that file's notes.)
@@ -49,7 +49,7 @@ as primary per that file's notes.)
 CTR **58.60% → 60.14%**, and operating costs **30% below pilot-stage levels** via the proxy server. Don't
 reintroduce the extreme revenue multiples. Updated in `04-ai-search.md`.
 
-✅ **Resolved:** MARS team composition — site owner confirmed **4 people total**: site owner (Project
+✅ **Resolved:** M.A.R.S team composition — site owner confirmed **4 people total**: site owner (Project
 Managing), 2 LLM Engineers, 1 Psychiatry Professor as clinical advisor. Exact name-to-role mapping among
 the 3 named teammates (Sana Kang, Myeongseok Gwon, Jeongkyeong Hong) isn't needed for site copy. Updated in
 `01-mars.md`.
@@ -73,5 +73,5 @@ Still open:
   `domain_tags`/`problem_tags`/`tech_tags` front-matter for all 7 projects — high confidence these are
   correct as extracted.
 - AsleepTrack's duration (Apr 2023 – Mar 2024) matches the CV exactly.
-- MARS's award date (Oct 2025) and result (Excellence Award, 2nd place in the final round) are consistent
+- M.A.R.S's award date (Oct 2025) and result (Excellence Award, 2nd place in the final round) are consistent
   across the PDF and both CVs.

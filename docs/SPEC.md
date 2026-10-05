@@ -104,7 +104,7 @@ bracketed text like `[Case Study Title]`:
 
 Real raw material for migration lives in `legacy-jekyll/`:
 - `_projects/*.md` — 7 real project write-ups (AICuration, AISearch,
-  AsleepTrack, MARS, PhoniTale, SleepVice, SomMind) with links/tags/images
+  AsleepTrack, M.A.R.S, PhoniTale, SleepVice, SomMind) with links/tags/images
 - `_pages/about.md` — original bio copy
 - `_data/media.yml`, `_data/news.yml` — real press mentions and milestones
 - `_bibliography/papers.bib` — real publication/patent entries

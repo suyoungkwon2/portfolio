@@ -4,8 +4,8 @@ import { ChapterDivider } from "@/components/project/ChapterDivider";
 import { Kicker } from "@/components/project/TenSecondSummary";
 
 // Overview chapter (Overview / My Role / Result) from the Figma file
-// (Portfolio_Asset, "MARS — Project Detail" frame). Rendered above the
-// portfolio-PDF slides until the rest of the MARS page is rebuilt.
+// (Portfolio_Asset, "M.A.R.S — Project Detail" frame). Rendered above the
+// portfolio-PDF slides until the rest of the M.A.R.S page is rebuilt.
 
 const IMG = "/images/mars";
 
@@ -86,7 +86,7 @@ export function MarsOverview() {
           <div className="relative aspect-[299/368] w-full max-w-[299px] shrink-0 overflow-hidden">
             <Image
               src={`${IMG}/img_result_1.webp`}
-              alt="Receiving the Excellence Award at the M.A.R.S. datathon"
+              alt="Receiving the Excellence Award at the M.A.R.S datathon"
               fill
               sizes="299px"
               className="object-cover object-bottom"

@@ -5,7 +5,7 @@ import { PullQuote } from "@/components/project/PullQuote";
 import { Section } from "@/components/project/Section";
 import { StatGrid } from "@/components/project/Stat";
 
-// MARS is a datathon case study: the story is "constrained-time
+// M.A.R.S is a datathon case study: the story is "constrained-time
 // competition → real hospital data → a working pipeline that clinicians
 // rated better round over round." Structure leads with the award +
 // evaluation lift, then compresses the 4-stage process and 3-module
