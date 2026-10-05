@@ -117,15 +117,15 @@ function TreeItem({
                 : "text-ink-muted hover:text-ink",
           )}
         >
-          {node.label}
           {node.featured && (
             <>
-              <span aria-hidden className="ml-1.5 text-[10px] text-ink-muted">
+              <span aria-hidden className="mr-1.5 text-[10px] text-ink-muted">
                 ✦
               </span>
-              <span className="sr-only">, selected project</span>
+              <span className="sr-only">Selected project: </span>
             </>
           )}
+          {node.label}
         </Link>
         {isFolder && (
           <button
@@ -231,9 +231,22 @@ function NavTree({ pathname }: { pathname: string }) {
   );
 }
 
-function Logo() {
+// Always lands at the very top of the home page. Already there, a link to
+// the same page does nothing, so scroll up by hand (and drop any #hash).
+function Logo({ pathname, onHome }: { pathname: string; onHome?: () => void }) {
   return (
-    <Link href="/" aria-label={`${site.name}, home`} className="inline-block">
+    <Link
+      href="/"
+      aria-label={`${site.name}, home`}
+      className="inline-block"
+      onClick={(e) => {
+        onHome?.();
+        if (pathname !== "/") return;
+        e.preventDefault();
+        if (window.location.hash) history.replaceState(null, "", "/");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }}
+    >
       <Image src="/images/logo_mk.svg" alt="" width={614} height={306} priority className="h-7 w-auto" />
     </Link>
   );
@@ -264,7 +277,7 @@ export function Sidebar() {
     <>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col bg-paper lg:flex">
         <div className="px-5 pb-10 pt-8">
-          <Logo />
+          <Logo pathname={pathname} />
         </div>
         <nav aria-label="Site" className="flex-1 overflow-y-auto px-3">
           <NavTree pathname={pathname} />
@@ -273,7 +286,7 @@ export function Sidebar() {
       </aside>
 
       <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-line bg-paper/90 px-6 backdrop-blur-md lg:hidden">
-        <Logo />
+        <Logo pathname={pathname} onHome={() => setMenuOpen(false)} />
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
