@@ -12,6 +12,9 @@ export type WorkItem = {
   year: string;
   // 16:10 card image (1600x1000); falls back to a sector gradient.
   thumbnail?: string;
+  // Colors for a slowly moving mesh-gradient backdrop. With a thumbnail,
+  // the image (a transparent PNG) sits on top of it.
+  gradient?: string[];
   // Looping demo clip shown in place of the thumbnail.
   video?: string;
   // "framed" (default) sits the clip in a small window on a gray panel, for
@@ -20,6 +23,13 @@ export type WorkItem = {
   // Still shown until the video loads (its first frame).
   videoPoster?: string;
 };
+
+// Asleep's lavender-blue, from the SomMind key visual: base, periwinkle,
+// near-white highlight, and a softened brand blue, plus one accent each:
+// lilac for SomMind, a warm lamp yellow for AsleepTrack.
+const ASLEEP_BASE = ["#C9D1E5", "#A8B5F3", "#EEF2FC", "#8AA2F4"];
+const SOMMIND_GRADIENT = [...ASLEEP_BASE, "#D4C8F4"];
+const ASLEEPTRACK_GRADIENT = [...ASLEEP_BASE, "#F4E7B4"];
 
 // Real case studies, sourced and cross-referenced from
 // docs/projects/*.md (portfolio PDF + CVs + legacy-jekyll write-ups).
@@ -57,6 +67,8 @@ const allWorks: WorkItem[] = [
       "Took Asleep's sleep-tracking AI from a hard-to-integrate model to a full API/SDK/Dashboard platform, landing SK Telecom, LG, and KB Healthcare as clients within 3 months of launch.",
     metrics: "$60K+ MRR, the company's first B2B revenue line",
     year: "2023–24",
+    thumbnail: "/images/asleeptrack/thumbnail.webp",
+    gradient: ASLEEPTRACK_GRADIENT,
   },
   {
     slug: "sommind",
@@ -67,6 +79,8 @@ const allWorks: WorkItem[] = [
       "Owned product, clinical-trial design, and regulatory strategy for a CBT-i mobile app built with Seoul National University Bundang Hospital, from patient research through certified clinical trial approval.",
     metrics: "KGMP + K-FDA clinical trial approval secured",
     year: "2022–23",
+    thumbnail: "/images/sommind/thumbnail.webp",
+    gradient: SOMMIND_GRADIENT,
   },
   {
     slug: "sleepvice",
