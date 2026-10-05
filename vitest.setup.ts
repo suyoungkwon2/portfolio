@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { vi } from "vitest";
 
 class MockIntersectionObserver implements IntersectionObserver {
   readonly root = null;
@@ -31,3 +32,7 @@ if (!window.matchMedia) {
 if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
+
+// jsdom has no WebGL, so Paper Shaders rejects on mount. The card backdrops
+// already fall back to a CSS gradient; tests render that alone.
+vi.mock("@paper-design/shaders-react", () => ({ MeshGradient: () => null }));
