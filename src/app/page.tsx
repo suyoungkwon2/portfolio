@@ -6,8 +6,10 @@ import { SelectedWorks } from "@/components/SelectedWorks";
 export default function Home() {
   return (
     <main>
-      <Hero />
-      <SelectedWorks />
+      {/* The Work section stays hidden until the hero's photos spread. */}
+      <Hero>
+        <SelectedWorks />
+      </Hero>
     </main>
   );
 }

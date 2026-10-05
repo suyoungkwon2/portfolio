@@ -9,7 +9,7 @@ const GA_ID = "G-B2Z4J55FNK";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://suyoungkwon.com"),
-  title: "Suyoung Kwon | Product Manager",
+  title: "Mel Suyoung Kwon",
   description:
     "Suyoung (Mel) Kwon, a Product Manager building healthcare, education, and AI products with measurable business impact.",
   icons: { icon: "/images/logo_mk_small.png", apple: "/images/logo_mk_small.png" },
