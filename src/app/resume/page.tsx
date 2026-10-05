@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
-import { ArrowUpRight, Copy } from "lucide-react";
-import { CopyEmailLink } from "@/components/CopyEmailLink";
+import { ContactLinks } from "@/components/ContactLinks";
 import { PageTitle, sectionTitleClass } from "@/components/PageTitle";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
   description: "Suyoung (Mel) Kwon's resume and contact details.",
 };
-
-const contactLinkClass = "inline-flex items-center gap-1.5 text-sm leading-[21px] text-ink no-underline transition-colors hover:text-accent-3";
-
-const contacts = [
-  { label: "LinkedIn", href: site.linkedinHref },
-  { label: "GitHub", href: site.githubHref },
-];
 
 // Resume and Contact in one place: the two resume versions first, then
 // every way to reach me.
@@ -48,22 +40,7 @@ export default function ResumePage() {
 
         <div id="contact" className="mt-20 scroll-mt-14 lg:scroll-mt-0">
           <h2 className={sectionTitleClass}>Get in touch</h2>
-          <ul className="mt-5 space-y-2">
-            <li>
-              <CopyEmailLink email={site.email} className={`${contactLinkClass} text-left`}>
-                Copy email
-                <Copy aria-hidden className="size-3.5" />
-              </CopyEmailLink>
-            </li>
-            {contacts.map((c) => (
-              <li key={c.label}>
-                <a href={c.href} target="_blank" rel="noopener noreferrer" className={contactLinkClass}>
-                  {c.label}
-                  <ArrowUpRight aria-hidden className="size-3.5" />
-                </a>
-              </li>
-            ))}
-          </ul>
+          <ContactLinks className="mt-5 space-y-2" />
         </div>
       </section>
     </main>

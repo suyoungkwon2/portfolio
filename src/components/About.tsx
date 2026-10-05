@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ContactLinks } from "./ContactLinks";
 import { PageTitle, sectionTitleClass } from "./PageTitle";
 
 // Opening section of the About page: the "why" behind the work, with the
@@ -37,6 +38,7 @@ export function About() {
               to new experiences, new things to learn, and new people to meet.
             </p>
           </div>
+          <ContactLinks className="mt-8 flex flex-wrap gap-x-6 gap-y-2" />
         </motion.div>
 
         <motion.div
