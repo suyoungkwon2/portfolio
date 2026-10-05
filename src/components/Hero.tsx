@@ -282,7 +282,7 @@ export function Hero({ children }: { children?: React.ReactNode }) {
               <div key={p.value} className={cn("xl:px-6", i === 0 ? "xl:pl-0" : "xl:border-l xl:border-ink/15")}>
                 <p className="flex items-baseline gap-2 text-[13px] text-ink">
                   {p.field}
-                  <span className="font-manrope text-[11px] font-medium text-ink-muted">@ {p.org}</span>
+                  <span className="font-manrope text-[13px] font-medium text-ink-muted">@ {p.org}</span>
                 </p>
                 <p className="font-manrope mt-3 whitespace-nowrap text-[26px] font-semibold leading-none tracking-[-0.03em] text-ink md:text-[30px]">
                   <StatValue value={p.value} />
