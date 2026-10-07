@@ -3,4 +3,4 @@
 :HL["/images/phonitale/svg_goal_1.svg","image"]
 :HL["/images/phonitale/svg_goal_2.svg","image"]
 :HL["/images/phonitale/svg_goal_3.svg","image"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"work","param":null,"prefetchHints":4192,"slots":{"children":{"name":"slug","param":{"type":"d","key":"phonitale","siblings":["media","projects","research"]},"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"Jpz-0qG6Raw77CTpqDlrO"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"work","param":null,"prefetchHints":4192,"slots":{"children":{"name":"slug","param":{"type":"d","key":"phonitale","siblings":["media","projects","research"]},"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"d8LFcvzsFZD3eXhH2Y80N"}
