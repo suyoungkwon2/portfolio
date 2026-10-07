@@ -15,6 +15,13 @@ export const metadata: Metadata = {
   description:
     "Suyoung (Mel) Kwon, a Product Manager building healthcare, education, and AI products with measurable business impact.",
   icons: { icon: "/images/logo_mk_small.png", apple: "/images/logo_mk_small.png" },
+  // Link previews: the hero's MDes @ CMU photo, cropped to 1200x630.
+  openGraph: {
+    type: "website",
+    siteName: "Mel Suyoung Kwon",
+    images: [{ url: "/images/og.jpg", width: 1200, height: 630, alt: "Mel Suyoung Kwon" }],
+  },
+  twitter: { card: "summary_large_image", images: ["/images/og.jpg"] },
 };
 
 export default function RootLayout({
