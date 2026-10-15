@@ -172,9 +172,11 @@ Outro
 | Step | Type | Query | Bubble |
 | --- | --- | --- | --- |
 | 1 | Misspelling | `cabage` | 🤔 Huh, no cabbage today? |
-| 2 | Spacing | `ca bbage` | 😕 Maybe I typed it wrong… |
-| 3 | Synonym | `lettuce` | 😤 I know you sell this. |
-| 4 | Foreign word | `granma padano` | 🙄 Forget it. → 앱 화면이 닫히는 모션 |
+| 2 | Spacing | `ca bage` | 😕 Maybe I typed it wrong… |
+| 3 | Synonym | `cole` | 😤 I know you sell this. |
+| 4 | Foreign word | `halapeno` (jalapeño) | 🙄 Forget it. → 앱 화면이 닫히는 모션 |
+
+  - 화면: 히어로의 실제 컬리 No result 화면 + iOS 키보드. 1단계는 검색 탭에서 입력, 2단계부터는 이전 No result 화면에서 키보드만 올라와 다시 입력. 왼쪽에 What users want(양배추, 4단계는 할라피뇨 사진), 오른쪽에 n / 4 · 유형 · 검색어 · 버블.
 
   - Closing stat (큰 숫자): In these searches, only **3.83%** of shoppers clicked anything.
     - 작은 주석: Control group of the A/B test, No-Result searches.

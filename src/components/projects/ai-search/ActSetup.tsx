@@ -30,7 +30,7 @@ const HERO_HOLD: Record<HeroState, number> = { before: 4300, after: 5400 };
 // and one search header (field + cart) composited onto all three so only the
 // content changes. "Cabage" is typed over the search tab's placeholder, then
 // the real result screen takes over and its key part lifts out of the device.
-const SCREENS = "/images/ai-search/hero";
+export const SCREENS = "/images/ai-search/hero";
 const TYPED = "Cabage";
 const SCREEN_W = 590;
 const SCREEN_H = 1280;
@@ -61,11 +61,12 @@ const SWEEP_S = 0.8;
 
 // "Cabage" in the search field, in our type. Drawn over every screen
 // (including the baked-in query on before/after.webp) so it never changes font.
-function SearchQuery({ text, caret = false }: { text: string; caret?: boolean }) {
+// Also used by 04's no-result screens.
+export function SearchQuery({ text, caret = false }: { text: string; caret?: boolean }) {
   return (
     <div
       aria-hidden
-      className="absolute flex items-center bg-[#f3f5f7] text-[#292b2b] text-[4.07cqw]"
+      className="absolute flex items-center overflow-hidden whitespace-nowrap bg-[#f3f5f7] text-[#292b2b] text-[4.07cqw]"
       style={{ left: x(150), width: x(250), top: y(100), height: y(44) }}
     >
       {text}
