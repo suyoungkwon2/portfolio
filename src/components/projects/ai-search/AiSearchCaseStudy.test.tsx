@@ -12,7 +12,7 @@ describe("AiSearchCaseStudy", () => {
     expect(chapters).toEqual([
       "01 Context",
       "02 Impact",
-      "03 R&R",
+      "03 Role and Responsibility",
       "04 User Problem",
       "05 Company’s Problem",
       "06 Define",

@@ -1,12 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import { ShoppingCart, Users } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChipGroup } from "@/components/project/ChipGroup";
 import { cn } from "@/lib/utils";
-import type { AssetId } from "./assets";
 import type { Num } from "./ui";
 import { Reveal, StickyScene, useStill, useTypewriter } from "./motion";
 import { AssetMedia, B, Body, Chapter, MetricCounter, PhoneFrame, SectionHeader, wrap } from "./ui";
@@ -739,38 +738,27 @@ export function Impact() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 03 R&R                                                              */
+/* 03 Role and Responsibility                                          */
 /* ------------------------------------------------------------------ */
 
-type Role = { title: string; thumb?: AssetId; body: React.ReactNode; pop?: boolean };
+// What each role lights up in the org chart while it's the newest one.
+type RoleCue = "me" | "team" | "links";
 
-const ROLES: Role[] = [
+const ROLES: { title: string; cue: RoleCue; body: React.ReactNode }[] = [
   {
     title: "Strategy",
-    thumb: "arch-thumb",
+    cue: "me",
     body: (
       <>
         Defined the problem and set the project scope. Proposed a simple rule:{" "}
         <B>AI steps in only when the old search finds nothing</B>, so we could ship without touching
-        what already worked. Pitched the plan to the CEO and won approval for the rollout.
-      </>
-    ),
-  },
-  {
-    title: "Execution",
-    thumb: "dashboard-thumb",
-    body: (
-      <>
-        Designed the system architecture with the engineers, built a demo page to choose the right
-        data source, wrote the data schema, designed the A/B test and KPIs, designed and built the
-        monitoring dashboard, and led QA through launch.
+        what already worked.
       </>
     ),
   },
   {
     title: "UX",
-    thumb: "beta-label-ui",
-    pop: true,
+    cue: "me",
     body: (
       <>
         Designed the <B>“Beta” notice</B> that tells shoppers which results come from AI, so a new
@@ -779,64 +767,202 @@ const ROLES: Role[] = [
     ),
   },
   {
-    title: "Alignment",
+    title: "Execution",
+    cue: "team",
     body: (
       <>
-        Kept the CEO, search engineering, merchandising and marketing teams, and Google Cloud on the
-        same page.
+        Designed the system architecture with the engineers, built a demo page to choose the right
+        data source, designed the A/B test and KPIs, built the monitoring dashboard, and led QA
+        through launch.
       </>
     ),
   },
+  {
+    title: "Alignment",
+    cue: "links",
+    body: (
+      <>Kept the CEO, the search engine team, and the product management team on the same page.</>
+    ),
+  },
 ];
+// Arrives on the header and chart alone, then one role per scroll, plus a
+// spare step so a quick scroll can't skip the last.
+const ROLE_STEPS = ROLES.length + 2;
 
-function RoleThumb({ role }: { role: Role }) {
-  const still = useStill();
+// Who I worked between: the C-level above, the project team around me, and
+// the search engine and product management teams below. Drawn in a
+// 500 × 440 box that scales with its column. Both groups keep the same 24px
+// padding on every side of their chips.
+type OrgNode = { label: string; cx: number; cy: number; w: number; me?: boolean; team?: boolean };
+const NODE_H = 52;
+const GROUP_PAD = 24;
+const GROUP_H = NODE_H + GROUP_PAD * 2;
+const TEAM_Y = 200;
+const BELOW_Y = 380;
+const ORG_NODES: OrgNode[] = [
+  { label: "C-Level", cx: 110, cy: 46, w: 160 },
+  { label: "AI PM (Me)", cx: 110, cy: TEAM_Y, w: 160, me: true, team: true },
+  { label: "ML Engineer", cx: 270, cy: TEAM_Y, w: 136, team: true },
+  { label: "BE Engineer", cx: 410, cy: TEAM_Y, w: 120, team: true },
+  { label: "Search Engine Team", cx: 124, cy: BELOW_Y, w: 188 },
+  { label: "Product Management Team", cx: 342, cy: BELOW_Y, w: 224 },
+];
+// Groups around a row of chips: x from the first chip's left to the last's right.
+const ORG_GROUPS = [
+  { x1: 30, x2: 470, cy: TEAM_Y, filled: true },
+  { x1: 30, x2: 454, cy: BELOW_Y, filled: false },
+];
+// Two-way links, each a pair of dashed arrows (down, up) either side of AI PM.
+const ORG_LINKS = [
+  { y1: 46 + NODE_H / 2, y2: TEAM_Y - NODE_H / 2 },
+  { y1: TEAM_Y + NODE_H / 2, y2: BELOW_Y - GROUP_H / 2 },
+];
+const LINK_X = [86, 134];
+const DASH = 8;
+
+const BLINK = { opacity: [1, 0.3, 1, 0.3, 1] };
+
+function OrgChart({ cue, beat }: { cue?: RoleCue; beat: number }) {
+  const blinks = (n: OrgNode) => (cue === "me" && n.me) || (cue === "team" && n.team);
   return (
-    <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-paper-2">
-      {role.thumb ? (
-        <AssetMedia id={role.thumb} />
-      ) : (
-        <div className="grid h-full place-items-center">
-          <Users aria-hidden strokeWidth={1.25} className="size-14 text-ink-muted" />
-        </div>
-      )}
-      {/* beta-label-ui: the Beta label "pops" onto the results screen. */}
-      {role.pop && (
-        <motion.span
-          aria-hidden
-          initial={still ? false : { scale: 0, rotate: -12 }}
-          whileInView={{ scale: 1, rotate: -6 }}
-          viewport={{ once: true, amount: 0.8 }}
-          transition={{ type: "spring", stiffness: 420, damping: 14, delay: 0.5 }}
-          className="absolute right-4 top-4 rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-paper shadow-lg"
+    <svg
+      viewBox="0 0 500 440"
+      role="img"
+      aria-label="Team structure: the AI PM (me) reports to and gets approval from the C-level, works in one team with an ML engineer and a backend engineer, and works back and forth with the search engine team and the product management team."
+      className="font-display w-full text-ink"
+    >
+      <defs>
+        <marker
+          id="org-arrow"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
         >
-          Beta
-        </motion.span>
+          <path d="M1 1 9 5 1 9" fill="none" stroke="var(--color-ink-muted)" strokeWidth="1.5" />
+        </marker>
+      </defs>
+
+      {ORG_GROUPS.map(({ x1, x2, cy, filled }) => (
+        <motion.rect
+          key={`${beat}-${cy}`}
+          initial={{ opacity: 1 }}
+          animate={cue === "team" && filled ? BLINK : { opacity: 1 }}
+          transition={{ duration: 1.6, ease: "easeInOut" }}
+          x={x1 - GROUP_PAD}
+          y={cy - GROUP_H / 2}
+          width={x2 - x1 + GROUP_PAD * 2}
+          height={GROUP_H}
+          rx={GROUP_H / 2}
+          fill={filled ? "var(--color-paper-2)" : "none"}
+          stroke={filled ? "none" : "var(--color-line)"}
+          strokeWidth="1.5"
+        />
+      ))}
+
+      {/* Alignment: the dashes run the way each arrow points, briefly. */}
+      {ORG_LINKS.map(({ y1, y2 }) =>
+        [
+          [LINK_X[0], y1 + 4, y2 - 4],
+          [LINK_X[1], y2 - 4, y1 + 4],
+        ].map(([x, from, to]) => (
+          <motion.line
+            key={`${beat}-${x}-${y1}`}
+            x1={x}
+            y1={from}
+            x2={x}
+            y2={to}
+            stroke="var(--color-ink-muted)"
+            strokeWidth="1.5"
+            strokeDasharray={`${DASH / 2} ${DASH / 2}`}
+            markerEnd="url(#org-arrow)"
+            initial={{ strokeDashoffset: 0 }}
+            animate={cue === "links" ? { strokeDashoffset: -DASH * 6 } : { strokeDashoffset: 0 }}
+            transition={{ duration: 2, ease: "linear" }}
+          />
+        )),
       )}
+
+      {ORG_NODES.map((n) => (
+        <motion.g
+          key={`${beat}-${n.label}`}
+          initial={{ opacity: 1 }}
+          animate={blinks(n) ? BLINK : { opacity: 1 }}
+          transition={{ duration: 1.6, ease: "easeInOut" }}
+        >
+          <rect
+            x={n.cx - n.w / 2}
+            y={n.cy - NODE_H / 2}
+            width={n.w}
+            height={NODE_H}
+            rx={NODE_H / 2}
+            fill={n.me ? "var(--color-accent)" : "var(--color-paper)"}
+            stroke={n.me ? "none" : "var(--color-ink)"}
+            strokeWidth="1.25"
+          />
+          <text
+            x={n.cx}
+            y={n.cy}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize="15"
+            fontWeight="500"
+            fill={n.me ? "var(--color-paper)" : "currentColor"}
+          >
+            {n.label}
+          </text>
+        </motion.g>
+      ))}
+    </svg>
+  );
+}
+
+function RolesScene({ step, live }: { step: number; live: boolean }) {
+  // Step 0 is the empty arrival; step n shows roles 1…n. The newest role
+  // cues the chart, and the spare last step cues nothing new.
+  const revealed = live ? step : ROLES.length;
+  const current = live && step >= 1 && step <= ROLES.length ? step - 1 : -1;
+  return (
+    <div className={wrap}>
+      <SectionHeader
+        label="03 ROLE AND RESPONSIBILITY"
+        headline="A Three-Person Team, a Company-Wide Change"
+      />
+      <div className="mt-12 grid items-center gap-12 md:grid-cols-[1fr_1.05fr] md:gap-16">
+        <ol className="flex flex-col gap-7">
+          {ROLES.map((role, i) => {
+            const shown = i < revealed;
+            return (
+              <motion.li
+                key={role.title}
+                aria-hidden={!shown || undefined}
+                initial={false}
+                animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                className="flex flex-col gap-1.5"
+              >
+                <h3 className="font-display text-lg font-medium text-ink">{role.title}</h3>
+                <p className="text-[15px] leading-relaxed text-ink-muted">{role.body}</p>
+              </motion.li>
+            );
+          })}
+        </ol>
+        <Reveal>
+          <OrgChart cue={ROLES[current]?.cue} beat={current} />
+        </Reveal>
+      </div>
     </div>
   );
 }
 
 export function Roles() {
   return (
-    <Chapter id="roles" label="03 R&R" className="border-t border-line py-24 md:py-32">
-      <div className={wrap}>
-        <SectionHeader label="03 R&R" headline="A Three-Person Team, a Company-Wide Change" />
-        <ul className="mt-14 grid gap-x-8 gap-y-12 md:grid-cols-2">
-          {ROLES.map((role, i) => (
-            <Reveal as="li" key={role.title} delay={(i % 2) * 0.12} className="flex flex-col gap-5">
-              <RoleThumb role={role} />
-              <div className="flex flex-col gap-2">
-                <h3 className="font-display text-lg font-medium text-ink">{role.title}</h3>
-                <p className="text-[15px] leading-relaxed text-ink-muted">{role.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </ul>
-        <p className="mt-14 text-sm font-medium text-ink-muted">
-          AI PM (me) · 1 ML Engineer · 1 Backend Engineer
-        </p>
-      </div>
+    <Chapter id="roles" label="03 Role and Responsibility" className="border-t border-line">
+      <StickyScene steps={ROLE_STEPS} label="My roles, one at a time">
+        {({ step, live }) => <RolesScene step={step} live={live} />}
+      </StickyScene>
     </Chapter>
   );
 }

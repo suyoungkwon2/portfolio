@@ -29,7 +29,7 @@
 
 | 막 | 섹션 | 독자가 느껴야 할 것 |
 | --- | --- | --- |
-| Setup | Hero · 01 Context · 02 Impact · 03 R&R | 무엇을 해냈는지 먼저 안다 (스포일러) |
+| Setup | Hero · 01 Context · 02 Impact · 03 Role and Responsibility | 무엇을 해냈는지 먼저 안다 (스포일러) |
 | Conflict | 04 User Problem · 05 Company's Problem | 고객도 회사도 막혔다 |
 | Turn | 06 Define · 07 PoC Approach | 다시 만들지 않고 "덧붙이기"로 방향 전환. **07B가 페이지 클라이맥스** |
 | Proof | 08 System Architecture · 09 A/B Test | 정말 안전하고, 정말 효과가 있다 |
@@ -88,7 +88,7 @@
 Hero
 01 Context
 02 Impact
-03 R&R
+03 Role and Responsibility
 04 User Problem
 05 Company's Problem
 06 Define
@@ -148,17 +148,17 @@ Outro
     - CTA (텍스트 링크): Watch the talk → `https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333`
 - **Media**: `▶ Video` `summit-stage-clip` (발표 영상 클립 2개 `public/images/ai-search/video/GCS_Video_{1,2}.mov`를 이어 붙인 약 8.8초 무음 루프, `public/videos/ai-search/summit-stage-clip.mp4` + poster).
 
-### 5.3 03 R&R
+### 5.3 03 Role and Responsibility
 - **Copy**
-  - Label: `03 R&R`
+  - Label: `03 ROLE AND RESPONSIBILITY`
   - Headline: **A Three-Person Team, a Company-Wide Change**
-  - Card 1 · Strategy: Defined the problem and set the project scope. Proposed a simple rule: **AI steps in only when the old search finds nothing**, so we could ship without touching what already worked. Pitched the plan to the CEO and won approval for the rollout.
-  - Card 2 · Execution: Designed the system architecture with the engineers, built a demo page to choose the right data source, wrote the data schema, designed the A/B test and KPIs, designed and built the monitoring dashboard, and led QA through launch.
-  - Card 3 · UX: Designed the **“Beta” notice** that tells shoppers which results come from AI, so a new kind of result felt honest, not confusing.
-  - Card 4 · Alignment: Kept the CEO, search engineering, merchandising and marketing teams, and Google Cloud on the same page.
-  - Team line: AI PM (me) · 1 ML Engineer · 1 Backend Engineer
-- **Motion**: 카드 4개가 차례로 진입. UX 카드가 나타날 때 실제 검색 결과 화면 위에 Beta 라벨이 "톡" 붙는 짧은 모션(`beta-label-ui`).
-- **메모**: 카드마다 아이콘 대신 산출물 썸네일 사용(아키텍처 도 `arch-thumb`, 대시보드 `dashboard-thumb`, Beta UI `beta-label-ui`, 정렬 카드는 아이콘 허용).
+  - 왼쪽, 역할 텍스트(썸네일 없음), 순서 Strategy → UX → Execution → Alignment:
+    - Strategy: Defined the problem and set the project scope. Proposed a simple rule: **AI steps in only when the old search finds nothing**, so we could ship without touching what already worked.
+    - UX: Designed the **“Beta” notice** that tells shoppers which results come from AI, so a new kind of result felt honest, not confusing.
+    - Execution: Designed the system architecture with the engineers, built a demo page to choose the right data source, designed the A/B test and KPIs, built the monitoring dashboard, and led QA through launch.
+    - Alignment: Kept the CEO, the search engine team, and the product management team on the same page.
+  - 오른쪽, 조직 구조도(SVG): C-Level ⇅ **AI PM (Me)** (프로젝트 팀 그룹: AI PM (Me) · ML Engineer · BE Engineer) ⇅ Search Engine Team · Product Management Team. AI PM만 accent 채움. 화살표는 점선. 두 그룹 모두 칩 둘레 여백 24px로 사방 동일.
+- **Motion**: `▶ Scroll scene` (6단계). 도착하면 고정되고 헤더와 구조도만 보임 → 스크롤 한 번마다 Strategy, UX, Execution, Alignment가 하나씩 나타남 → 한 단계 더 머문 뒤 다음 섹션. 새 역할이 나올 때 구조도 신호: Strategy·UX는 AI PM 칩이 두 번 깜빡, Execution은 3인 팀 칩과 회색 팀 영역이 함께 깜빡, Alignment는 점선이 화살표 방향으로 약 2초 흐르고 멈춤. 모바일·reduced motion은 전부 표시, 신호 없음.
 
 ### 5.4 04 User Problem
 - **목적**: 나쁜 검색 경험의 Before. 예시 목록이 아니라 **한 고객의 좌절 여정**.
