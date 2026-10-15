@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChipGroup } from "@/components/project/ChipGroup";
 import { cn } from "@/lib/utils";
 import type { AssetId } from "./assets";
+import type { Num } from "./ui";
 import { Reveal, StickyScene, useStill, useTypewriter } from "./motion";
 import { AssetMedia, B, Body, Chapter, MetricCounter, PhoneFrame, SectionHeader, wrap } from "./ui";
 
@@ -657,63 +658,82 @@ export function Context() {
 /* 02 Impact                                                           */
 /* ------------------------------------------------------------------ */
 
-export function Impact() {
+// Number and label centred in their column.
+const CENTERED = "items-center text-center [&>p:first-child]:justify-center";
+
+// The scene holds on arrival with the old values only; one scroll counts the
+// new ones up from zero, and a spare step keeps a quick scroll from skipping it.
+const IMPACT_STEPS = 3;
+const IMPACT: { from?: Num; to: Num; extra?: string; label: string }[] = [
+  {
+    from: { value: 6.8, decimals: 2, suffix: "%" },
+    to: { value: 0.22, decimals: 2, suffix: "%" },
+    label: "No-Result Search Rate",
+  },
+  {
+    from: { value: 58.6, decimals: 2, suffix: "%" },
+    to: { value: 60.14, decimals: 2, suffix: "%" },
+    label: "Search Click-Through Rate",
+  },
+  {
+    to: { value: 3.6, decimals: 1, prefix: "$", suffix: "M" },
+    extra: "(₩5B)",
+    label: "New Monthly Revenue from Former Dead Ends",
+  },
+];
+
+function ImpactScene({ step, live }: { step: number; live: boolean }) {
+  // Once counted, the numbers stay, even when scrolling back up.
+  const [counted, setCounted] = useState(false);
+  if (live && step >= 1 && !counted) setCounted(true);
+  const play = live ? counted : undefined;
   return (
-    <Chapter id="impact" label="02 Impact" className="py-24 md:py-32">
-      <div className={wrap}>
-        <SectionHeader label="02 IMPACT" headline="From Dead Ends to Discoveries" />
+    <div className={wrap}>
+      <SectionHeader label="02 IMPACT" headline="From Dead Ends to Discoveries" />
 
-        <div className="mt-14 grid gap-10 border-t border-line pt-10 md:grid-cols-3 md:gap-8">
-          <Reveal>
-            <MetricCounter
-              from={{ value: 6.8, decimals: 2, suffix: "%" }}
-              to={{ value: 0.22, decimals: 2, suffix: "%" }}
-              label="No-Result Search Rate"
-            />
+      <div className="mt-14 grid gap-10 border-t border-line pt-10 md:grid-cols-3 md:gap-8">
+        {IMPACT.map((m, i) => (
+          <Reveal key={m.label} delay={i * 0.1}>
+            <MetricCounter {...m} countFrom={0} play={play} className={CENTERED} />
           </Reveal>
-          <Reveal delay={0.1}>
-            <MetricCounter
-              from={{ value: 58.6, decimals: 2, suffix: "%" }}
-              to={{ value: 60.14, decimals: 2, suffix: "%" }}
-              label="Search Click-Through Rate"
-            />
-          </Reveal>
-          <Reveal delay={0.2}>
-            <MetricCounter
-              to={{ value: 5, prefix: "₩", suffix: "B" }}
-              extra="(~$3.6M)"
-              label="New Monthly Revenue from Former Dead Ends"
-            />
-          </Reveal>
+        ))}
+      </div>
+
+      {/* No card: the clip and its caption sit straight on the page. */}
+      <Reveal className="mt-20 grid items-center gap-8 md:grid-cols-[1.25fr_1fr] md:gap-12">
+        <div className="relative aspect-video overflow-hidden rounded-xl border-[0.5px] border-line bg-paper-2">
+          <AssetMedia id="summit-stage-clip" />
         </div>
-
-        <Reveal className="mt-14">
+        <div className="flex flex-col items-start gap-4">
+          <h3 className="font-display font-medium tracking-tight text-[1.4rem] leading-tight text-ink md:text-[1.75rem]">
+            Featured at
+            <br />
+            Google Cloud Summit Seoul 2024
+          </h3>
+          <p className="text-base leading-relaxed text-ink-muted">
+            Google selected this project as a leading enterprise case of AI innovation on GCP.
+            Kurly’s CEO presented it on stage, and I built the presentation.
+          </p>
           <a
             href={TALK_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="group grid overflow-hidden rounded-2xl border border-line bg-paper-2/60 transition-colors hover:border-accent md:grid-cols-[1.15fr_1fr]"
+            className="text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent-3 hover:decoration-accent-3"
           >
-            <div className="relative aspect-video bg-line">
-              <AssetMedia id="summit-stage-clip" />
-            </div>
-            <div className="flex flex-col justify-center gap-4 p-6 md:p-10">
-              <h3 className="font-display font-medium tracking-tight text-[1.4rem] leading-tight text-ink md:text-[1.75rem]">
-                Featured at Google Cloud Summit Seoul 2024
-              </h3>
-              <p className="text-base leading-relaxed text-ink-muted">
-                Google selected this project as a leading enterprise case of AI innovation on GCP.
-                Kurly’s CEO presented it on stage, and I built the presentation.
-              </p>
-              <span className="text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors group-hover:text-accent-3 group-hover:decoration-accent-3">
-                Watch the talk →
-              </span>
-            </div>
+            Watch the talk →
           </a>
-        </Reveal>
+        </div>
+      </Reveal>
+    </div>
+  );
+}
 
-        <p className="mt-8 text-sm text-ink-muted">Live in production 2 months after the PoC.</p>
-      </div>
+export function Impact() {
+  return (
+    <Chapter id="impact" label="02 Impact">
+      <StickyScene steps={IMPACT_STEPS} label="Results, counting up">
+        {({ step, live }) => <ImpactScene step={step} live={live} />}
+      </StickyScene>
     </Chapter>
   );
 }

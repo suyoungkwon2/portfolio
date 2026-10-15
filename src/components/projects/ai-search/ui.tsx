@@ -290,9 +290,21 @@ const fmt = (n: Num, v: number) =>
 
 // `Count-up`: once, on first view, over ~1s. The server-rendered text is
 // already the final value, so no-JS and reduced motion see it as is.
-export function CountUp({ to, from, className }: { to: Num; from?: number; className?: string }) {
+// Pass `play` to start it from a scroll step instead; until then it's hidden.
+export function CountUp({
+  to,
+  from,
+  play,
+  className,
+}: {
+  to: Num;
+  from?: number;
+  play?: boolean;
+  className?: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.6 });
+  const seen = useInView(ref, { once: true, amount: 0.6 });
+  const inView = play ?? seen;
   const still = useStill();
   const start = from ?? 0;
   const { value, decimals, prefix, suffix } = to;
@@ -320,7 +332,14 @@ export function CountUp({ to, from, className }: { to: Num; from?: number; class
   }, [inView, still, start, value, decimals, prefix, suffix]);
 
   return (
-    <span ref={ref} className={cn("tabular-nums", className)}>
+    <span
+      ref={ref}
+      className={cn(
+        "tabular-nums transition-opacity duration-200",
+        play === false && !still && "opacity-0",
+        className,
+      )}
+    >
       {fmt(to, to.value)}
     </span>
   );
@@ -332,12 +351,18 @@ export function MetricCounter({
   to,
   extra,
   label,
+  countFrom,
+  play,
   size = "md",
   className,
 }: {
   from?: Num;
   to: Num;
   extra?: string;
+  // Where the count-up starts (defaults to `from`, else 0).
+  countFrom?: number;
+  // See CountUp.
+  play?: boolean;
   label: string;
   size?: "md" | "lg" | "xl";
   className?: string;
@@ -352,17 +377,28 @@ export function MetricCounter({
           size === "xl" && "text-[3.25rem] md:text-[5.5rem]",
         )}
       >
+        {/* The old value sits small and grey on the new one's baseline, so the
+            improvement reads at a glance. */}
         {from && (
-          <>
-            <span className="text-ink-muted/80">{fmt(from, from.value)}</span>
-            <span aria-hidden className="mx-[0.2em] text-ink-muted/50">
+          <span className="mr-[0.35em] text-[0.5em] text-ink-muted/80">
+            {fmt(from, from.value)}
+            <span aria-hidden className="mx-[0.3em] text-ink-muted/50">
               →
             </span>
             <span className="sr-only"> to </span>
-          </>
+          </span>
         )}
-        <CountUp to={to} from={from?.value} className="text-accent" />
-        {extra && <span className="ml-2 text-[0.45em] text-ink-muted">{extra}</span>}
+        <CountUp to={to} from={countFrom ?? from?.value} play={play} className="text-accent" />
+        {extra && (
+          <span
+            className={cn(
+              "ml-2 text-[0.45em] text-ink-muted transition-opacity duration-200",
+              play === false && "motion-safe:opacity-0",
+            )}
+          >
+            {extra}
+          </span>
+        )}
       </p>
       <p className="text-sm font-medium text-ink-muted">{label}</p>
     </div>

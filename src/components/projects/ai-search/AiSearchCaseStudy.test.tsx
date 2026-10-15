@@ -57,6 +57,6 @@ describe("AiSearchCaseStudy", () => {
 
   it("marks missing recordings with their asset id", () => {
     render(<AiSearchCaseStudy />);
-    expect(screen.getByText("summit-stage-clip")).toBeInTheDocument();
+    expect(screen.getByText("dashboard-pan")).toBeInTheDocument();
   });
 });

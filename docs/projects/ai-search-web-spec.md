@@ -134,19 +134,19 @@ Outro
 
 ### 5.2 02 Impact
 - **목적**: 결과 스포일러 + 외부 검증(Google).
+- **Motion**: `▶ Scroll scene` (3단계). 섹션에 도착하면 화면이 고정되고, 이전 값(회색)과 설명만 보임. 스크롤 한 번에 새 수치(와 ₩5B 괄호)가 나타나며 0에서 최종 값까지 빠르게 count-up, 한 단계 더 머문 뒤 다음 섹션으로. 한 번 올라간 수치는 다시 스크롤해 올라가도 유지. 모바일·reduced motion은 최종 상태.
 - **Copy**
   - Label: `02 IMPACT`
   - Headline: **From Dead Ends to Discoveries**
-  - Metrics (`MetricCounter`, count-up):
+  - Metrics (`MetricCounter`, count-up, 수치와 설명 모두 칼럼 중앙 정렬; 이전 값은 절반 크기 회색으로 새 값과 baseline 정렬):
     1. **6.80% → 0.22%** · No-Result Search Rate
     2. **58.60% → 60.14%** · Search Click-Through Rate
-    3. **₩5B (~$3.6M)** · New Monthly Revenue from Former Dead Ends
-  - Google card (4번째, 더 넓은 카드):
-    - Title: **Featured at Google Cloud Summit Seoul 2024**
+    3. **$3.6M (₩5B)** · New Monthly Revenue from Former Dead Ends
+  - Google (박스 없이 영상 + 텍스트 2열, 영상에만 0.5px 연회색 테두리):
+    - Title: **Featured at / Google Cloud Summit Seoul 2024** (“Featured at” 뒤 줄바꿈)
     - Body: Google selected this project as a leading enterprise case of AI innovation on GCP. Kurly’s CEO presented it on stage, and I built the presentation.
-    - CTA: Watch the talk → `https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333`
-  - Sub line: Live in production 2 months after the PoC.
-- **Media**: `▶ Video` `summit-stage-clip` (무대 장면 5초 무음 루프). 카드 클릭 시 YouTube 타임스탬프로 새 탭.
+    - CTA (텍스트 링크): Watch the talk → `https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333`
+- **Media**: `▶ Video` `summit-stage-clip` (발표 영상 클립 2개 `public/images/ai-search/video/GCS_Video_{1,2}.mov`를 이어 붙인 약 8.8초 무음 루프, `public/videos/ai-search/summit-stage-clip.mp4` + poster).
 
 ### 5.3 03 R&R
 - **Copy**
@@ -359,7 +359,7 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 
 | id | 종류 | 사용 섹션 | 내용 | 상태 |
 | --- | --- | --- | --- | --- |
-| `summit-stage-clip` | video + poster | 02 | 발표 영상 무대 5초 (발표자: Kurly CEO, 발표 자료는 본인 제작) | 추출 필요 |
+| `summit-stage-clip` | video + poster | 02 | 발표 영상 클립 2개를 이은 약 8.8초 루프 (발표자: Kurly CEO, 발표 자료는 본인 제작) | 보유 |
 | `summit-stage-photo` | image | 12 | 무대 사진 | 보유(PDF) |
 | `beta-label-ui` | image | 03, 07B | Beta 안내 UI 스크린샷 | 확보 필요 |
 | `arch-thumb` | image | 03 | 아키텍처 썸네일 | PDF p.26 |
