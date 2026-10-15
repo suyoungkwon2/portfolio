@@ -138,6 +138,7 @@ export function AssetMedia({
   fit = "cover",
   className,
   fallback,
+  onProgress,
 }: {
   id: AssetId;
   priority?: boolean;
@@ -145,6 +146,8 @@ export function AssetMedia({
   className?: string;
   // Rendered instead of the grey placeholder when the file is missing.
   fallback?: React.ReactNode;
+  // Called as a video plays, for page UI that follows the clip's timeline.
+  onProgress?: (time: number, duration: number) => void;
 }) {
   const asset = useAsset(id);
   const still = useStill();
@@ -186,6 +189,10 @@ export function AssetMedia({
       loop
       playsInline
       autoPlay={!still}
+      onTimeUpdate={
+        onProgress &&
+        ((e) => onProgress(e.currentTarget.currentTime, e.currentTarget.duration || 1))
+      }
       preload={priority ? "auto" : "none"}
       className={cn("h-full w-full", fitClass, className)}
     >

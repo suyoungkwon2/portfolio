@@ -50,6 +50,11 @@ describe("AiSearchCaseStudy", () => {
     expect(screen.getByText("Results found, so AI is never called.")).toBeInTheDocument();
   });
 
+  it("labels the hero device Before, then After", () => {
+    render(<AiSearchCaseStudy />);
+    expect(screen.getByText("Before")).toBeInTheDocument();
+  });
+
   it("marks missing recordings with their asset id", () => {
     render(<AiSearchCaseStudy />);
     expect(screen.getByText("summit-stage-clip")).toBeInTheDocument();

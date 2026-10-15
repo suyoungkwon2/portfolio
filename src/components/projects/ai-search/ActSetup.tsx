@@ -1,13 +1,14 @@
 "use client";
 
-import { motion, useTransform, type MotionValue } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import { ShoppingCart, Users } from "lucide-react";
 import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChipGroup } from "@/components/project/ChipGroup";
 import { cn } from "@/lib/utils";
 import type { AssetId } from "./assets";
-import { Reveal, StickyScene, useStill } from "./motion";
-import { LoopingSearch } from "./SearchSequence";
+import { Reveal, StickyScene, useStill, useTypewriter } from "./motion";
+import { SearchSequence } from "./SearchSequence";
 import {
   AssetMedia,
   B,
@@ -26,15 +27,103 @@ import {
 
 export const TALK_URL = "https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333";
 
-const META: [string, string][] = [
-  ["Period", "May–Aug 2024"],
-  ["Role", "AI Product Manager"],
-  ["Team", "AI PM (me), 1 ML Engineer, 1 Backend Engineer"],
-  ["Org", "Kurly"],
+// One entry per line, like the other project heroes.
+const META: [string, string[]][] = [
+  ["Period", ["May 2024", "- August 2024"]],
+  ["Role", ["AI Product Manager", "A/B Test Design", "CEO Communication", "QA"]],
+  ["Team", ["AI PM (Me)", "1 ML Engineer", "1 Backend Engineer"]],
+  ["Org", ["Kurly"]],
 ];
 
-export function Hero() {
+type HeroState = "before" | "after";
+const HERO_HOLD: Record<HeroState, number> = { before: 3200, after: 4200 };
+
+// Two clearly separate states on one device: "cabage" dead-ends (Before),
+// the screen flashes, and the same search finds cabbage (After). A dropped-in
+// recording drives the label from its own clock: first half Before, second
+// half After. The flash is drawn here, so the recording shouldn't bake one in.
+function HeroDevice() {
+  const still = useStill();
   const hasVideo = !!useAsset("hero-cabage-loop").src;
+  const [state, setState] = useState<HeroState>("before");
+  const [cycle, setCycle] = useState(0);
+  const shown: HeroState = still ? "after" : state;
+
+  useEffect(() => {
+    if (still || hasVideo) return;
+    const timer = setTimeout(() => {
+      if (state === "after") setCycle((c) => c + 1);
+      setState(state === "before" ? "after" : "before");
+    }, HERO_HOLD[state]);
+    return () => clearTimeout(timer);
+  }, [state, still, hasVideo]);
+
+  const flash = shown === "after" && !still;
+
+  return (
+    <div className="flex flex-col items-center gap-5">
+      <div className="relative h-6 w-full">
+        <AnimatePresence initial={false}>
+          <motion.p
+            key={shown}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+            className={cn(
+              "font-display absolute inset-0 text-center text-base font-medium uppercase tracking-[0.2em]",
+              shown === "after" ? "text-accent" : "text-ink-muted",
+            )}
+          >
+            {shown === "before" ? "Before" : "After"}
+          </motion.p>
+        </AnimatePresence>
+      </div>
+
+      <div className="relative">
+        {flash && (
+          <motion.div
+            key={`glow-${cycle}`}
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ duration: 0.9, times: [0, 0.2, 1] }}
+            className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-accent/20 blur-2xl"
+          />
+        )}
+        <PhoneFrame>
+          <AssetMedia
+            id="hero-cabage-loop"
+            priority
+            onProgress={(time, duration) => setState(time < duration / 2 ? "before" : "after")}
+            fallback={
+              <SearchSequence
+                key={`${cycle}-${shown}`}
+                query="cabage"
+                emoji="🥬"
+                recover={shown === "after"}
+                recoverDelay={0}
+              />
+            }
+          />
+          {flash && (
+            <motion.div
+              key={`flash-${cycle}`}
+              aria-hidden
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.8, times: [0, 0.15, 1] }}
+              className="pointer-events-none absolute inset-0 z-10 bg-white"
+            />
+          )}
+          {!hasVideo && <StandInTag id="hero-cabage-loop" className="bottom-3 left-3" />}
+        </PhoneFrame>
+      </div>
+    </div>
+  );
+}
+
+export function Hero() {
   return (
     <div className="border-b border-line">
       <div className={cn(wrap, "pb-16 pt-10 md:pb-24 md:pt-16")}>
@@ -51,7 +140,8 @@ export function Hero() {
               chips={{ type: "AI Transformation", domain: "Commerce", proof: "A/B Validated" }}
             />
             <h1 className="font-display font-medium tracking-tight mt-6 text-[2.25rem] leading-[1.1] text-ink text-balance md:text-[3.25rem]">
-              AI Search: Recovering Lost Revenue
+              AI Search: <br />
+              Recovering Lost Revenue
             </h1>
             <p className="mt-4 text-lg italic text-ink-muted md:text-xl">
               “Just type it out. We’ll find what you need.”
@@ -67,7 +157,13 @@ export function Hero() {
                   <dt className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
                     {term}
                   </dt>
-                  <dd className="font-display mt-1.5 text-sm font-medium text-ink">{value}</dd>
+                  <dd className="font-display mt-1.5 text-sm font-medium text-ink">
+                    {value.map((line) => (
+                      <span key={line} className="block">
+                        {line}
+                      </span>
+                    ))}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -88,14 +184,7 @@ export function Hero() {
           </div>
 
           <div className="order-1 flex justify-center md:order-2">
-            <PhoneFrame>
-              <AssetMedia
-                id="hero-cabage-loop"
-                priority
-                fallback={<LoopingSearch query="cabage" emoji="🥬" />}
-              />
-              {!hasVideo && <StandInTag id="hero-cabage-loop" className="bottom-3 left-3" />}
-            </PhoneFrame>
+            <HeroDevice />
           </div>
         </div>
       </div>
@@ -107,97 +196,303 @@ export function Hero() {
 /* 01 Context                                                          */
 /* ------------------------------------------------------------------ */
 
-// Everyday grocery examples, not real query data (spec §5.1).
-const CHIPS = ["milk", "strawberries", "salmon", "eggs", "tofu", "avocado"];
-const CHIP_X = [-150, 120, -90, 160, -170, 80];
+// Everyday grocery searches, not real query data (spec §5.1). While the
+// first headline is up, they play on their own: each query is typed into the
+// bar and the product drops into the cart. The one scroll step after that
+// types "cabage", which can't get through: the bar turns red.
+const PRODUCTS = [
+  { query: "cherry tomatoes", src: "/images/ai-search/context/cherry-tomatoes.webp" },
+  { query: "melon", src: "/images/ai-search/context/melon.webp" },
+  { query: "eggs", src: "/images/ai-search/context/eggs.webp" },
+  { query: "steak", src: "/images/ai-search/context/steak.webp" },
+];
+const PROBLEM_STEP = 1;
+const TYPO = "cabage";
 
-const chipWindow = (i: number) => {
-  const start = 0.04 + i * 0.11;
-  return [start, start + 0.17] as const;
-};
+// Scene geometry (px, inside a 520 × 500 box that scales down to fit narrow
+// columns). Like a photo folder: white-framed product photos fan out from
+// behind a frosted glass card with a cart engraved on it.
+const SCENE_W = 520;
+const SCENE_H = 500;
+const BAR_TOP = 60;
+const BAR_H = 56;
+const BACK_TOP = 196;
+const GLASS_TOP = 334;
+const TILE = 150;
+const DROP = 70;
+const TILES = [
+  { x: -132, top: 214, tilt: -11 },
+  { x: -46, top: 192, tilt: -4 },
+  { x: 44, top: 190, tilt: 4 },
+  { x: 130, top: 210, tilt: 11 },
+];
 
-function FallingChip({
-  progress,
-  i,
-  label,
-}: {
-  progress: MotionValue<number>;
-  i: number;
-  label: string;
-}) {
-  const [s, e] = chipWindow(i);
-  const y = useTransform(progress, [s, e], [-210, 0]);
-  const x = useTransform(progress, [s, e], [CHIP_X[i], 0]);
-  const opacity = useTransform(progress, [s - 0.03, s, e - 0.03, e], [0, 1, 1, 0]);
-  const scale = useTransform(progress, [e - 0.05, e], [1, 0.6]);
+function CartItem({ i, inCart }: { i: number; inCart: boolean }) {
+  const tile = TILES[i];
   return (
-    <motion.span
-      aria-hidden
-      style={{ x, y, opacity, scale }}
-      className="absolute left-1/2 top-1/2 -ml-10 w-20 rounded-full bg-ink py-1.5 text-center text-xs font-medium text-paper"
-    >
-      {label}
-    </motion.span>
+    <motion.img
+      src={PRODUCTS[i].src}
+      alt=""
+      initial={false}
+      animate={
+        inCart
+          ? { y: 0, opacity: 1, rotate: tile.tilt }
+          : { y: -DROP, opacity: 0, rotate: tile.tilt }
+      }
+      // A short fall from just above its slot, landing with a small bounce.
+      transition={
+        inCart
+          ? {
+              y: { type: "spring", stiffness: 420, damping: 14 },
+              opacity: { duration: 0.15 },
+            }
+          : { duration: 0.2 }
+      }
+      style={{
+        top: tile.top,
+        width: TILE,
+        height: TILE,
+        marginLeft: tile.x - TILE / 2,
+        zIndex: i + 1,
+      }}
+      className="absolute left-1/2 rounded-[22px] border-[6px] border-white object-cover shadow-[0_12px_28px_-10px_rgba(21,21,21,0.35)]"
+    />
   );
 }
 
-// The one that doesn't make it: falls, hits the bar, bounces off grey.
-function BouncedChip({ progress }: { progress: MotionValue<number> }) {
-  const [s, e] = chipWindow(CHIPS.length);
-  const end = Math.min(e + 0.1, 1);
-  const y = useTransform(progress, [s, e, end], [-210, -6, 92]);
-  const x = useTransform(progress, [s, e, end], [40, 0, 150]);
-  const rotate = useTransform(progress, [e, end], [0, 18]);
-  const opacity = useTransform(progress, [s - 0.03, s], [0, 1]);
-  const backgroundColor = useTransform(progress, [e - 0.01, e + 0.02], ["#151515", "#dcdcdc"]);
-  const color = useTransform(progress, [e - 0.01, e + 0.02], ["#ffffff", "#4a4a4a"]);
-  return (
-    <motion.span
-      style={{ x, y, rotate, opacity, backgroundColor, color }}
-      className="absolute left-1/2 top-1/2 -ml-10 w-20 rounded-full py-1.5 text-center text-xs font-medium"
-    >
-      cabage
-    </motion.span>
-  );
-}
-
-function CartTick({ progress, i }: { progress: MotionValue<number>; i: number }) {
-  const [, e] = chipWindow(i);
-  const opacity = useTransform(progress, [e - 0.02, e + 0.02], [0, 1]);
-  const scale = useTransform(progress, [e - 0.02, e + 0.03], [0.4, 1]);
-  return (
-    <motion.span
-      style={{ opacity, scale }}
-      className="grid size-8 place-items-center rounded-full bg-accent text-paper"
-    >
-      <ShoppingCart aria-hidden className="size-3.5" />
-    </motion.span>
-  );
-}
-
-function SearchRain({ progress }: { progress: MotionValue<number> }) {
+// The folder's back panel, behind the photos.
+function CartBack() {
   return (
     <div
-      role="img"
-      aria-label="Grocery searches drop into the search bar and turn into carts. The last one, “cabage”, bounces off."
-      className="relative mx-auto h-[380px] w-full max-w-[440px]"
+      aria-hidden
+      className="absolute left-1/2 h-[210px] w-[360px] -translate-x-1/2 rounded-[28px] bg-paper-2"
+      style={{ top: BACK_TOP }}
+    />
+  );
+}
+
+// Frosted glass front with a cart pressed into it.
+function CartGlass() {
+  return (
+    <div
+      aria-hidden
+      className="absolute left-1/2 z-10 grid h-[150px] w-[400px] -translate-x-1/2 place-items-center rounded-[28px] border border-white/80 bg-white/45 shadow-[0_24px_48px_-24px_rgba(21,21,21,0.3),inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-xl"
+      style={{ top: GLASS_TOP }}
     >
-      {CHIPS.map((label, i) => (
-        <FallingChip key={label} progress={progress} i={i} label={label} />
-      ))}
-      <BouncedChip progress={progress} />
-      <div className="absolute left-1/2 top-1/2 mt-5 flex w-[280px] -translate-x-1/2 items-center gap-2 rounded-full border border-ink/15 bg-paper px-4 py-3 shadow-sm">
-        <svg aria-hidden viewBox="0 0 16 16" className="size-4 text-ink-muted">
-          <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-        <span className="text-sm text-ink-muted">Search</span>
-      </div>
-      <div className="absolute left-1/2 top-1/2 mt-24 flex -translate-x-1/2 gap-2">
-        {CHIPS.map((label, i) => (
-          <CartTick key={label} progress={progress} i={i} />
+      <ShoppingCart
+        strokeWidth={1.25}
+        className="size-14 text-ink/25 [filter:drop-shadow(0_1px_0_rgba(255,255,255,0.9))]"
+      />
+    </div>
+  );
+}
+
+// Types one query, then reports back. Remount (key) for the next one.
+// `fast` fast-forwards: the rest of the query appears at once.
+function TypedQuery({
+  text,
+  onDone,
+  fast = false,
+}: {
+  text: string;
+  onDone?: () => void;
+  fast?: boolean;
+}) {
+  const typing = useTypewriter(text, { speed: 65, startDelay: 150 });
+  const typed = fast ? text : typing.typed;
+  const done = fast || typing.done;
+  // Latest callback in a ref, so parent re-renders don't restart the pause.
+  const report = useRef(onDone);
+  useEffect(() => {
+    report.current = onDone;
+  });
+  useEffect(() => {
+    if (!done) return;
+    const timer = setTimeout(() => report.current?.(), fast ? 140 : 300);
+    return () => clearTimeout(timer);
+  }, [done, fast]);
+  return (
+    <>
+      {typed}
+      {!done && (
+        <span
+          aria-hidden
+          className="ml-px inline-block h-5 w-px animate-pulse bg-ink align-middle"
+        />
+      )}
+    </>
+  );
+}
+
+function SearchRain({
+  problem,
+  hurry,
+  live,
+  onFilled,
+}: {
+  problem: boolean;
+  hurry: boolean;
+  live: boolean;
+  onFilled: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.4 });
+  // The box keeps its height through aspect-ratio (no layout shift); only the
+  // drawing inside scales once the column is narrower than the scene.
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) =>
+      setScale(Math.min(1, entry.contentRect.width / SCENE_W)),
+    );
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const [inCart, setInCart] = useState(live ? 0 : PRODUCTS.length);
+  if (!live && inCart < PRODUCTS.length) setInCart(PRODUCTS.length);
+  const filled = inCart >= PRODUCTS.length;
+  useEffect(() => {
+    if (filled) onFilled();
+  }, [filled, onFilled]);
+  const typing = live && inView && !filled ? PRODUCTS[inCart] : null;
+  const [typoDone, setTypoDone] = useState(false);
+  if (!problem && typoDone && live) setTypoDone(false);
+  const failed = problem && (typoDone || !live);
+
+  return (
+    <div
+      ref={ref}
+      role="img"
+      aria-label="Searches for cherry tomatoes, melon, eggs and steak are typed into the search bar and drop into a shopping cart, a frosted card with a cart icon. Then “cabage” is typed and the search bar turns red."
+      className="relative mx-auto aspect-[520/500] w-full max-w-[520px]"
+    >
+      <div
+        className="absolute left-1/2 top-0 origin-top"
+        style={{
+          width: SCENE_W,
+          height: SCENE_H,
+          transform: `translateX(-50%) scale(${scale})`,
+        }}
+      >
+        <motion.div
+          animate={failed && live ? { x: [0, -8, 8, -5, 5, 0] } : { x: 0 }}
+          transition={{ duration: 0.45 }}
+          className={cn(
+            "absolute left-1/2 -ml-[160px] flex w-[320px] items-center gap-2.5 rounded-full border bg-paper px-5 shadow-sm transition-colors duration-300",
+            failed ? "border-alert ring-2 ring-alert/15" : "border-ink/15",
+          )}
+          style={{ top: BAR_TOP, height: BAR_H }}
+        >
+          <svg aria-hidden viewBox="0 0 16 16" className="size-[18px] shrink-0 text-ink-muted">
+            <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <path
+              d="M11 11l3.5 3.5"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+          <span className={cn("truncate text-lg", failed ? "text-alert" : "text-ink")}>
+            {problem ? (
+              live ? (
+                <TypedQuery key={TYPO} text={TYPO} onDone={() => setTypoDone(true)} />
+              ) : (
+                TYPO
+              )
+            ) : typing ? (
+              <TypedQuery
+                key={typing.query}
+                text={typing.query}
+                fast={hurry}
+                onDone={() => setInCart((n) => n + 1)}
+              />
+            ) : (
+              <span className="text-ink-muted">Search</span>
+            )}
+          </span>
+        </motion.div>
+        <CartBack />
+        {PRODUCTS.map((p, i) => (
+          <CartItem key={p.query} i={i} inCart={i < inCart} />
         ))}
+        <CartGlass />
       </div>
+    </div>
+  );
+}
+
+// One more scroll after the rain swaps the headline and body: the front
+// door has a leak. Both beats share one grid cell, so nothing reflows.
+// Phones and reduced motion read them one after the other.
+const CONTEXT_BEATS = [
+  {
+    headline: "Search Was Kurly’s Biggest Sales Channel",
+    body: (
+      <>
+        Kurly is Korea’s dawn-delivery unicorn with <B>3.5M monthly users</B>. For them, the search
+        bar is the front door: it drives more revenue than any other part of the app.
+      </>
+    ),
+  },
+  {
+    headline: (
+      <>
+        <span className="text-alert">But</span> 6–7% of Searches Ended in “No&nbsp;Result” Every Day
+      </>
+    ),
+    body: (
+      <>
+        Each “No Result” left a shopper who was ready to buy with two choices:{" "}
+        <B>search again and again</B>, or <B>give up on the purchase</B>.
+      </>
+    ),
+  },
+];
+
+function ContextCopy({ problem, live }: { problem: boolean; live: boolean }) {
+  const active = problem ? 1 : 0;
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">01 CONTEXT</p>
+      <div className={live ? "grid" : "flex flex-col gap-10"}>
+        {CONTEXT_BEATS.map((beat, i) => {
+          const shown = !live || i === active;
+          return (
+            <motion.div
+              key={i}
+              aria-hidden={!shown || undefined}
+              initial={false}
+              animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: i < active ? -16 : 16 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className={cn(
+                "flex flex-col gap-6",
+                live && "[grid-area:1/1]",
+                !shown && "pointer-events-none",
+              )}
+            >
+              <SectionHeader headline={beat.headline} as={i === 0 ? "h2" : "h3"} />
+              <Body>{beat.body}</Body>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// The problem beat waits for the cart: scrolling on early fast-forwards the
+// remaining products, then the title and "cabage" change together. The scene
+// holds one extra step on the problem beat so a quick scroll can't skip it.
+function ContextScene({ step, live }: { step: number; live: boolean }) {
+  const [filled, setFilled] = useState(false);
+  const onFilled = useCallback(() => setFilled(true), []);
+  const problem = !live || (step >= PROBLEM_STEP && filled);
+  const hurry = live && step >= PROBLEM_STEP && !filled;
+  return (
+    <div className={cn(wrap, "grid items-center gap-10 md:grid-cols-[1fr_1.1fr]")}>
+      <ContextCopy problem={problem} live={live} />
+      <SearchRain problem={problem} hurry={hurry} live={live} onFilled={onFilled} />
     </div>
   );
 }
@@ -205,22 +500,8 @@ function SearchRain({ progress }: { progress: MotionValue<number> }) {
 export function Context() {
   return (
     <Chapter id="context" label="01 Context">
-      <StickyScene steps={3} label="Searches flowing into the search bar">
-        {({ progress }) => (
-          <div className={cn(wrap, "grid items-center gap-10 md:grid-cols-[1fr_1.1fr]")}>
-            <div className="flex flex-col gap-6">
-              <SectionHeader
-                label="01 CONTEXT"
-                headline="Search Was Kurly’s Biggest Sales Channel"
-              />
-              <Body>
-                Kurly is Korea’s dawn-delivery unicorn with <B>3.5M monthly users</B>. For them, the
-                search bar is the front door: it drives more revenue than any other part of the app.
-              </Body>
-            </div>
-            <SearchRain progress={progress} />
-          </div>
-        )}
+      <StickyScene steps={PROBLEM_STEP + 2} label="Searches flowing into the search bar">
+        {({ step, live }) => <ContextScene step={step} live={live} />}
       </StickyScene>
     </Chapter>
   );

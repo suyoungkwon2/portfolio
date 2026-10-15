@@ -113,7 +113,7 @@ export const projects: Record<string, ProjectMeta> = {
     subtitle: "AI Transformation",
     tagline: "Just type it out. We'll find what you need.",
     period: "May 2024\n- August 2024",
-    role: ["AI PM", "A/B Test Design", "CEO Communication", "QA"],
+    role: ["AI Product Manager", "A/B Test Design", "CEO Communication", "QA"],
     team: ["AI PM (Me)", "1 ML Engineer", "1 Backend Engineer"],
     org: "Kurly",
     chips: { type: "AI Transformation", domain: "Commerce", proof: "A/B Validated" },

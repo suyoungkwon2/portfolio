@@ -11,6 +11,8 @@
  *   --color-accent-2       -> dark gray, secondary labels
  *   --color-accent-2-soft  -> light gray fill
  *   --color-accent-3       -> indigo, the hover/interaction state
+ *   --color-alert          -> red, a single turning word in a story (the "But"
+ *                             in AI Search's 01 Context); never fills or body copy
  */
 @theme {
   --color-paper: #ffffff;
@@ -24,6 +26,7 @@
   --color-accent-2: #3d3d3d;
   --color-accent-2-soft: #f0f0f0;
   --color-accent-3: #2f3061;
+  --color-alert: #d1242f;
 
   --font-display: "Aspekta", sans-serif;
   --font-aspekta: "Aspekta", sans-serif;

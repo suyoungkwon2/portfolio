@@ -18,7 +18,7 @@ export type AssetSpec = {
 export const ASSETS = {
   "hero-cabage-loop": {
     kind: "video",
-    alt: "Typing “cabage” into Kurly search returns no products; the same search then shows cabbage results marked Beta.",
+    alt: "Before: typing “cabage” into Kurly search returns no products. After: the same search shows cabbage results marked Beta.",
   },
   "summit-stage-clip": {
     kind: "video",

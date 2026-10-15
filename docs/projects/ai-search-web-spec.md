@@ -112,20 +112,24 @@ Outro
 - **Layout**: 좌측 텍스트, 우측 `PhoneFrame` 영상. 모바일은 영상이 위.
 - **Copy**
   - Chips: `AI Transformation` · `Commerce` · `A/B Validated`
-  - Headline: **AI Search: Recovering Lost Revenue**
+  - Headline: **AI Search:** (line break) **Recovering Lost Revenue**
   - Tagline: “Just type it out. We’ll find what you need.”
   - Body: On Kurly, one typo could end a shopping trip. I led an AI search that catches what the old engine missed, so every search can lead to a cart.
-  - Meta row: `Period` May–Aug 2024 · `Role` AI Product Manager · `Team` AI PM (me), 1 ML Engineer, 1 Backend Engineer · `Org` Kurly
+  - Meta row (one item per line): `Period` May 2024 / - August 2024 · `Role` AI Product Manager / A/B Test Design / CEO Communication / QA · `Team` AI PM (Me) / 1 ML Engineer / 1 Backend Engineer · `Org` Kurly
   - Scroll cue: Follow one typo ↓
-- **Media**: `▶ Video` `hero-cabage-loop` (6초 루프): 검색창에 “cabage” 한 글자씩 타이핑 → “No products found” → 되감기듯 돌아감 → 양배추 상품들이 **Beta 라벨**과 함께 등장.
+- **Media**: `▶ Video` `hero-cabage-loop` (약 7.5초 루프). 디바이스 위 라벨로 두 상태를 뚜렷하게 구분: **Before**(검색창에 “cabage” 타이핑 → “No products found”) → 화면이 잠깐 밝아짐(플래시) → **After**(같은 “cabage”를 처음부터 다시 타이핑 → 양배추 상품들이 **Beta 라벨**과 함께 등장). 녹화본은 앞 절반 Before, 뒤 절반 After로 만들 것: 라벨은 영상 재생 시간으로 바뀌고, 플래시는 코드가 그리므로 영상에 넣지 않음. 포스터는 After 화면 (reduced motion일 때 After로 고정).
 
 ### 5.1 01 Context
-- **목적**: 검색이 가장 중요한 매출 채널이라는 것 하나만.
+- **목적**: 검색이 가장 중요한 매출 채널이라는 것, 그리고 한 번 더 스크롤하면 그 입구에서 매일 새는 문제(No Result).
 - **Copy**
   - Label: `01 CONTEXT`
   - Headline: **Search Was Kurly’s Biggest Sales Channel**
   - Body: Kurly is Korea’s dawn-delivery unicorn with **3.5M monthly users**. For them, the search bar is the front door: it drives more revenue than any other part of the app.
-- **Motion**: `▶ Scroll scene` — 중앙에 검색창 고정. 스크롤할수록 검색어 칩(`milk`, `strawberries`, `salmon` …)이 빗방울처럼 검색창으로 빨려 들어가 장바구니 아이콘으로 바뀜. 마지막 `cabage` 칩만 회색으로 튕겨 나가며 다음 섹션을 예고.
+  - Problem (마지막 스크롤 비트에서 위 Headline·Body가 이것으로 **교체**됨, Label은 그대로. “But”은 붉은색 `--color-alert` #d1242f, 이 한 단어에만 사용):
+    - Headline: **But 6–7% of Searches Ended in “No Result” Every Day**
+    - Body: Each “No Result” left a shopper who was ready to buy with two choices: **search again and again**, or **give up on the purchase**.
+    - 모바일·reduced motion에서는 두 비트를 순서대로 둘 다 보여줌.
+- **Motion**: `▶ Scroll scene` (3단계: 1 + 문제 비트 2). 오른쪽에 검색창, 그 아래 “사진 폴더” 스타일의 카트: 연회색 뒷판 + 흰 테두리를 두른 상품 사진들이 부채꼴로 꽂히고, 앞에는 카트 아이콘이 새겨진 반투명(frosted glass) 카드. 장면 520px 기준, 좁은 칼럼에서는 비율 유지하며 축소. **1단계(첫 제목)**: 화면에 들어오면 자동 재생. 검색창에 `cherry tomatoes` → `melon` → `eggs` → `steak`가 차례로 타이핑되고, 하나씩 상품 사진(150px, 둥근 모서리, 흰 테두리, `public/images/ai-search/context/*.webp`)이 유리 카드 뒤로 떨어져 꽂힘. **2단계(스크롤 한 번, 제목이 “But …”으로 바뀌는 순간)**: 검색창에 `cabage`가 타이핑되고, 검색창 외곽선과 글자가 붉은색(`--color-alert`)으로 바뀌며 살짝 흔들림. 자동 재생이 끝나기 전에 스크롤하면 남은 상품을 빨리감기(검색어 즉시 표시, 짧은 멈춤)로 마저 담은 뒤에 제목 교체와 `cabage`가 함께 시작됨. 문제 비트는 스크롤 2단계 분량을 머물러 빠르게 스크롤해도 지나치지 않음(씬 3단계). 타이핑 속도 65ms/글자. 모바일·reduced motion은 최종 상태(카트에 4개, 검색창은 빨간 `cabage`).
 - **메모**: 칩 검색어는 일반 식료품 예시이며 실제 데이터라고 표기하지 않습니다.
 
 ### 5.2 02 Impact
@@ -355,7 +359,7 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 
 | id | 종류 | 사용 섹션 | 내용 | 상태 |
 | --- | --- | --- | --- | --- |
-| `hero-cabage-loop` | video + poster | Hero | cabage 타이핑 → No result → AI 결과 + Beta | 녹화 필요 |
+| `hero-cabage-loop` | video + poster | Hero | 앞 절반 Before(cabage → No result), 뒤 절반 After(cabage → AI 결과 + Beta). 플래시 없이, 포스터는 After | 녹화 필요 |
 | `summit-stage-clip` | video + poster | 02 | 발표 영상 무대 5초 (발표자: Kurly CEO, 발표 자료는 본인 제작) | 추출 필요 |
 | `summit-stage-photo` | image | 12 | 무대 사진 | 보유(PDF) |
 | `beta-label-ui` | image | 03, 07B | Beta 안내 UI 스크린샷 | 확보 필요 |
