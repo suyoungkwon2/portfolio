@@ -427,8 +427,8 @@ export function BusinessImpact() {
             Google Cloud Summit Seoul 2024
           </h3>
           <p className="text-base leading-relaxed text-ink-muted">
-            Google featured this project as a leading enterprise case of AI on GCP, and I told the
-            story on stage.
+            Google featured this project as a leading enterprise case of AI on GCP. Kurly’s CEO told
+            the story on stage, and I built the presentation.
           </p>
         </div>
         <a

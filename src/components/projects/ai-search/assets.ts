@@ -22,11 +22,11 @@ export const ASSETS = {
   },
   "summit-stage-clip": {
     kind: "video",
-    alt: "Presenting AI Search on stage at Google Cloud Summit Seoul 2024.",
+    alt: "Kurly’s CEO presenting AI Search on stage at Google Cloud Summit Seoul 2024.",
   },
   "summit-stage-photo": {
     kind: "image",
-    alt: "On stage at Google Cloud Summit Seoul 2024.",
+    alt: "Kurly’s CEO on stage at Google Cloud Summit Seoul 2024.",
   },
   "beta-label-ui": {
     kind: "image",

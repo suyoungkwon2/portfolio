@@ -139,7 +139,7 @@ Outro
     3. **₩5B (~$3.6M)** · New Monthly Revenue from Former Dead Ends
   - Google card (4번째, 더 넓은 카드):
     - Title: **Featured at Google Cloud Summit Seoul 2024**
-    - Body: Google selected this project as a leading enterprise case of AI innovation on GCP. I presented it on stage.
+    - Body: Google selected this project as a leading enterprise case of AI innovation on GCP. Kurly’s CEO presented it on stage, and I built the presentation.
     - CTA: Watch the talk → `https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333`
   - Sub line: Live in production 2 months after the PoC.
 - **Media**: `▶ Video` `summit-stage-clip` (무대 장면 5초 무음 루프). 카드 클릭 시 YouTube 타임스탬프로 새 탭.
@@ -335,7 +335,7 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
     - **58.60% → 60.14%** · Search Click-Through Rate
     - **−30%** · AI Search Operating Cost vs. Pilot
     - **2 months** · From PoC to Full Production
-  - Closing band · **Google Cloud Summit Seoul 2024**: Google featured this project as a leading enterprise case of AI on GCP, and I told the story on stage. — 버튼: Watch the talk
+  - Closing band · **Google Cloud Summit Seoul 2024**: Google featured this project as a leading enterprise case of AI on GCP. Kurly’s CEO told the story on stage, and I built the presentation. — 버튼: Watch the talk
 - **Visual**: 배경에 상승 곡선 하나, 스크롤에 맞춰 그려짐(SVG stroke-dashoffset). 02에서는 짧은 영상, 여기서는 무대 사진(`summit-stage-photo`) 가로 전체 띠 + 링크로 변주.
 - **TODO**: ₩5B 아래 측정 범위 주석 한 줄(문구 확정 전까지 비워 둠).
 
@@ -356,7 +356,7 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 | id | 종류 | 사용 섹션 | 내용 | 상태 |
 | --- | --- | --- | --- | --- |
 | `hero-cabage-loop` | video + poster | Hero | cabage 타이핑 → No result → AI 결과 + Beta | 녹화 필요 |
-| `summit-stage-clip` | video + poster | 02 | 발표 영상 무대 5초 | 추출 필요 |
+| `summit-stage-clip` | video + poster | 02 | 발표 영상 무대 5초 (발표자: Kurly CEO, 발표 자료는 본인 제작) | 추출 필요 |
 | `summit-stage-photo` | image | 12 | 무대 사진 | 보유(PDF) |
 | `beta-label-ui` | image | 03, 07B | Beta 안내 UI 스크린샷 | 확보 필요 |
 | `arch-thumb` | image | 03 | 아키텍처 썸네일 | PDF p.26 |

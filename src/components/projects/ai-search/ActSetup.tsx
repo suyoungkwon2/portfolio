@@ -275,8 +275,8 @@ export function Impact() {
                 Featured at Google Cloud Summit Seoul 2024
               </h3>
               <p className="text-base leading-relaxed text-ink-muted">
-                Google selected this project as a leading enterprise case of AI innovation on GCP. I
-                presented it on stage.
+                Google selected this project as a leading enterprise case of AI innovation on GCP.
+                Kurly’s CEO presented it on stage, and I built the presentation.
               </p>
               <span className="text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors group-hover:text-accent-3 group-hover:decoration-accent-3">
                 Watch the talk →
