@@ -16,10 +16,6 @@ export type AssetSpec = {
 };
 
 export const ASSETS = {
-  "hero-cabage-loop": {
-    kind: "video",
-    alt: "Before: typing “cabage” into Kurly search returns no products. After: the same search shows cabbage results marked Beta.",
-  },
   "summit-stage-clip": {
     kind: "video",
     alt: "Kurly’s CEO presenting AI Search on stage at Google Cloud Summit Seoul 2024.",

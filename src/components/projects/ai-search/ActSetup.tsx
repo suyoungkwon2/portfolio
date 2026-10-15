@@ -8,19 +8,7 @@ import { ChipGroup } from "@/components/project/ChipGroup";
 import { cn } from "@/lib/utils";
 import type { AssetId } from "./assets";
 import { Reveal, StickyScene, useStill, useTypewriter } from "./motion";
-import { SearchSequence } from "./SearchSequence";
-import {
-  AssetMedia,
-  B,
-  Body,
-  Chapter,
-  MetricCounter,
-  PhoneFrame,
-  SectionHeader,
-  StandInTag,
-  useAsset,
-  wrap,
-} from "./ui";
+import { AssetMedia, B, Body, Chapter, MetricCounter, PhoneFrame, SectionHeader, wrap } from "./ui";
 
 // Act 1, Setup: Hero · 01 Context · 02 Impact · 03 R&R (spec §5.0–5.3).
 // The reader learns what was achieved before learning how.
@@ -36,29 +24,167 @@ const META: [string, string[]][] = [
 ];
 
 type HeroState = "before" | "after";
-const HERO_HOLD: Record<HeroState, number> = { before: 3200, after: 4200 };
+const HERO_HOLD: Record<HeroState, number> = { before: 4300, after: 5400 };
 
-// Two clearly separate states on one device: "cabage" dead-ends (Before),
-// the screen flashes, and the same search finds cabbage (After). A dropped-in
-// recording drives the label from its own clock: first half Before, second
-// half After. The flash is drawn here, so the recording shouldn't bake one in.
+// Kurly app screens exported from Figma at 590 × 1280, with one status bar
+// and one search header (field + cart) composited onto all three so only the
+// content changes. "Cabage" is typed over the search tab's placeholder, then
+// the real result screen takes over and its key part lifts out of the device.
+const SCREENS = "/images/ai-search/hero";
+const TYPED = "Cabage";
+const SCREEN_W = 590;
+const SCREEN_H = 1280;
+const x = (px: number) => `${(px / SCREEN_W) * 100}%`;
+const y = (px: number) => `${(px / SCREEN_H) * 100}%`;
+// Screen px → container width units (the screen is width-fitted).
+const cq = (px: number) => `${(px / SCREEN_W) * 100}cqw`;
+
+// Crops of the result screens that pop out (screen px; see public/images/ai-search/hero):
+// everything between the search header and the next section (Before) or the
+// tab bar (After). Before lifts from its centre; After stays pinned under the
+// search bar and grows downward.
+const POP: Record<HeroState, { top: number; origin: string }> = {
+  before: { top: 160, origin: "50% 50%" },
+  after: { top: 160, origin: "50% 0%" },
+};
+// Same corner radius as the product photos in the screens.
+const POP_RADIUS = 6;
+// How far the lifted crop reaches past the device's outer edge on each side
+// (CSS px): the 9px bezel plus 8px.
+const POP_OVERHANG = 9 + 8;
+const TYPE_DELAY: Record<HeroState, number> = { before: 500, after: 1000 };
+const POP_DELAY = 400;
+
+// The Before → After wipe, in the "Kurly Only" chip's border gradient.
+const SWEEP_GRADIENT = "linear-gradient(180deg, #b072ff, #78c4fe, #5be1ff)";
+const SWEEP_S = 0.8;
+
+// "Cabage" in the search field, in our type. Drawn over every screen
+// (including the baked-in query on before/after.webp) so it never changes font.
+function SearchQuery({ text, caret = false }: { text: string; caret?: boolean }) {
+  return (
+    <div
+      aria-hidden
+      className="absolute flex items-center bg-[#f3f5f7] text-[#292b2b] text-[4.07cqw]"
+      style={{ left: x(150), width: x(250), top: y(100), height: y(44) }}
+    >
+      {text}
+      {caret && <span className="ml-px inline-block h-[1.1em] w-px animate-pulse bg-[#292b2b]" />}
+    </div>
+  );
+}
+
+function HeroScreen({
+  state,
+  result,
+  sweep,
+  onTyped,
+}: {
+  state: HeroState;
+  result: boolean;
+  sweep: boolean;
+  onTyped: () => void;
+}) {
+  const { typed, done } = useTypewriter(TYPED, { speed: 110, startDelay: TYPE_DELAY[state] });
+  const report = useRef(onTyped);
+  useEffect(() => {
+    report.current = onTyped;
+  });
+  useEffect(() => {
+    if (!done) return;
+    const timer = setTimeout(() => report.current(), 350);
+    return () => clearTimeout(timer);
+  }, [done]);
+  const wipe = { duration: SWEEP_S, ease: "easeInOut" } as const;
+  return (
+    <motion.div
+      initial={sweep ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="@container relative aspect-[590/1280] w-full"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+      <img src={`${SCREENS}/search.webp`} alt="" className="absolute inset-0 size-full" />
+      <motion.img
+        src={`${SCREENS}/${state}.webp`}
+        alt=""
+        initial={false}
+        animate={{ opacity: result ? 1 : 0 }}
+        transition={{ duration: 0.2 }}
+        className="absolute inset-0 size-full"
+      />
+      {/* Covers the placeholder (and the baked-in query); 24px type in the 590px screen. */}
+      {typed && <SearchQuery text={typed} caret={!done} />}
+      {sweep && (
+        <>
+          {/* The Before screen, wiped away left to right behind the line. */}
+          <motion.div
+            initial={{ clipPath: "inset(0 0 0 0%)" }}
+            animate={{ clipPath: "inset(0 0 0 100%)" }}
+            transition={wipe}
+            className="absolute inset-0 z-10"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+            <img src={`${SCREENS}/before.webp`} alt="" className="absolute inset-0 size-full" />
+            <SearchQuery text={TYPED} />
+          </motion.div>
+          <motion.span
+            aria-hidden
+            initial={{ left: "0%", opacity: 1 }}
+            animate={{ left: "100%", opacity: [1, 1, 0] }}
+            transition={{ left: wipe, opacity: { duration: SWEEP_S, times: [0, 0.85, 1] } }}
+            className="absolute inset-y-0 z-20 -ml-px w-[3px] rounded-full shadow-[0_0_14px_3px_rgba(120,196,254,0.75)]"
+            style={{ background: SWEEP_GRADIENT }}
+          />
+        </>
+      )}
+    </motion.div>
+  );
+}
+
+// Two clearly separate states on one device: "Cabage" dead-ends (Before), a
+// gradient line sweeps the screen, and the same search finds cabbage (After).
+// Each result lifts out of the device for a beat.
 function HeroDevice() {
   const still = useStill();
-  const hasVideo = !!useAsset("hero-cabage-loop").src;
   const [state, setState] = useState<HeroState>("before");
   const [cycle, setCycle] = useState(0);
+  const [result, setResult] = useState(false);
+  const [popped, setPopped] = useState(false);
+  const [popScale, setPopScale] = useState(1.12);
+  const layer = useRef<HTMLDivElement>(null);
   const shown: HeroState = still ? "after" : state;
 
   useEffect(() => {
-    if (still || hasVideo) return;
-    const timer = setTimeout(() => {
+    if (still) return;
+    // Let the lifted crop settle back fully before the next state (and its
+    // sweep) starts, so the line never crosses it.
+    const settle = setTimeout(() => setPopped(false), HERO_HOLD[state] - 700);
+    const next = setTimeout(() => {
       if (state === "after") setCycle((c) => c + 1);
+      setResult(false);
+      setPopped(false);
       setState(state === "before" ? "after" : "before");
     }, HERO_HOLD[state]);
-    return () => clearTimeout(timer);
-  }, [state, still, hasVideo]);
+    return () => {
+      clearTimeout(settle);
+      clearTimeout(next);
+    };
+  }, [state, still]);
 
-  const flash = shown === "after" && !still;
+  useEffect(() => {
+    if (!result) return;
+    const timer = setTimeout(() => {
+      const w = layer.current?.offsetWidth;
+      if (w) setPopScale((w + POP_OVERHANG * 2) / w);
+      setPopped(true);
+    }, POP_DELAY);
+    return () => clearTimeout(timer);
+  }, [result]);
+
+  const sweeping = shown === "after" && !still;
+  const pop = POP[shown];
+  const flush = { scale: 1, boxShadow: "0 0 0 0 rgba(21,21,21,0)" };
 
   return (
     <div className="flex flex-col items-center gap-5">
@@ -80,44 +206,63 @@ function HeroDevice() {
         </AnimatePresence>
       </div>
 
-      <div className="relative">
-        {flash && (
+      <div
+        className="relative"
+        role="img"
+        aria-label="Before: typing “Cabage” into Kurly search returns “No products found.” After: the same search shows cabbage results, suggested by AI (Beta)."
+      >
+        {sweeping && (
           <motion.div
             key={`glow-${cycle}`}
             aria-hidden
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 1, 0] }}
-            transition={{ duration: 0.9, times: [0, 0.2, 1] }}
-            className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-accent/20 blur-2xl"
+            transition={{ duration: 1.4, times: [0, 0.35, 1] }}
+            className="pointer-events-none absolute -inset-8 rounded-[3.5rem] bg-[linear-gradient(90deg,rgba(176,114,255,0.75),rgba(91,225,255,0.75))] blur-2xl"
           />
         )}
-        <PhoneFrame>
-          <AssetMedia
-            id="hero-cabage-loop"
-            priority
-            onProgress={(time, duration) => setState(time < duration / 2 ? "before" : "after")}
-            fallback={
-              <SearchSequence
-                key={`${cycle}-${shown}`}
-                query="cabage"
-                emoji="🥬"
-                recover={shown === "after"}
-                recoverDelay={0}
-              />
-            }
-          />
-          {flash && (
-            <motion.div
-              key={`flash-${cycle}`}
-              aria-hidden
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 0.8, times: [0, 0.15, 1] }}
-              className="pointer-events-none absolute inset-0 z-10 bg-white"
+        <PhoneFrame muted={shown === "before"}>
+          {still ? (
+            // eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP
+            <img src={`${SCREENS}/after.webp`} alt="" className="w-full" />
+          ) : (
+            <HeroScreen
+              key={`${cycle}-${shown}`}
+              state={shown}
+              result={result}
+              sweep={sweeping}
+              onTyped={() => setResult(true)}
             />
           )}
-          {!hasVideo && <StandInTag id="hero-cabage-loop" className="bottom-3 left-3" />}
         </PhoneFrame>
+        {/* Over the screen area (inside the 9px bezel) but outside its clip, so
+            the lifted crop can spill past the device. */}
+        <div
+          ref={layer}
+          aria-hidden
+          className="@container pointer-events-none absolute inset-[9px] z-30"
+        >
+          <AnimatePresence>
+            {popped && !still && (
+              <motion.div
+                key={`${cycle}-${shown}`}
+                initial={flush}
+                animate={{ scale: popScale, boxShadow: "0 24px 48px -12px rgba(21,21,21,0.35)" }}
+                exit={{ ...flush, transition: { duration: 0.3, ease: "easeOut" } }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="absolute inset-x-0 overflow-hidden"
+                style={{
+                  top: cq(pop.top),
+                  borderRadius: cq(POP_RADIUS),
+                  transformOrigin: pop.origin,
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+                <img src={`${SCREENS}/${shown}-pop.webp`} alt="" className="block w-full" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
@@ -427,11 +572,12 @@ function SearchRain({
 // Phones and reduced motion read them one after the other.
 const CONTEXT_BEATS = [
   {
-    headline: "Search Was Kurly’s Biggest Sales Channel",
+    headline: "Search Was Where Kurly Made the Most Money",
     body: (
       <>
-        Kurly is Korea’s dawn-delivery unicorn with <B>3.5M monthly users</B>. For them, the search
-        bar is the front door: it drives more revenue than any other part of the app.
+        Kurly is Korea’s premium fresh-grocery unicorn with <B>3.5M monthly active users</B>. People
+        who search already know what they want, so search drove{" "}
+        <B>more revenue than any other part of the app</B>.
       </>
     ),
   },

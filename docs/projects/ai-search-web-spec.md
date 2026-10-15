@@ -117,14 +117,14 @@ Outro
   - Body: On Kurly, one typo could end a shopping trip. I led an AI search that catches what the old engine missed, so every search can lead to a cart.
   - Meta row (one item per line): `Period` May 2024 / - August 2024 · `Role` AI Product Manager / A/B Test Design / CEO Communication / QA · `Team` AI PM (Me) / 1 ML Engineer / 1 Backend Engineer · `Org` Kurly
   - Scroll cue: Follow one typo ↓
-- **Media**: `▶ Video` `hero-cabage-loop` (약 7.5초 루프). 디바이스 위 라벨로 두 상태를 뚜렷하게 구분: **Before**(검색창에 “cabage” 타이핑 → “No products found”) → 화면이 잠깐 밝아짐(플래시) → **After**(같은 “cabage”를 처음부터 다시 타이핑 → 양배추 상품들이 **Beta 라벨**과 함께 등장). 녹화본은 앞 절반 Before, 뒤 절반 After로 만들 것: 라벨은 영상 재생 시간으로 바뀌고, 플래시는 코드가 그리므로 영상에 넣지 않음. 포스터는 After 화면 (reduced motion일 때 After로 고정).
+- **Media**: 코드 애니메이션 + Figma에서 내보낸 실제 Kurly 앱 화면(`public/images/ai-search/hero/{search,before,after}.webp`, 590×1280; Figma `Bms8e6vyiaIns8fQ0weRQ1` 노드 506:2435 / 509:1202 / 520:1384). 세 화면 모두 상태바(3:08, 34%)와 검색 헤더(검색창 + 장바구니 아이콘)를 After 화면 것으로 합성해 통일. 디바이스 위 라벨로 두 상태 구분: **Before**(검색 탭에 “Cabage” 타이핑 → “No products found.” 화면, 그 문구 영역이 디바이스 밖으로 살짝 튀어나오며 강조) → “Kurly Only” 칩 테두리 그라데이션(#b072ff → #78c4fe → #5be1ff) 세로선이 왼쪽에서 오른쪽으로 화면을 훑으며 전환 → **After**(같은 검색 탭에서 다시 타이핑 → AI 추천(Beta) 양배추 결과, 상품 카드 영역이 디바이스 밖으로 튀어나오며 강조). 튀어나오는 부분은 `before-pop.webp` / `after-pop.webp` 크롭. 약 10초 루프. reduced motion일 때 After 화면 고정.
 
 ### 5.1 01 Context
 - **목적**: 검색이 가장 중요한 매출 채널이라는 것, 그리고 한 번 더 스크롤하면 그 입구에서 매일 새는 문제(No Result).
 - **Copy**
   - Label: `01 CONTEXT`
-  - Headline: **Search Was Kurly’s Biggest Sales Channel**
-  - Body: Kurly is Korea’s dawn-delivery unicorn with **3.5M monthly users**. For them, the search bar is the front door: it drives more revenue than any other part of the app.
+  - Headline: **Search Was Where Kurly Made the Most Money**
+  - Body: Kurly is Korea’s premium fresh-grocery unicorn with **3.5M monthly active users**. People who search already know what they want, so search drove **more revenue than any other part of the app**.
   - Problem (마지막 스크롤 비트에서 위 Headline·Body가 이것으로 **교체**됨, Label은 그대로. “But”은 붉은색 `--color-alert` #d1242f, 이 한 단어에만 사용):
     - Headline: **But 6–7% of Searches Ended in “No Result” Every Day**
     - Body: Each “No Result” left a shopper who was ready to buy with two choices: **search again and again**, or **give up on the purchase**.
@@ -359,7 +359,6 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 
 | id | 종류 | 사용 섹션 | 내용 | 상태 |
 | --- | --- | --- | --- | --- |
-| `hero-cabage-loop` | video + poster | Hero | 앞 절반 Before(cabage → No result), 뒤 절반 After(cabage → AI 결과 + Beta). 플래시 없이, 포스터는 After | 녹화 필요 |
 | `summit-stage-clip` | video + poster | 02 | 발표 영상 무대 5초 (발표자: Kurly CEO, 발표 자료는 본인 제작) | 추출 필요 |
 | `summit-stage-photo` | image | 12 | 무대 사진 | 보유(PDF) |
 | `beta-label-ui` | image | 03, 07B | Beta 안내 UI 스크린샷 | 확보 필요 |

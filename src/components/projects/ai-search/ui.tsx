@@ -138,7 +138,6 @@ export function AssetMedia({
   fit = "cover",
   className,
   fallback,
-  onProgress,
 }: {
   id: AssetId;
   priority?: boolean;
@@ -146,8 +145,6 @@ export function AssetMedia({
   className?: string;
   // Rendered instead of the grey placeholder when the file is missing.
   fallback?: React.ReactNode;
-  // Called as a video plays, for page UI that follows the clip's timeline.
-  onProgress?: (time: number, duration: number) => void;
 }) {
   const asset = useAsset(id);
   const still = useStill();
@@ -189,10 +186,6 @@ export function AssetMedia({
       loop
       playsInline
       autoPlay={!still}
-      onTimeUpdate={
-        onProgress &&
-        ((e) => onProgress(e.currentTarget.currentTime, e.currentTarget.duration || 1))
-      }
       preload={priority ? "auto" : "none"}
       className={cn("h-full w-full", fitClass, className)}
     >
@@ -210,18 +203,28 @@ export function AssetMedia({
 export function PhoneFrame({
   children,
   className,
+  muted = false,
 }: {
   children: React.ReactNode;
   className?: string;
+  /** Grey body, for a "before" state. */
+  muted?: boolean;
 }) {
+  const body = muted ? "border-[#6b6e73]" : "border-ink";
   return (
     <div
       className={cn(
-        "relative aspect-[9/19] w-[248px] shrink-0 rounded-[2.6rem] border-[9px] border-ink bg-paper shadow-[0_30px_60px_-30px_rgba(21,21,21,0.45)] md:w-[272px]",
+        "relative aspect-[9/19] w-[248px] shrink-0 rounded-[2.6rem] border-[9px] bg-paper shadow-[0_30px_60px_-30px_rgba(21,21,21,0.45)] transition-colors duration-500 md:w-[272px]",
+        body,
         className,
       )}
     >
-      <div className="absolute left-1/2 top-2 z-20 h-5 w-20 -translate-x-1/2 rounded-full bg-ink" />
+      <div
+        className={cn(
+          "absolute left-1/2 top-2 z-20 h-5 w-20 -translate-x-1/2 rounded-full transition-colors duration-500",
+          muted ? "bg-[#6b6e73]" : "bg-ink",
+        )}
+      />
       <div className="relative h-full w-full overflow-hidden rounded-[1.95rem]">{children}</div>
     </div>
   );
