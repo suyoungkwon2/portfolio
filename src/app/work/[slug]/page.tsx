@@ -7,6 +7,7 @@ import { SlideDeck } from "@/components/project/SlideDeck";
 import { TenSecondSummary } from "@/components/project/TenSecondSummary";
 import { MarsHeroVideo, MarsOverview } from "@/components/projects/MarsOverview";
 import { PhonitaleDetail, PhonitaleHeroVideos } from "@/components/projects/PhonitaleDetail";
+import { AiSearchCaseStudy } from "@/components/projects/ai-search/AiSearchCaseStudy";
 import { projectOrder, projects } from "@/content/projects";
 import { works } from "@/content/works";
 
@@ -15,6 +16,13 @@ import { works } from "@/content/works";
 // (meta.slides).
 const detailComponents: Record<string, React.ComponentType> = {
   phonitale: PhonitaleDetail,
+};
+
+// Case studies told as one story top to bottom, their own hero included:
+// no shared ProjectHero, 10s Summary, slides or Related Links. Only the
+// prev/next nav stays.
+const storyComponents: Record<string, React.ComponentType> = {
+  "ai-search": AiSearchCaseStudy,
 };
 
 // Rebuilt chapters shown above a project's slides while the rest of its
@@ -52,12 +60,28 @@ export default async function ProjectPage({
   const meta = projects[slug];
   const Detail = detailComponents[slug];
   const Intro = introComponents[slug];
+  const Story = storyComponents[slug];
 
-  if (!meta || !projectOrder.includes(slug) || (!Detail && !meta.slides)) notFound();
+  if (!meta || !projectOrder.includes(slug) || (!Detail && !Story && !meta.slides)) notFound();
 
   const index = projectOrder.indexOf(slug);
   const prevSlug = projectOrder[index - 1];
   const nextSlug = projectOrder[(index + 1) % projectOrder.length];
+  const footerNav = (
+    <ProjectFooterNav
+      prev={works.find((w) => w.slug === prevSlug)}
+      next={works.find((w) => w.slug === nextSlug)}
+    />
+  );
+
+  if (Story) {
+    return (
+      <main className="[--font-display:Aspekta,sans-serif] [font-family:Inter,sans-serif]">
+        <Story />
+        {footerNav}
+      </main>
+    );
+  }
 
   // Case studies keep the original type (Inter body, Aspekta display);
   // the rest of the site is set in Manrope (app/layout.tsx).
@@ -82,10 +106,7 @@ export default async function ProjectPage({
       {Detail ? <Detail /> : Intro && <Intro />}
       {meta.slides && <SlideDeck slug={slug} title={meta.title} count={meta.slides} />}
       <RelatedLinks links={meta.relatedLinks} />
-      <ProjectFooterNav
-        prev={works.find((w) => w.slug === prevSlug)}
-        next={works.find((w) => w.slug === nextSlug)}
-      />
+      {footerNav}
     </main>
   );
 }

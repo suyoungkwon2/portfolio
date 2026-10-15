@@ -120,7 +120,7 @@ export const projects: Record<string, ProjectMeta> = {
     relatedLinks: [
       {
         label: "Developer Blog",
-        url: "https://helloworld.kurly.com/blog/vertex-ai-search-NR/",
+        url: "https://helloworld.kurly.com/blog/vertex-ai-search-nr/",
       },
       {
         label: "[YouTube] Next Commerce: Curation and AI, Google Cloud Summit 2024",
@@ -132,7 +132,7 @@ export const projects: Record<string, ProjectMeta> = {
       why: "The search engine couldn't handle typos, spacing, or synonyms, so 7% of searches on Kurly's biggest revenue channel hit a dead end.",
       how: "When the old search came up empty, we fell back to semantic search with Vertex AI, so \"cabage\" still finds cabbage.",
     },
-    slides: 4,
+    // No slides: the page is its own story (components/projects/ai-search).
   },
   "ai-curation": {
     slug: "ai-curation",
