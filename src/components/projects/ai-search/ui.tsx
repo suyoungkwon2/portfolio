@@ -1,7 +1,6 @@
 "use client";
 
 import { animate, motion, useInView } from "framer-motion";
-import { Check } from "lucide-react";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { ASSETS, type AssetId, type ResolvedAssets } from "./assets";
@@ -407,76 +406,5 @@ export function MetricCounter({
       </p>
       <p className="text-sm font-medium text-ink-muted">{label}</p>
     </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Process strip                                                       */
-/* ------------------------------------------------------------------ */
-
-const PROCESS = ["Discover", "Define", "PoC", "CEO Decision", "Integration", "Deliver"] as const;
-export type ProcessStep = (typeof PROCESS)[number];
-
-// Where the project is: everything before `at` is done, `at` is current
-// (or done too, with `complete`). CEO Decision is a gate, drawn as a diamond.
-export function ProcessStrip({
-  at,
-  complete = false,
-  className,
-}: {
-  at: ProcessStep;
-  complete?: boolean;
-  className?: string;
-}) {
-  const atIndex = PROCESS.indexOf(at);
-  return (
-    <ol
-      aria-label="Project progress"
-      className={cn("flex flex-wrap items-center gap-x-1.5 gap-y-2 text-xs", className)}
-    >
-      {PROCESS.map((name, i) => {
-        const status =
-          i < atIndex || (i === atIndex && complete)
-            ? "done"
-            : i === atIndex
-              ? "current"
-              : "upcoming";
-        const gate = name === "CEO Decision";
-        return (
-          <li key={name} className="flex items-center gap-1.5">
-            {i > 0 && (
-              <span
-                aria-hidden
-                className={cn("h-px w-3 md:w-5", status === "upcoming" ? "bg-line" : "bg-ink/40")}
-              />
-            )}
-            <span
-              aria-current={status === "current" ? "step" : undefined}
-              className={cn(
-                "flex items-center gap-1.5 whitespace-nowrap px-2 py-1 font-medium transition-colors duration-500",
-                gate ? "rounded-sm" : "rounded-full",
-                status === "done" && "bg-paper-2 text-ink",
-                status === "current" && "bg-accent text-paper",
-                status === "upcoming" && "border border-line text-ink-muted",
-              )}
-            >
-              {gate && (
-                <span
-                  aria-hidden
-                  className={cn(
-                    "size-2 rotate-45 border",
-                    status === "current" ? "border-paper" : "border-current",
-                    status === "done" && "bg-current",
-                  )}
-                />
-              )}
-              {status === "done" && !gate && <Check aria-hidden className="size-3" />}
-              {name}
-              <span className="sr-only"> ({status})</span>
-            </span>
-          </li>
-        );
-      })}
-    </ol>
   );
 }

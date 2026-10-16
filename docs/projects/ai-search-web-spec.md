@@ -33,14 +33,14 @@
 | Conflict | 04 User Problem · 05 Company's Problem | 고객도 회사도 막혔다 |
 | Turn | 06 Define · 07 PoC Approach | 다시 만들지 않고 "덧붙이기"로 방향 전환. **07B가 페이지 클라이맥스** |
 | Proof | 08 System Architecture · 09 A/B Test | 정말 안전하고, 정말 효과가 있다 |
-| Payoff | 10 Integration · 11 Monitoring · 12 Business Impact | 스케일, 투명성, 매출 |
+| Payoff | 10 Improvement · 11 Integration & Impact | 안전·비용·투명성, 출시와 매출 |
 
 ---
 
 ## 2. 전역 디자인 · 모션 규칙
 
 ### 2.1 레이아웃 공통
-- **Chapter Nav**: 데스크톱에서 좌측 고정. 12개 섹션 이름(01 Context … 12 Business Impact) + 현재 위치 하이라이트 + 진행 바. 클릭 시 해당 섹션으로 스크롤. 모바일에서는 상단 얇은 진행 바만.
+- **Chapter Nav**: 데스크톱에서 좌측 고정. 11개 섹션 이름(01 Context … 11 Integration & Impact) + 현재 위치 하이라이트 + 진행 바. 클릭 시 해당 섹션으로 스크롤. 모바일에서는 상단 얇은 진행 바만.
 - **Section Header**: 작은 대문자 라벨(`01 CONTEXT`) + 헤드라인 1문장. 헤드라인만 훑어 내려도 이야기가 읽혀야 합니다.
 - **Body**: 1인칭, 한 문단 2~3문장, 굵게 표시된 구절만 강조.
 - **강조색**: 한 가지만. 성공·After·핵심 수치에만 사용. 실패/No Result는 채도를 뺀 회색 톤. 사이트에 이미 정의된 강조색이 있으면 그것을 우선 사용.
@@ -74,7 +74,6 @@
 | `PhoneFrame` | Hero, 04, 07B, 09 | 휴대폰 프레임 안에 영상/이미지. 04와 07B는 **같은 크기·같은 위치**여야 함 (Before/After 대응) |
 | `ThoughtBubble` | 04, 07B, 11 | 이모지 + 짧은 문장, 연출용 스타일 |
 | `MetricCounter` | 02, 04, 09, 12 | from → to 또는 단일값, count-up |
-| `ProcessStrip` | 06, 09, 10 | `Discover → Define → PoC → CEO Decision → Integration → Deliver`, 상태: done / current / upcoming. CEO Decision은 다이아몬드(게이트) 모양 |
 | `QueryDemo` | 07B | §5.7 |
 | `DataSourceShowdown` | 07A | §5.7 |
 | `FlowDiagram` | 08 | §5.8 |
@@ -95,9 +94,8 @@ Hero
 07 PoC Approach  (A: How it works / B: Try it yourself ← 클라이맥스)
 08 System Architecture
 09 A/B Test & Result
-10 Improve & Integration
-11 Monitoring
-12 Business Impact
+10 Improvement  (A: Proxy server / B: Monitoring)
+11 Integration & Impact
 Outro
 ```
 
@@ -207,7 +205,6 @@ Outro
     - **Only on failure** · AI runs only when the old search finds nothing.
     - **Same business rules** · Every AI result respects Kurly’s business and inventory policies.
     - **Narrow scope first** · Typos, spacing, and synonyms only.
-  - `ProcessStrip` (섹션 하단, 얇게): 현재 = Define.
   - `Expandable` · How we’d measure success:
     - Shopper — No-Result Rate, Click-Through Rate, Add-to-Cart Rate, Purchase Rate
     - Business — Cart Value, Purchase Value, Revenue per Search, Profit Margin, AI API Cost
@@ -303,47 +300,33 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 | All searches | Click-Through Rate | 58.60% | **60.14%** |
 | All searches | No-Result Rate | 6.80% | **0.22%** |
 
-- `ProcessStrip`: PoC = done, CEO Decision = current → 섹션 끝에서 done.
 
-### 5.10 10 Improve & Integration
-- **목적**: PoC를 실제 제품으로. 12의 “−30%” 근거. 한 장면으로 압축.
+### 5.10 10 Improvement
+- **목적**: A/B 테스트 이후 전면 도입 전 보완 두 가지. 소섹션 A(프록시 서버), B(모니터링).
 - **Copy**
-  - Label: `10 INTEGRATION`
-  - Headline: **Built for Millions, and for the Bill**
-  - Body: A test can afford surprises; production can’t. I led the build of a **proxy server** between Kurly and Vertex AI that decides when the AI is worth calling.
-  - Cards:
-    - **Block** · Filters unlisted brands, profanity, medical terms, and abnormal or malicious queries.
-    - **Fall back** · A circuit breaker shows the original screen if the AI is too slow.
-    - **Reuse** · Caches results per keyword for 12 hours, cutting repeat AI calls by **up to 30%**.
-- **Motion**: `▶ Scroll scene` — 검색어 점들이 프록시 서버로 들어와 일부는 캐시에서 바로 반환, 일부는 블록리스트에서 멈춤, 나머지만 Vertex AI로. 우측 상단 “AI calls” 카운터가 덜 올라감. (비율은 연출용이며 수치로 표기하지 않음)
-- `ProcessStrip`: Integration = current.
+  - Label: `10 IMPROVEMENT`
+  - Headline: **Safe to Scale, Easy to Watch**
+  - Body: The A/B test proved the idea, but going live for every customer asked for more. Before the rollout I improved two things: **what reaches the AI**, and **how everyone can watch it**.
+  - **A · A Proxy Server for Safety and Cost**: Live traffic brought two new needs: **production safety** and **cost efficiency**. I led the build of a **proxy server** between Kurly and Vertex AI that decides when the AI is worth calling.
+    - Cards: **Cache** (12h per keyword) · **Validate** (abnormal/malicious queries) · **Block** (unlisted brands, profanity, medical terms) · **Fall back** (circuit breaker)
+    - Result (모션 마지막 beat, 카드 아래 가운데): As a result, / SaaS cost fell **30.82%** (count-up) / with no change to key KPIs.
+  - **B · Monitoring for Performance and Demand** (Slack Bot 먼저, Dashboard 다음; 각각 소제목)
+    - Slack Bot: 클릭을 가장 많이 잃는 검색어를 매일 MD·마케터에게. Figma `Portfolio_Asset` 578:91 메시지를 코드로 재현, 날짜별(2024-06-24~27) 4개가 스크롤마다 하나씩 뿅 하고 겹쳐 쌓임 → 🧐 ThoughtBubble.
+    - Dashboard: Slack Bot과 같은 레이아웃(왼쪽 글, 오른쪽 스택). Looker 패널 이미지 5장(`public/images/ai-search/monitoring/`: Yesterday’s Stats · Daily Stats · Top Query List · Caching Rate · Anomaly Rate)이 스크롤마다 하나씩 겹쳐 쌓임. 원본 해상도가 낮아 작게 표시.
+    - 두 본문 모두 첫 문장은 "Because ..., I built ..." 톤. Slack 메시지 occurrences 수치는 원본의 약 1/20.
+- **Motion**: A `▶ Scroll scene` Before→After 프록시(비율은 연출용, 수치 표기 없음) → 카드 4개 → 결과. B Slack 메시지 스택(뒤로 갈수록 조금씩 커짐), 대시보드 패널 스택.
 
-### 5.11 11 Monitoring
+### 5.11 11 Integration & Impact
+- **목적**: 출시(2개월, 검색엔진팀 핸드오프) → "그래서 회사에 무엇이 남았나".
 - **Copy**
-  - Label: `11 MONITORING`
-  - Headline: **Everyone Could See What AI Search Was Doing**
-  - Part A · Transparency: During the A/B test and rollout, I didn’t want results hiding in a PM’s slides. I designed and built a **Looker dashboard** so the CEO, engineers, and business teams could all watch the same numbers in real time.
-    - Panels: Daily AI Search Stats · Top AI Queries · Caching Rate · Anomaly Search Rate
-  - Part B · A window into demand: Failed searches are customers telling us what they want. A daily **Slack bot** sends merchandisers and marketers the search queries losing the most clicks, so they can **spot new trends and unmet demand** fast.
-- **Media**
-  - Part A: `▶ Video` `dashboard-pan` (대시보드 천천히 패닝, 내부 숫자 블러).
-  - Part B: `▶ Scroll scene` — `slack-bot` 메시지가 알림처럼 뜨고, 아래로 `ThoughtBubble` 🧐 Why is everyone searching for this? (연출용)
-
-### 5.12 12 Business Impact
-- **목적**: 02의 숫자를 다시, "그래서 회사에 무엇이 남았나"로 마무리. 대시보드 언급 없음.
-- **Motion (오프닝)**: `▶ Scroll scene` — Hero의 `cabage`가 마지막으로 등장 → 양배추가 장바구니에 톡 담기고 → 장바구니 아이콘이 매출 카운터로 변신.
-- **Copy**
-  - Label: `12 BUSINESS IMPACT`
-  - Headline: **One Typo at a Time, ₩5B a Month**
-  - Hero number (가장 크게, count-up): **₩5B (~$3.6M)** · New monthly revenue from searches that used to end in nothing
-  - Supporting metrics (한 줄 4개):
-    - **6.80% → 0.22%** · No-Result Rate
-    - **58.60% → 60.14%** · Search Click-Through Rate
-    - **−30%** · AI Search Operating Cost vs. Pilot
-    - **2 months** · From PoC to Full Production
-  - Closing band · **Google Cloud Summit Seoul 2024**: Google featured this project as a leading enterprise case of AI on GCP. Kurly’s CEO told the story on stage, and I built the presentation. — 버튼: Watch the talk
-- **Visual**: 배경에 상승 곡선 하나, 스크롤에 맞춰 그려짐(SVG stroke-dashoffset). 02에서는 짧은 영상, 여기서는 무대 사진(`summit-stage-photo`) 가로 전체 띠 + 링크로 변주.
-- **TODO**: ₩5B 아래 측정 범위 주석 한 줄(문구 확정 전까지 비워 둠).
+  - Label: `11 INTEGRATION & IMPACT`
+  - Headline: **Live in Two Months, ₩5B a Month**
+  - Body: Two months after the PoC, AI Search was live for every Kurly customer. Then I handed it to the **Search Engine team**, and it became part of their roadmap. 옆에 **2 months** · From PoC to Full Production
+  - Motion: `▶ Scroll scene` — `cabage`가 장바구니에 담기고 ₩5B로 변신.
+  - Hero number: **₩5B (~$3.6M)** · New monthly revenue from searches that used to end in nothing
+  - Supporting metrics (3개): **6.80% → 0.22%** No-Result Rate · **58.60% → 60.14%** Search CTR · **35.52x** Return on AI cost (margin per product ÷ API fee per purchase)
+  - Closing band · **Google Cloud Summit Seoul 2024** (기존 그대로) — 버튼: Watch the talk
+- **TODO**: ₩5B 아래 측정 범위 주석 한 줄.
 
 ### 5.13 Outro
 - Reflection (선택, 2문장, **문구 TODO** — 작성자 확정 전까지 숨김)
@@ -371,8 +354,6 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 | `demo-cabage`, `demo-ca-bbage`, `demo-lettuce`, `demo-granma-padano`, `demo-contextual` | video + poster | 07B | Before → After 전환 | 녹화 필요 |
 | `arch-vertex-full`, `arch-sequence` | image | 08 (expandable) | 상세 아키텍처·시퀀스 | PDF p.26 |
 | `ab-split-screen` | video + poster | 09 | Control vs Experiment | 녹화/재현 필요 |
-| `dashboard-pan` | video + poster | 11 | Looker 대시보드 패닝(숫자 블러) | 녹화 필요 |
-| `slack-bot` | image | 11 | 트렌드 슬랙봇 메시지 | PDF p.27 |
 
 ---
 

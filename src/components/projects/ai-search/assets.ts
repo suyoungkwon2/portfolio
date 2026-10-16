@@ -58,14 +58,6 @@ export const ASSETS = {
     kind: "video",
     alt: "A/B test side by side: the control shows “No products found”, the experiment shows AI results for the same query.",
   },
-  "dashboard-pan": {
-    kind: "video",
-    alt: "Slow pan across the Looker monitoring dashboard, figures blurred.",
-  },
-  "slack-bot": {
-    kind: "image",
-    alt: "Daily Slack bot message listing the searches losing the most clicks.",
-  },
 } as const satisfies Record<string, AssetSpec>;
 
 export type AssetId = keyof typeof ASSETS;
