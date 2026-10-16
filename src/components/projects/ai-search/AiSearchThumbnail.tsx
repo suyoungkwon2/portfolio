@@ -27,7 +27,7 @@ const NEXT: Record<Phase, [Phase, number]> = {
   click: ["before", 650],
   before: ["arrow", 900],
   arrow: ["after", 450],
-  after: ["reset", 4800],
+  after: ["reset", 6300],
   reset: ["typing", 600],
 };
 const ORDER: Phase[] = ["idle", "typing", "click", "before", "arrow", "after", "reset"];
@@ -35,21 +35,22 @@ const reached = (phase: Phase, at: Phase) =>
   phase !== "reset" && ORDER.indexOf(phase) >= ORDER.indexOf(at);
 
 // Top-down reveal for the phones. "gone" is the end of a loop: a quick
-// dissolve, then "hidden" rewinds the clip unseen.
+// dissolve that holds every other value where it is (framer would otherwise
+// animate them back toward "hidden"), then "hidden" rewinds them unseen.
 const drop = {
   hidden: { clipPath: "inset(0 0 100% 0)", opacity: 0, transition: { duration: 0 } },
   shown: { clipPath: "inset(0 0 0% 0)", opacity: 1 },
-  gone: { opacity: 0, transition: { duration: 0.3 } },
+  gone: { clipPath: "inset(0 0 0% 0)", opacity: 0, transition: { duration: 0.3 } },
 };
 const line = {
   hidden: { pathLength: 0, opacity: 0, transition: { duration: 0 } },
   shown: { pathLength: 1, opacity: 1 },
-  gone: { opacity: 0, transition: { duration: 0.3 } },
+  gone: { pathLength: 1, opacity: 0, transition: { duration: 0.3 } },
 };
 const fade = {
   hidden: { opacity: 0, y: "-1cqw", transition: { duration: 0 } },
   shown: { opacity: 1, y: 0 },
-  gone: { opacity: 0, transition: { duration: 0.3 } },
+  gone: { y: 0, opacity: 0, transition: { duration: 0.3 } },
 };
 
 export function AiSearchThumbnail() {
@@ -85,7 +86,7 @@ export function AiSearchThumbnail() {
           {/* The full query, invisible, sizes the bar so the X never moves. */}
           <span className="relative whitespace-nowrap text-[3.8cqw] leading-none tracking-[-0.01em] text-[#1f2124]">
             <span className="invisible">{QUERY}</span>
-            <span className="absolute inset-0">
+            <span className="absolute inset-0 flex items-center whitespace-pre">
               {still ? (
                 QUERY
               ) : phase === "typing" ? (
@@ -150,8 +151,7 @@ export function AiSearchThumbnail() {
         />
       </svg>
 
-      {/* After: the label, then the real Grana Padano results, top down, with a
-          soft glow. */}
+      {/* After: the label, then the real Grana Padano results, top down. */}
       <motion.div
         initial={false}
         animate={reveal("after")}
@@ -166,7 +166,7 @@ export function AiSearchThumbnail() {
         animate={reveal("after")}
         variants={drop}
         transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute left-[48cqw] top-[17cqw] w-[42cqw] rounded-t-[4.6cqw] bg-[linear-gradient(180deg,#e0d4ff,#f49ad8)] p-[1cqw] pb-0 shadow-[0_0_5cqw_0.5cqw_rgba(176,114,255,0.35)]"
+        className="absolute left-[48cqw] top-[17cqw] w-[42cqw] rounded-t-[4.6cqw] bg-[linear-gradient(180deg,#e0d4ff,#f49ad8)] p-[1cqw] pb-0"
       >
         <Screen src={`${SCREENS}/grana-after.webp`} radius="3.6cqw" />
       </motion.div>
@@ -199,23 +199,24 @@ function Label({ children, after = false }: { children: React.ReactNode; after?:
 }
 
 function Caret() {
-  return (
-    <span className="ml-[0.2cqw] inline-block h-[5cqw] w-[0.3cqw] animate-pulse bg-[#1f2124] align-middle" />
-  );
+  return <span className="ml-[0.2cqw] h-[1.1em] w-[0.3cqw] shrink-0 animate-pulse bg-[#1f2124]" />;
 }
 
-// A Kurly screen from the hero, cropped under the status bar so the search
-// header sits at the top, with the query drawn in our type like the hero.
+// A Kurly screen from the hero, cropped under the status bar with a little
+// white above the search header, and the query drawn in our type like the
+// hero.
 function Screen({ src, radius }: { src: string; radius: string }) {
   return (
     <div
-      className="overflow-hidden bg-white"
+      className="overflow-hidden bg-white pt-[4%]"
       style={{ borderTopLeftRadius: radius, borderTopRightRadius: radius }}
     >
-      <div className="@container relative -mt-[12%] aspect-[590/1280] w-full">
-        {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
-        <img src={src} alt="" className="absolute inset-0 size-full" />
-        <SearchQuery text={QUERY} />
+      <div className="overflow-hidden">
+        <div className="@container relative -mt-[12%] aspect-[590/1280] w-full">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+          <img src={src} alt="" className="absolute inset-0 size-full" />
+          <SearchQuery text={QUERY} />
+        </div>
       </div>
     </div>
   );
