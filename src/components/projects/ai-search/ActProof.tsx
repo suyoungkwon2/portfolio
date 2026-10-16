@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, StickyScene, useStill } from "./motion";
 import { SCREENS } from "./ActSetup";
+import { ProcessFlow } from "./ProcessFlow";
 import { B, Body, Chapter, CountUp, PhoneFrame, SectionHeader, wrap } from "./ui";
 
 // Act 4, Proof: 08 Search Flow · 09 A/B Test (spec §5.8–5.9).
@@ -638,6 +639,35 @@ const ResultsTitle = () => (
   </h3>
 );
 
+const VERDICT_STEPS = 3;
+
+function Verdict({ approved }: { approved: boolean }) {
+  return (
+    <div className={cn(wrap, "flex w-full flex-col items-center gap-20")}>
+      <div className="flex flex-col items-center gap-6 text-center">
+        <SectionHeader
+          as="h3"
+          headline="Hypothesis Validated, Across Every KPI"
+          className="items-center"
+        />
+        {/* One sentence per line. */}
+        <Body className="max-w-[60rem]">
+          <span className="block">
+            I shared the test’s progress and results with every stakeholder, every day.
+          </span>
+          <span className="block">
+            With that result, I went to the CEO and got approval to{" "}
+            <B>integrate AI Search into the full system</B>.
+          </span>
+        </Body>
+      </div>
+      <div className="w-full">
+        <ProcessFlow animate={false} approved={approved} />
+      </div>
+    </div>
+  );
+}
+
 // Arrives on the two phones alone, then one result per scroll, plus a spare
 // step so a quick scroll can't skip the last.
 const RESULT_STEPS = AB_ROW_COUNT + 2;
@@ -698,25 +728,17 @@ export function AbTest() {
         )}
       </StickyScene>
 
-      <div
-        className={cn(wrap, "flex flex-col items-center gap-6 pb-28 pt-10 text-center md:pb-36")}
+      {/* Lands on the plan with the CEO's go-ahead still pending; one scroll
+          approves it and the steps after it light up. A spare step holds it. */}
+      <StickyScene
+        steps={VERDICT_STEPS}
+        vh={80}
+        label="The CEO approves, and the rest of the plan goes ahead"
+        className="mt-24 md:mt-0"
       >
-        <SectionHeader
-          as="h3"
-          headline="Hypothesis Validated, Across Every KPI"
-          className="items-center"
-        />
-        {/* One sentence per line. */}
-        <Body className="max-w-[60rem]">
-          <span className="block">
-            I shared the test’s progress and results with every stakeholder, every day.
-          </span>
-          <span className="block">
-            With that result, I went to the CEO and got approval to{" "}
-            <B>integrate AI Search into the full system</B>.
-          </span>
-        </Body>
-      </div>
+        {({ step, live }) => <Verdict approved={!live || step >= 1} />}
+      </StickyScene>
+      <div className="pb-16 md:pb-24" />
     </Chapter>
   );
 }
