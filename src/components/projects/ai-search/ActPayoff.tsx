@@ -33,7 +33,8 @@ import {
 const linkClass =
   "text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent-3 hover:decoration-accent-3";
 
-const smallMetric = "[&>p:first-child]:text-[1.5rem] md:[&>p:first-child]:text-[1.75rem]";
+const smallMetric =
+  "[&>p:first-child]:text-[1.5rem] md:[&>p:first-child]:text-[1.75rem]";
 
 /* ------------------------------------------------------------------ */
 /* 10 Improvement                                                      */
@@ -134,7 +135,8 @@ function Coin({
 }) {
   // Seconds since this query landed, as a share of the coin's life.
   const life = useTransform(time, (t) => {
-    const since = (((cycle(t, dot.phase) - ARRIVE + 1) % 1) * PERIOD) / COIN_LIFE;
+    const since =
+      (((cycle(t, dot.phase) - ARRIVE + 1) % 1) * PERIOD) / COIN_LIFE;
     return since < 1 ? since : -1;
   });
   const opacity = useTransform([life, mix], ([v, m]: number[]) => {
@@ -144,12 +146,19 @@ function Coin({
   });
   const drift = useTransform(life, (v) => r2(Math.max(0, v) * 34));
   const x = useTransform(drift, (d) => (dot.side === "right" ? d : 0));
-  const y = useTransform(drift, (d) => (dot.side === "top" ? -d : dot.side === "bottom" ? d : 0));
-  const scale = useTransform(life, (v) => r2(0.6 + 0.4 * Math.min(1, Math.max(0, v) * 5)));
+  const y = useTransform(drift, (d) =>
+    dot.side === "top" ? -d : dot.side === "bottom" ? d : 0,
+  );
+  const scale = useTransform(life, (v) =>
+    r2(0.6 + 0.4 * Math.min(1, Math.max(0, v) * 5)),
+  );
   const j = dot.jitter;
   const pos =
     dot.side === "right"
-      ? { left: `calc(${AI_X}% + ${AI_W + 6}px)`, top: `calc(50% + ${r2(j * 28)}px)` }
+      ? {
+          left: `calc(${AI_X}% + ${AI_W + 6}px)`,
+          top: `calc(50% + ${r2(j * 28)}px)`,
+        }
       : {
           left: `calc(${AI_X}% + ${r2(AI_W / 2 + j * 46)}px)`,
           top: `calc(50% ${dot.side === "top" ? "-" : "+"} ${AI_H / 2 + 12}px)`,
@@ -179,7 +188,9 @@ function Spark({
   const opacity = useTransform([v, mix], ([p, m]: number[]) =>
     p < 0 || p > 1 ? 0 : r2(Math.sin(Math.PI * p) * m),
   );
-  const scale = useTransform(v, (p) => r2(0.4 + Math.max(0, Math.min(1, p)) * 1.2));
+  const scale = useTransform(v, (p) =>
+    r2(0.4 + Math.max(0, Math.min(1, p)) * 1.2),
+  );
   return (
     <motion.span
       aria-hidden
@@ -211,7 +222,8 @@ const GUARDS = [
 const VERTEX_BLUE = "#4285F4"; // Vertex AI's blue, as in 07's triangle
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 // Card centres in the 4-column row (gap-3 = 12px), for the connector lines.
-const cardX = (i: number) => `calc((100% - 36px) * ${(2 * i + 1) / 8} + ${12 * i}px)`;
+const cardX = (i: number) =>
+  `calc((100% - 36px) * ${(2 * i + 1) / 8} + ${12 * i}px)`;
 
 // Proxy → four cards: a stem, then a rounded elbow out to each card. Each
 // elbow is a bordered box, revealed by clip-path: across first, then down.
@@ -230,7 +242,9 @@ function Elbow({
   const clipPath = useTransform([bar, drop], ([h, v]: number[]) => {
     const across = `${r2((1 - h) * 100)}%`;
     const down = `calc((100% - 1px) * ${r2(1 - v)})`;
-    return left ? `inset(0 0 ${down} ${across})` : `inset(0 ${across} ${down} 0)`;
+    return left
+      ? `inset(0 0 ${down} ${across})`
+      : `inset(0 ${across} ${down} 0)`;
   });
   return (
     <motion.span
@@ -275,20 +289,30 @@ function GuardCard({
   i: number;
   draw: MotionValue<number>;
 }) {
-  const shown = useTransform(draw, (d) => r2(clamp01((d - 0.65 - i * 0.08) / 0.11)));
+  const shown = useTransform(draw, (d) =>
+    r2(clamp01((d - 0.65 - i * 0.08) / 0.11)),
+  );
   const y = useTransform(shown, (v) => r2((1 - v) * 12));
   return (
     <motion.li
       style={{ opacity: shown, y }}
       className="flex flex-col gap-1 rounded-2xl border border-line bg-paper p-4"
     >
-      <p className="font-display text-base font-medium text-ink md:text-lg">{g.name}</p>
+      <p className="font-display text-base font-medium text-ink md:text-lg">
+        {g.name}
+      </p>
       <p className="text-sm leading-relaxed text-ink-muted">{g.text}</p>
     </motion.li>
   );
 }
 
-function ProxyScene({ progress, live }: { progress: MotionValue<number>; live: boolean }) {
+function ProxyScene({
+  progress,
+  live,
+}: {
+  progress: MotionValue<number>;
+  live: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref);
   const time = useMotionValue(0);
@@ -347,7 +371,12 @@ function ProxyScene({ progress, live }: { progress: MotionValue<number>; live: b
           className="absolute bottom-0 top-1/2 hidden w-px origin-top lg:block"
         />
         <motion.div
-          style={{ left: `${PROXY_X}%`, height: AI_H, opacity: mix, scale: proxyScale }}
+          style={{
+            left: `${PROXY_X}%`,
+            height: AI_H,
+            opacity: mix,
+            scale: proxyScale,
+          }}
           className="absolute top-1/2 z-10 grid w-28 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[20px] border border-white/80 bg-white/45 text-center text-xs font-semibold text-ink shadow-[0_24px_48px_-24px_rgba(21,21,21,0.3),inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-xl"
         >
           Proxy server
@@ -357,7 +386,12 @@ function ProxyScene({ progress, live }: { progress: MotionValue<number>; live: b
         ))}
         <div
           className="absolute top-1/2 z-10 grid -translate-y-1/2 place-items-center rounded-xl text-xs font-semibold text-white"
-          style={{ left: `${AI_X}%`, width: AI_W, height: AI_H, background: VERTEX_BLUE }}
+          style={{
+            left: `${AI_X}%`,
+            width: AI_W,
+            height: AI_H,
+            background: VERTEX_BLUE,
+          }}
         >
           Vertex AI
         </div>
@@ -388,7 +422,9 @@ function ProxyScene({ progress, live }: { progress: MotionValue<number>; live: b
             className="text-[2.75rem] leading-none text-accent md:text-[3.5rem]"
           />
         </p>
-        <p className="text-sm font-medium text-ink-muted">with no change to key KPIs.</p>
+        <p className="text-sm font-medium text-ink-muted">
+          with no change to key KPIs.
+        </p>
       </motion.div>
     </div>
   );
@@ -458,16 +494,24 @@ function SlackMessage({ date, terms }: (typeof SLACK_DAYS)[number]) {
     <div className="relative h-[300px] overflow-hidden rounded-xl border border-white/15 bg-[#1a1d21] p-5 shadow-[0_24px_48px_-20px_rgba(21,21,21,0.55)]">
       <div className="flex gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
-        <img src={`${MONITOR}/bot-owl.webp`} alt="" className="size-10 shrink-0 rounded-lg" />
+        <img
+          src={`${MONITOR}/bot-owl.webp`}
+          alt=""
+          className="size-10 shrink-0 rounded-lg"
+        />
         <div className="min-w-0 text-[#d1d2d3]">
           <p className="flex items-center gap-1.5">
-            <span className="text-[15px] font-bold text-white">AI Search Results Bot</span>
+            <span className="text-[15px] font-bold text-white">
+              AI Search Results Bot
+            </span>
             <span className="rounded-[3px] bg-white/10 px-1 text-[10px] font-semibold text-[#a8a9ab]">
               APP
             </span>
             <span className="text-xs text-[#a8a9ab]">10:01 AM</span>
           </p>
-          <p className="text-[15px]">{date} Market Google search terms · Top 30</p>
+          <p className="text-[15px]">
+            {date} Market Google search terms · Top 30
+          </p>
           <p className="mt-3 text-sm">CTR, highest to lowest</p>
           <ol className="mt-1 border-l-4 border-[#1d9bd1] pl-3 text-sm leading-[1.65]">
             {terms.map((t, i) => (
@@ -486,6 +530,15 @@ function SlackMessage({ date, terms }: (typeof SLACK_DAYS)[number]) {
 
 // One message pops in per scroll step, each on top of and a little below
 // the day before, like a channel filling up over a week.
+// Sits under the Slack bot and the dashboard: their numbers are made up.
+function DataNote({ className }: { className?: string }) {
+  return (
+    <p className={cn("text-xs text-ink-muted", className)}>
+      Illustrative data. Internal figures have been changed.
+    </p>
+  );
+}
+
 function SlackStack({ shown, bubble }: { shown: number; bubble: boolean }) {
   const still = useStill();
   return (
@@ -506,82 +559,144 @@ function SlackStack({ shown, bubble }: { shown: number; bubble: boolean }) {
                   ? { opacity: 1, scale: grow(i), y: 0 }
                   : { opacity: 0, scale: grow(i) * 0.88, y: -24 }
               }
-              transition={still ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 22 }}
+              transition={
+                still
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 380, damping: 22 }
+              }
               className="absolute inset-x-0"
-              style={{ top: i * STACK_STEP, zIndex: i, transformOrigin: "top center" }}
+              style={{
+                top: i * STACK_STEP,
+                zIndex: i,
+                transformOrigin: "top center",
+              }}
             >
               <SlackMessage {...day} />
             </motion.div>
           );
         })}
       </div>
+      <DataNote className="-mt-3 w-full max-w-[460px]" />
       <motion.div
         initial={false}
         animate={{ opacity: bubble ? 1 : 0, y: bubble ? 0 : 10 }}
         transition={{ duration: 0.4, ease: EASE_OUT }}
       >
-        <ThoughtBubble emoji="🧐" text="Why is everyone searching for this?" tail="none" />
+        <ThoughtBubble
+          emoji="🧐"
+          text="Why is everyone searching for this?"
+          tail="none"
+        />
       </motion.div>
     </div>
   );
 }
 
-// Looker dashboard panels (Figma: the deck's Performance Monitoring slide),
-// kept small because the source images are small. They pile up like the
-// Slack messages: three tall panels, then two wide charts at the bottom.
-const PANELS = [
-  { src: "yesterday-stats.webp", alt: "Yesterday’s AI Search statistics", w: 340, h: 298, top: 0 },
+// The Looker dashboard (Figma: Portfolio_Asset 583:10635), one long page.
+// It sits in a square window and moves inside it, one area per beat, with
+// the area being read lit and the rest dimmed. Always at full size, never
+// zoomed. Boxes are fractions of the image.
+const DASH = { src: "google-dashboard.webp", w: 1400, h: 2353 };
+const DASH_BEATS = [
   {
-    src: "daily-stats.webp",
-    alt: "Daily AI Search statistics, as a table and a chart",
-    w: 311,
-    h: 298,
-    top: 40,
+    label: "Yesterday’s stats",
+    pan: 0.06,
+    box: { x: 0.015, y: 0.075, w: 0.452, h: 0.24 },
   },
   {
-    src: "top-queries.webp",
-    alt: "Top AI Search query list for Market and Beauty",
-    w: 340,
-    h: 298,
-    top: 80,
+    label: "Daily trend",
+    pan: 0.33,
+    box: { x: 0.015, y: 0.345, w: 0.452, h: 0.625 },
   },
-  { src: "caching-rate.webp", alt: "Daily query caching rate", w: 440, h: 127, top: 300 },
-  { src: "anomaly-rate.webp", alt: "Daily anomaly search rate", w: 440, h: 127, top: 360 },
+  {
+    label: "Top search terms",
+    pan: 0.06,
+    box: { x: 0.486, y: 0.075, w: 0.498, h: 0.478 },
+  },
 ];
 
-function DashStack({ shown }: { shown: number }) {
-  const still = useStill();
-  const last = PANELS[PANELS.length - 1];
+function DashBeats({ step }: { step: number }) {
   return (
-    <div className="relative w-full max-w-[460px]" style={{ height: last.top + last.h }}>
-      {PANELS.map((p, i) => {
-        const on = i < shown;
-        const base = 0.94 + i * 0.015; // each newer panel a touch bigger
-        return (
+    <ol className="flex flex-col gap-2">
+      {DASH_BEATS.map((b, i) => (
+        <li
+          key={b.label}
+          className={cn(
+            "flex items-center gap-3 text-base transition-colors duration-300",
+            i === step ? "text-ink" : "text-ink-muted",
+          )}
+        >
+          <span
+            className={cn(
+              "size-2 rounded-full transition-colors duration-300",
+              i === step ? "bg-accent" : "bg-line",
+            )}
+          />
+          {b.label}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function DashWindow({ step, live }: { step: number; live: boolean }) {
+  const still = useStill();
+  const beat = DASH_BEATS[step];
+  const spring = still
+    ? { duration: 0 }
+    : { type: "spring" as const, stiffness: 120, damping: 22 };
+  return (
+    <figure className="flex w-full max-w-[520px] flex-col gap-2">
+      <div className="overflow-hidden rounded-xl border border-line bg-paper shadow-[0_20px_40px_-20px_rgba(21,21,21,0.35)]">
+        <div className="flex items-center gap-1.5 border-b border-line px-3 py-2">
+          {[0, 1, 2].map((d) => (
+            <span key={d} className="size-2 rounded-full bg-line" />
+          ))}
+          <span className="ml-2 text-xs text-ink-muted">Looker Studio</span>
+        </div>
+        {/* Phones and reduced motion: no pinned tour, the reader scrolls it. */}
+        <div
+          className={cn(
+            "relative",
+            live ? "overflow-hidden" : "overflow-y-auto",
+          )}
+          style={{ aspectRatio: "1 / 1" }}
+        >
           <motion.div
-            key={p.src}
-            aria-hidden={!on}
             initial={false}
-            animate={
-              on ? { opacity: 1, scale: base, y: 0 } : { opacity: 0, scale: base * 0.88, y: -24 }
-            }
-            transition={still ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 22 }}
-            className="absolute overflow-hidden rounded-xl border border-line bg-paper shadow-[0_20px_40px_-20px_rgba(21,21,21,0.35)]"
-            style={{
-              top: p.top,
-              left: `calc(50% - ${p.w / 2}px)`,
-              width: p.w,
-              height: p.h,
-              zIndex: i,
-              transformOrigin: "top center",
-            }}
+            animate={{ y: live ? `-${pct(beat.pan * 100)}` : 0 }}
+            transition={spring}
+            className="relative"
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
-            <img src={`${MONITOR}/${p.src}`} alt={p.alt} className="block size-full" />
+            <img
+              src={`${MONITOR}/${DASH.src}`}
+              alt="Google search dashboard: yesterday’s stats, daily trend, and search terms by site"
+              width={DASH.w}
+              height={DASH.h}
+              className="block h-auto w-full"
+            />
+            {live && (
+              <motion.div
+                aria-hidden
+                initial={false}
+                animate={{
+                  left: pct(beat.box.x * 100),
+                  top: pct(beat.box.y * 100),
+                  width: pct(beat.box.w * 100),
+                  height: pct(beat.box.h * 100),
+                }}
+                transition={spring}
+                className="absolute rounded-md shadow-[0_0_0_9999px_rgba(255,255,255,0.6)] ring-1 ring-accent/40"
+              />
+            )}
           </motion.div>
-        );
-      })}
-    </div>
+        </div>
+      </div>
+      <figcaption>
+        <DataNote />
+      </figcaption>
+    </figure>
   );
 }
 
@@ -601,12 +716,16 @@ export function Improvement() {
       className="border-t border-line pt-24 md:pt-32"
     >
       <div className={cn(wrap, "flex flex-col gap-6")}>
-        <SectionHeader label="10 IMPROVEMENT" headline="Safe to Scale, Easy to Watch" />
+        <SectionHeader
+          label="10 IMPROVEMENT"
+          headline="Safe to Scale, Easy to Watch"
+        />
         <Body className="max-w-none">
-          The A/B test proved the idea, but going live for every customer asked for more.
+          The A/B test proved the idea, but going live for every customer asked
+          for more.
           <br />
-          Before the rollout I improved two things: <B>what reaches the AI</B>, and{" "}
-          <B>how everyone can watch it</B>.
+          Before the rollout I improved two things: <B>what reaches the AI</B>,
+          and <B>how everyone can watch it</B>.
         </Body>
       </div>
 
@@ -620,8 +739,8 @@ export function Improvement() {
               <Body className="max-w-none">
                 Live traffic brought two new needs: <B>production safety</B> and{" "}
                 <B>cost efficiency</B>.
-                <br />I led the build of a <B>proxy server</B> between Kurly and Vertex AI that
-                decides when the AI is worth calling.
+                <br />I led the build of a <B>proxy server</B> between Kurly and
+                Vertex AI that decides when the AI is worth calling.
               </Body>
             </div>
             <ProxyScene progress={progress} live={live} />
@@ -634,17 +753,28 @@ export function Improvement() {
         <SubHeading>2. Monitoring for Performance and Demand</SubHeading>
       </div>
 
-      <StickyScene steps={SLACK_DAYS.length + 1} vh={55} label="The daily Slack bot">
+      <StickyScene
+        steps={SLACK_DAYS.length + 1}
+        vh={55}
+        label="The daily Slack bot"
+      >
         {({ step, live }) => (
-          <div className={cn(wrap, "grid items-start gap-10 md:grid-cols-[1fr_1.2fr]")}>
+          <div
+            className={cn(
+              wrap,
+              "grid items-start gap-10 md:grid-cols-[1fr_1.2fr]",
+            )}
+          >
             <div className="flex flex-col gap-4">
               <SubSubHeading>Slack Bot</SubSubHeading>
               <Body>
-                Because failed searches are customers telling us what they want, I built a{" "}
-                <B>Slack bot</B> that brings them to the team every morning.
+                Because failed searches are customers telling us what they want,
+                I built a <B>Slack bot</B> that brings them to the team every
+                morning.
                 <br />
-                It sends merchandisers and marketers the search queries losing the most clicks, so
-                they can <B>spot new trends and unmet demand</B> fast.
+                It sends merchandisers and marketers the search queries losing
+                the most clicks, so they can{" "}
+                <B>spot new trends and unmet demand</B> fast.
               </Body>
             </div>
             <SlackStack
@@ -655,20 +785,32 @@ export function Improvement() {
         )}
       </StickyScene>
 
-      <StickyScene steps={PANELS.length} vh={50} label="The Looker dashboard">
+      <StickyScene
+        steps={DASH_BEATS.length}
+        vh={60}
+        label="The Looker dashboard"
+      >
         {({ step, live }) => (
-          <div className={cn(wrap, "grid items-start gap-10 md:grid-cols-[1fr_1.2fr]")}>
+          <div
+            className={cn(
+              wrap,
+              "grid items-start gap-10 md:grid-cols-[1fr_1.2fr]",
+            )}
+          >
             <div className="flex flex-col gap-4">
               <SubSubHeading>Dashboard</SubSubHeading>
               <Body>
-                Because I didn’t want results hiding in a PM’s slides, I designed and built a{" "}
-                <B>Looker dashboard</B>.
+                Because the Slack bot showed only the top queries, I designed
+                and built a <B>Looker dashboard</B> for the full detail and
+                daily performance tracking.
                 <br />
-                The CEO, engineers, and business teams all watched the same numbers in real time.
+                The CEO, engineers, and business teams all watched the same
+                numbers in real time.
               </Body>
+              {live && <DashBeats step={step} />}
             </div>
             <div className="flex justify-center">
-              <DashStack shown={live ? step + 1 : PANELS.length} />
+              <DashWindow step={step} live={live} />
             </div>
           </div>
         )}
@@ -686,8 +828,16 @@ export function Improvement() {
 function CartScene({ progress }: { progress: MotionValue<number> }) {
   const chipY = useTransform(progress, [0.08, 0.4], [-150, 0]);
   const chipScale = useTransform(progress, [0.3, 0.42], [1, 0.4]);
-  const chipOpacity = useTransform(progress, [0, 0.05, 0.38, 0.42], [0, 1, 1, 0]);
-  const cartScale = useTransform(progress, [0.4, 0.46, 0.52, 0.62, 0.7], [1, 1.18, 1, 1, 0.3]);
+  const chipOpacity = useTransform(
+    progress,
+    [0, 0.05, 0.38, 0.42],
+    [0, 1, 1, 0],
+  );
+  const cartScale = useTransform(
+    progress,
+    [0.4, 0.46, 0.52, 0.62, 0.7],
+    [1, 1.18, 1, 1, 0.3],
+  );
   const cartOpacity = useTransform(progress, [0.62, 0.7], [1, 0]);
   const moneyOpacity = useTransform(progress, [0.66, 0.78], [0, 1]);
   const moneyScale = useTransform(progress, [0.66, 0.8], [0.6, 1]);
@@ -707,7 +857,12 @@ function CartScene({ progress }: { progress: MotionValue<number> }) {
         style={{ scale: cartScale, opacity: cartOpacity }}
         className="absolute top-[58%] grid size-20 place-items-center rounded-full bg-accent text-paper"
       >
-        <ShoppingCart aria-hidden className="size-8" strokeWidth={1} absoluteStrokeWidth />
+        <ShoppingCart
+          aria-hidden
+          className="size-8"
+          strokeWidth={1}
+          absoluteStrokeWidth
+        />
       </motion.span>
       <motion.span
         style={{ opacity: moneyOpacity, scale: moneyScale }}
@@ -729,7 +884,11 @@ function RisingCurve() {
   const pathLength = useTransform(scrollYProgress, [0.1, 0.55], [0, 1]);
   return (
     <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0">
-      <svg viewBox="0 0 1000 400" preserveAspectRatio="none" className="h-full w-full">
+      <svg
+        viewBox="0 0 1000 400"
+        preserveAspectRatio="none"
+        className="h-full w-full"
+      >
         <motion.path
           d="M0 380 C 220 370, 380 340, 520 270 S 820 90, 1000 30"
           fill="none"
@@ -752,11 +911,15 @@ export function IntegrationImpact() {
       className="border-t border-line pt-24 md:pt-32"
     >
       <div className={cn(wrap, "flex flex-col gap-10")}>
-        <SectionHeader label="11 INTEGRATION & IMPACT" headline="Live in Two Months, ₩5B a Month" />
+        <SectionHeader
+          label="11 INTEGRATION & IMPACT"
+          headline="Live in Two Months, ₩5B a Month"
+        />
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr] md:items-end">
           <Body>
-            Two months after the PoC, AI Search was live for every Kurly customer. Then I handed it
-            to the <B>Search Engine team</B>, and it became part of their roadmap.
+            Two months after the PoC, AI Search was live for every Kurly
+            customer. Then I handed it to the <B>Search Engine team</B>, and it
+            became part of their roadmap.
           </Body>
           <MetricCounter
             size="lg"
@@ -774,7 +937,12 @@ export function IntegrationImpact() {
         )}
       </StickyScene>
 
-      <div className={cn(wrap, "relative flex flex-col gap-14 pb-24 pt-10 md:pb-32")}>
+      <div
+        className={cn(
+          wrap,
+          "relative flex flex-col gap-14 pb-24 pt-10 md:pb-32",
+        )}
+      >
         <RisingCurve />
         <div className="relative">
           <MetricCounter
@@ -822,8 +990,9 @@ export function IntegrationImpact() {
             Google Cloud Summit Seoul 2024
           </h3>
           <p className="text-base leading-relaxed text-ink-muted md:text-lg">
-            Google featured this project as a leading enterprise case of AI on GCP. Kurly’s CEO told
-            the story on stage, and I built the presentation.
+            Google featured this project as a leading enterprise case of AI on
+            GCP. Kurly’s CEO told the story on stage, and I built the
+            presentation.
           </p>
         </div>
         <a

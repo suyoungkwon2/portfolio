@@ -312,7 +312,9 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
     - Result (모션 마지막 beat, 카드 아래 가운데): As a result, / SaaS cost fell **30.82%** (count-up) / with no change to key KPIs.
   - **B · Monitoring for Performance and Demand** (Slack Bot 먼저, Dashboard 다음; 각각 소제목)
     - Slack Bot: 클릭을 가장 많이 잃는 검색어를 매일 MD·마케터에게. Figma `Portfolio_Asset` 578:91 메시지를 코드로 재현, 날짜별(2024-06-24~27) 4개가 스크롤마다 하나씩 뿅 하고 겹쳐 쌓임 → 🧐 ThoughtBubble.
-    - Dashboard: Slack Bot과 같은 레이아웃(왼쪽 글, 오른쪽 스택). Looker 패널 이미지 5장(`public/images/ai-search/monitoring/`: Yesterday’s Stats · Daily Stats · Top Query List · Caching Rate · Anomaly Rate)이 스크롤마다 하나씩 겹쳐 쌓임. 원본 해상도가 낮아 작게 표시.
+    - Dashboard: Slack Bot과 같은 레이아웃(왼쪽 글, 오른쪽 창). Figma `Portfolio_Asset` 583:10635의 긴 Looker 대시보드 한 장(`public/images/ai-search/monitoring/google-dashboard.webp`)이 정사각 창 안에서 스크롤마다 한 영역씩 이동. 읽는 영역만 밝고 나머지는 흰 막으로 흐리게(얇은 accent 테두리). 순서 3비트: Yesterday’s stats → Daily trend → Top search terms(다시 위로, 오른쪽 Top 50 표). 크기는 항상 그대로, 줌 없음. 왼쪽에 같은 목록, 현재 항목 강조. 모바일·reduced motion은 창 안을 직접 스크롤.
+    - 본문: "Because the Slack bot showed only the top queries, I designed and built a **Looker dashboard** for the full detail and daily performance tracking."
+    - Slack Bot 스택 아래와 대시보드 창 아래에 작게 “Illustrative data. Internal figures have been changed.”
     - 두 본문 모두 첫 문장은 "Because ..., I built ..." 톤. Slack 메시지 occurrences 수치는 원본의 약 1/20.
 - **Motion**: A `▶ Scroll scene` Before→After 프록시(비율은 연출용, 수치 표기 없음) → 카드 4개 → 결과. B Slack 메시지 스택(뒤로 갈수록 조금씩 커짐), 대시보드 패널 스택.
 
