@@ -79,7 +79,8 @@ function FlowNode({ node, on, end }: { node: Node; on: boolean; end: boolean }) 
           points={`${node.x},${cy - 32} ${node.x + 105},${cy} ${node.x},${cy + 32} ${node.x - 105},${cy}`}
           fill={fill}
           stroke={stroke}
-          strokeWidth={on ? 2 : 1.5}
+          strokeWidth={1}
+          vectorEffect="non-scaling-stroke"
           className="transition-[stroke,fill] duration-300"
         />
       ) : (
@@ -91,7 +92,8 @@ function FlowNode({ node, on, end }: { node: Node; on: boolean; end: boolean }) 
           rx={10}
           fill={fill}
           stroke={accent ? "var(--color-accent)" : stroke}
-          strokeWidth={on || end ? 2 : 1.5}
+          strokeWidth={1}
+          vectorEffect="non-scaling-stroke"
           className="transition-[stroke,fill] duration-300"
         />
       )}
@@ -125,7 +127,8 @@ function FlowEdge({ from, to, label, on }: { from: Node; to: Node; label?: strin
         x2={x2 - (horizontal ? 6 : 0)}
         y2={y2 - (horizontal ? 0 : 6)}
         stroke={color}
-        strokeWidth={on ? 2.5 : 1.5}
+        strokeWidth={1}
+        vectorEffect="non-scaling-stroke"
         className="transition-[stroke] duration-300"
       />
       <polygon
@@ -175,7 +178,13 @@ function Traveller({ route, label }: { route: readonly string[]; label: string }
       animate={{ x: pts.map((p) => p.x), y: pts.map((p) => p.y) }}
       transition={transition}
     >
-      <circle r={9} fill="var(--color-ink)" stroke="var(--color-paper)" strokeWidth={3} />
+      <circle
+        r={9}
+        fill="var(--color-ink)"
+        stroke="var(--color-paper)"
+        strokeWidth={1}
+        vectorEffect="non-scaling-stroke"
+      />
       <text
         x={-16}
         y={sideEnd ? 26 : -10}

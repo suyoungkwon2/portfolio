@@ -500,8 +500,22 @@ export function SearchScreen({
     <div className="flex h-full flex-col bg-paper pt-9 text-left">
       <div className="mx-3 flex items-center gap-2 rounded-full bg-paper-2 px-3 py-2">
         <svg aria-hidden viewBox="0 0 16 16" className="size-3.5 shrink-0 text-ink-muted">
-          <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M11 11l3.5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <circle
+            cx="7"
+            cy="7"
+            r="5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
+          />
+          <path
+            d="M11 11l3.5 3.5"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
         </svg>
         <span className="truncate text-[13px] text-ink">
           {typed}

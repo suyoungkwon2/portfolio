@@ -324,7 +324,7 @@ function CartScene({ progress }: { progress: MotionValue<number> }) {
         style={{ scale: cartScale, opacity: cartOpacity }}
         className="absolute top-[58%] grid size-20 place-items-center rounded-full bg-accent text-paper"
       >
-        <ShoppingCart aria-hidden className="size-8" strokeWidth={1.75} />
+        <ShoppingCart aria-hidden className="size-8" strokeWidth={1} absoluteStrokeWidth />
       </motion.span>
       <motion.span
         style={{ opacity: moneyOpacity, scale: moneyScale }}
@@ -349,7 +349,7 @@ function RisingCurve() {
           fill="none"
           stroke="var(--color-accent)"
           strokeOpacity={0.14}
-          strokeWidth={3}
+          strokeWidth={1}
           vectorEffect="non-scaling-stroke"
           style={{ pathLength: still ? 1 : pathLength }}
         />

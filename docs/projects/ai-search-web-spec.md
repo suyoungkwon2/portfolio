@@ -126,7 +126,7 @@ Outro
   - Headline: **Search Was Where Kurly Made the Most Money**
   - Body: Kurly is Korea’s premium fresh-grocery unicorn with **3.5M monthly active users**. People who search already know what they want, so search drove **more revenue than any other part of the app**.
   - Problem (마지막 스크롤 비트에서 위 Headline·Body가 이것으로 **교체**됨, Label은 그대로. “But”은 붉은색 `--color-alert` #d1242f, 이 한 단어에만 사용):
-    - Headline: **But 6–7% of Searches Ended in “No Result” Every Day**
+    - Headline: **But 6.8% of Searches Ended in “No Result” Every Day**
     - Body: Each “No Result” left a shopper who was ready to buy with two choices: **search again and again**, or **give up on the purchase**.
     - 모바일·reduced motion에서는 두 비트를 순서대로 둘 다 보여줌.
 - **Motion**: `▶ Scroll scene` (3단계: 1 + 문제 비트 2). 오른쪽에 검색창, 그 아래 “사진 폴더” 스타일의 카트: 연회색 뒷판 + 흰 테두리를 두른 상품 사진들이 부채꼴로 꽂히고, 앞에는 카트 아이콘이 새겨진 반투명(frosted glass) 카드. 장면 520px 기준, 좁은 칼럼에서는 비율 유지하며 축소. **1단계(첫 제목)**: 화면에 들어오면 자동 재생. 검색창에 `cherry tomatoes` → `melon` → `eggs` → `steak`가 차례로 타이핑되고, 하나씩 상품 사진(150px, 둥근 모서리, 흰 테두리, `public/images/ai-search/context/*.webp`)이 유리 카드 뒤로 떨어져 꽂힘. **2단계(스크롤 한 번, 제목이 “But …”으로 바뀌는 순간)**: 검색창에 `cabage`가 타이핑되고, 검색창 외곽선과 글자가 붉은색(`--color-alert`)으로 바뀌며 살짝 흔들림. 자동 재생이 끝나기 전에 스크롤하면 남은 상품을 빨리감기(검색어 즉시 표시, 짧은 멈춤)로 마저 담은 뒤에 제목 교체와 `cabage`가 함께 시작됨. 문제 비트는 스크롤 2단계 분량을 머물러 빠르게 스크롤해도 지나치지 않음(씬 3단계). 타이핑 속도 65ms/글자. 모바일·reduced motion은 최종 상태(카트에 4개, 검색창은 빨간 `cabage`).
@@ -188,7 +188,7 @@ Outro
 - **Copy**
   - Label: `05 COMPANY’S PROBLEM`
   - Headline: **A Leak Everyone Saw, and No One Could Fix**
-  - Part A · The leak: Every day, **6–7% of searches** hit a dead end. Each one cost us twice: a frustrated shopper, and a sale lost on our biggest revenue channel.
+  - (Part A · The leak 장면은 삭제됨: 04에서 다룸)
   - Part B · The bottleneck: Everyone knew the search engine needed a rebuild. But the search team had **no capacity to spare**, so the fix kept getting pushed back with no date in sight.
   - Kicker: We couldn’t wait for a new engine. So I asked a different question. ↓
 - **Motion**
@@ -381,7 +381,7 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 | 수치 | 의미 | 출처 |
 | --- | --- | --- |
 | 3.5M | Kurly MAU | 프로젝트 콘텐츠 md |
-| 6–7% | 하루 검색 중 No Result 비율 (프로젝트 이전) | md, Kurly 기술 블로그 |
+| 6.8% | 하루 검색 중 No Result 비율 (프로젝트 이전) | md, Kurly 기술 블로그 |
 | 6.80% → 0.22% | 전체 검색 No-Result Rate (A/B Control → AI) | md |
 | 58.60% → 60.14% | 전체 검색 CTR | md |
 | 3.83% → 26.50% | No-Result 검색 CTR | md |

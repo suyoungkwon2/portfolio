@@ -426,7 +426,8 @@ function CartGlass() {
       style={{ top: GLASS_TOP }}
     >
       <ShoppingCart
-        strokeWidth={1.25}
+        strokeWidth={1}
+        absoluteStrokeWidth
         className="size-14 text-ink/25 [filter:drop-shadow(0_1px_0_rgba(255,255,255,0.9))]"
       />
     </div>
@@ -531,11 +532,20 @@ function SearchRain({
           style={{ top: BAR_TOP, height: BAR_H }}
         >
           <svg aria-hidden viewBox="0 0 16 16" className="size-[18px] shrink-0 text-ink-muted">
-            <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <circle
+              cx="7"
+              cy="7"
+              r="5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              vectorEffect="non-scaling-stroke"
+            />
             <path
               d="M11 11l3.5 3.5"
               stroke="currentColor"
-              strokeWidth="1.6"
+              strokeWidth="1"
+              vectorEffect="non-scaling-stroke"
               strokeLinecap="round"
             />
           </svg>
@@ -585,7 +595,7 @@ const CONTEXT_BEATS = [
   {
     headline: (
       <>
-        <span className="text-alert">But</span> 6–7% of Searches Ended in “No&nbsp;Result” Every Day
+        <span className="text-alert">But</span> 6.8% of Searches Ended in “No&nbsp;Result” Every Day
       </>
     ),
     body: (
@@ -842,7 +852,7 @@ function OrgChart({ cue, beat }: { cue?: RoleCue; beat: number }) {
           markerHeight="7"
           orient="auto-start-reverse"
         >
-          <path d="M1 1 9 5 1 9" fill="none" stroke="var(--color-ink-muted)" strokeWidth="1.5" />
+          <path d="M1 1 9 5 1 9" fill="none" stroke="var(--color-ink-muted)" strokeWidth="1" />
         </marker>
       </defs>
 
@@ -859,7 +869,8 @@ function OrgChart({ cue, beat }: { cue?: RoleCue; beat: number }) {
           rx={GROUP_H / 2}
           fill={filled ? "var(--color-paper-2)" : "none"}
           stroke={filled ? "none" : "var(--color-line)"}
-          strokeWidth="1.5"
+          strokeWidth="1"
+          vectorEffect="non-scaling-stroke"
         />
       ))}
 
@@ -876,7 +887,8 @@ function OrgChart({ cue, beat }: { cue?: RoleCue; beat: number }) {
             x2={x}
             y2={to}
             stroke="var(--color-ink-muted)"
-            strokeWidth="1.5"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
             strokeDasharray={`${DASH / 2} ${DASH / 2}`}
             markerEnd="url(#org-arrow)"
             initial={{ strokeDashoffset: 0 }}
@@ -901,7 +913,8 @@ function OrgChart({ cue, beat }: { cue?: RoleCue; beat: number }) {
             rx={NODE_H / 2}
             fill={n.me ? "var(--color-accent)" : "var(--color-paper)"}
             stroke={n.me ? "none" : "var(--color-ink)"}
-            strokeWidth="1.25"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
           />
           <text
             x={n.cx}
