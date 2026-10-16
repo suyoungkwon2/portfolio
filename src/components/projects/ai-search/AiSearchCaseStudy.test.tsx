@@ -17,7 +17,7 @@ describe("AiSearchCaseStudy", () => {
       "05 Company’s Problem",
       "06 Define",
       "07 PoC Approach",
-      "08 System Architecture",
+      "08 Search Flow",
       "09 A/B Test",
       "10 Integration",
       "11 Monitoring",
@@ -46,7 +46,7 @@ describe("AiSearchCaseStudy", () => {
     const milk = screen.getByRole("button", { name: "milk" });
     fireEvent.click(milk);
     expect(milk).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Results found, so AI is never called.")).toBeInTheDocument();
+    expect(screen.getByText(/legacy search finds results/)).toBeInTheDocument();
   });
 
   it("labels the hero device Before, then After", () => {

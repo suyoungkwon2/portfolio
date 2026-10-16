@@ -1,15 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Accordion } from "@/components/project/Accordion";
 import { cn } from "@/lib/utils";
-import { ASSETS, type AssetId } from "./assets";
 import { EASE_OUT, Reveal, StickyScene, useStill } from "./motion";
-import { AssetMedia, B, Body, Chapter, ProcessStrip, SectionHeader, useAsset, wrap } from "./ui";
+import { AssetMedia, B, Body, Chapter, ProcessStrip, SectionHeader, wrap } from "./ui";
 
-// Act 4, Proof: 08 System Architecture · 09 A/B Test (spec §5.8–5.9).
+// Act 4, Proof: 08 Search Flow · 09 A/B Test (spec §5.8–5.9).
 
 /* ------------------------------------------------------------------ */
 /* 08 FlowDiagram                                                      */
@@ -60,17 +57,109 @@ const W_MAIN = 270;
 const W_SIDE = 215;
 const H = 46;
 
+// The new AI path (from the multi-section check down) is drawn in the
+// gradient of the app's "Kurly Only" chip; the old engine keeps the ink.
+const AI_FROM = "#b072ff";
+const AI_TO = "#5be1ff";
+const AI_TEXT = "#7a3fd0";
+const isNew = (n: Node) => n.row >= 3;
+
+// Room on the left for the Old engine / New AI search rail.
+const RAIL_X = 0;
+const VIEW_X = -40;
+const VIEW_W = SIDE_X + W_SIDE / 2 + 10 - VIEW_X;
+const VIEW_H = y(7) + TOP;
+const SPANS = [
+  { label: "Old engine", top: y(0) - H / 2, bottom: y(2) + 32, ai: false },
+  { label: "New AI search", top: y(3) - H / 2, bottom: y(7) + H / 2, ai: true },
+];
+
+function FlowDefs() {
+  return (
+    <defs>
+      <linearGradient id="ai-line" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stopColor={AI_FROM} />
+        <stop offset="1" stopColor={AI_TO} />
+      </linearGradient>
+      <linearGradient id="ai-tint" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stopColor="#f3e9ff" />
+        <stop offset="1" stopColor="#e6fbff" />
+      </linearGradient>
+      <linearGradient
+        id="ai-rail"
+        gradientUnits="userSpaceOnUse"
+        x1="0"
+        y1={SPANS[1].top}
+        x2="0"
+        y2={SPANS[1].bottom}
+      >
+        <stop offset="0" stopColor={AI_FROM} />
+        <stop offset="1" stopColor={AI_TO} />
+      </linearGradient>
+    </defs>
+  );
+}
+
+// A vertical line down the left per stage, its name running along it.
+function StageRail() {
+  return (
+    <g aria-hidden>
+      {SPANS.map((s) => {
+        const mid = (s.top + s.bottom) / 2;
+        return (
+          <g key={s.label}>
+            <line
+              x1={RAIL_X}
+              x2={RAIL_X}
+              y1={s.top}
+              y2={s.bottom}
+              stroke={s.ai ? "url(#ai-rail)" : "var(--color-accent)"}
+              strokeWidth={2}
+              vectorEffect="non-scaling-stroke"
+            />
+            <text
+              x={RAIL_X - 14}
+              y={mid}
+              transform={`rotate(-90 ${RAIL_X - 14} ${mid})`}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={13}
+              fontWeight={600}
+              letterSpacing="0.12em"
+              fill={s.ai ? AI_TEXT : "var(--color-accent)"}
+            >
+              {s.label.toUpperCase()}
+            </text>
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 function edgeOnRoute(route: readonly string[], from: string, to: string) {
   const i = route.indexOf(from);
   return i >= 0 && route[i + 1] === to;
 }
 
-function FlowNode({ node, on, end }: { node: Node; on: boolean; end: boolean }) {
+function FlowNode({ node, on }: { node: Node; on: boolean }) {
   const cy = y(node.row);
-  const accent = node.id === "N8";
-  const stroke = on ? "var(--color-accent)" : "var(--color-line)";
-  const fill = accent ? "var(--color-accent)" : on ? "#f3f3f8" : "var(--color-paper)";
-  const text = accent ? "var(--color-paper)" : on ? "var(--color-ink)" : "var(--color-ink-muted)";
+  const ai = isNew(node);
+  // The AI result view is the one box that stands out, like the chip.
+  const end = node.id === "N8";
+  const stroke = ai ? "url(#ai-line)" : on ? "var(--color-accent)" : "var(--color-line)";
+  const fill = end
+    ? on
+      ? "url(#ai-tint)"
+      : "var(--color-paper)"
+    : on
+      ? ai
+        ? "#f7f2ff"
+        : "#f3f3f8"
+      : "var(--color-paper)";
+  const text = end ? AI_TEXT : on ? "var(--color-ink)" : "var(--color-ink-muted)";
+  const strokeOpacity = ai && !on ? 0.45 : 1;
+  const strokeWidth = end && on ? 2 : 1;
   const w = node.x === SIDE_X ? W_SIDE : W_MAIN;
   return (
     <g>
@@ -79,6 +168,7 @@ function FlowNode({ node, on, end }: { node: Node; on: boolean; end: boolean }) 
           points={`${node.x},${cy - 32} ${node.x + 105},${cy} ${node.x},${cy + 32} ${node.x - 105},${cy}`}
           fill={fill}
           stroke={stroke}
+          strokeOpacity={strokeOpacity}
           strokeWidth={1}
           vectorEffect="non-scaling-stroke"
           className="transition-[stroke,fill] duration-300"
@@ -91,8 +181,9 @@ function FlowNode({ node, on, end }: { node: Node; on: boolean; end: boolean }) 
           height={H}
           rx={10}
           fill={fill}
-          stroke={accent ? "var(--color-accent)" : stroke}
-          strokeWidth={1}
+          stroke={stroke}
+          strokeOpacity={strokeOpacity}
+          strokeWidth={strokeWidth}
           vectorEffect="non-scaling-stroke"
           className="transition-[stroke,fill] duration-300"
         />
@@ -104,7 +195,7 @@ function FlowNode({ node, on, end }: { node: Node; on: boolean; end: boolean }) 
         dominantBaseline="central"
         fill={text}
         fontSize={node.diamond ? 15 : 16}
-        fontWeight={on || accent ? 600 : 500}
+        fontWeight={on || end ? 600 : 500}
       >
         {node.label}
       </text>
@@ -205,11 +296,19 @@ function FlowDiagram() {
   const [run, setRun] = useState(0);
   const still = useStill();
   const path = ROUTES[route];
-  const end = path[path.length - 1];
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div role="group" aria-label="Follow a search through the system" className="flex gap-2">
+    <div className="flex w-full max-w-[620px] flex-col gap-6 justify-self-center">
+      {/* Centred over the Search request box. */}
+      <div
+        role="group"
+        aria-label="Follow a search through the system"
+        className="flex justify-center gap-2"
+        style={{
+          marginLeft: `${((MAIN_X - W_MAIN / 2 - VIEW_X) / VIEW_W) * 100}%`,
+          width: `${(W_MAIN / VIEW_W) * 100}%`,
+        }}
+      >
         {(Object.keys(ROUTES) as Route[]).map((r) => (
           <button
             key={r}
@@ -231,8 +330,8 @@ function FlowDiagram() {
         ))}
       </div>
       <svg
-        viewBox={`0 0 ${SIDE_X + W_SIDE / 2 + 10} ${y(7) + TOP}`}
-        className="w-full max-w-[620px]"
+        viewBox={`${VIEW_X} 0 ${VIEW_W} ${VIEW_H}`}
+        className="w-full"
         role="img"
         aria-labelledby="flow-desc"
       >
@@ -241,6 +340,8 @@ function FlowDiagram() {
             ? "“milk”: legacy search finds results, so the shopper sees the legacy results. AI is never called."
             : "“cabage”: legacy search finds nothing. After the multi-section and blocklist checks, Vertex AI Search is called; it returns results, so the shopper sees the AI Search Result view."}
         </desc>
+        <FlowDefs />
+        <StageRail />
         {EDGES.map((e) => (
           <FlowEdge
             key={`${e.from}-${e.to}`}
@@ -251,94 +352,33 @@ function FlowDiagram() {
           />
         ))}
         {NODES.map((n) => (
-          <FlowNode key={n.id} node={n} on={path.includes(n.id as never)} end={n.id === end} />
+          <FlowNode key={n.id} node={n} on={path.includes(n.id as never)} />
         ))}
         {!still && <Traveller key={`${route}-${run}`} route={path} label={route} />}
       </svg>
-      <p aria-live="polite" className="text-sm text-ink-muted">
-        {route === "milk"
-          ? "Results found, so AI is never called."
-          : "Nothing found, so AI steps in."}
-      </p>
     </div>
-  );
-}
-
-// Full-size view of an architecture image, in a native <dialog>.
-function Zoomable({ id }: { id: AssetId }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const asset = useAsset(id);
-  const frame =
-    "relative block aspect-[16/10] w-full overflow-hidden rounded-xl border border-line bg-paper";
-  if (!asset.src) {
-    return (
-      <div className={frame}>
-        <AssetMedia id={id} />
-      </div>
-    );
-  }
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => ref.current?.showModal()}
-        className={cn(frame, "cursor-zoom-in")}
-        aria-label={`Enlarge: ${ASSETS[id].alt}`}
-      >
-        <AssetMedia id={id} fit="contain" />
-      </button>
-      <dialog
-        ref={ref}
-        onClick={(e) => e.target === ref.current && ref.current?.close()}
-        className="m-auto max-h-[92vh] max-w-[94vw] bg-transparent p-0 backdrop:bg-ink/80"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element -- static export, files are pre-sized */}
-        <img
-          src={asset.src}
-          alt={ASSETS[id].alt}
-          className="max-h-[92vh] w-auto rounded-lg bg-paper"
-        />
-        <button
-          type="button"
-          onClick={() => ref.current?.close()}
-          aria-label="Close"
-          className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-ink/80 text-paper"
-        >
-          <X aria-hidden className="size-4" />
-        </button>
-      </dialog>
-    </>
   );
 }
 
 export function Architecture() {
   return (
     <Chapter
-      id="architecture"
-      label="08 System Architecture"
+      id="search-flow"
+      label="08 Search Flow"
       className="border-t border-line py-24 md:py-32"
     >
       <div className={cn(wrap, "grid gap-14 lg:grid-cols-[1fr_1.15fr] lg:items-start")}>
         <div className="flex flex-col gap-6 lg:sticky lg:top-24">
           <SectionHeader
-            label="08 SYSTEM ARCHITECTURE"
-            headline="AI Only Steps In When Search Fails"
+            label="08 SEARCH FLOW"
+            headline="AI Search Only Steps In When Search Fails"
           />
           <Body>
-            Every search still goes to the old engine first. Only an empty result calls the AI,
-            after two quick checks. If the AI also finds nothing, or responds too slowly, the
-            shopper sees the original screen. <B>Nothing breaks if the AI is down.</B>
+            I designed the flow to <B>keep the search engine team’s work to a minimum</B>. Every
+            search still goes to the old engine first, and only an empty result calls AI Search.
           </Body>
         </div>
         <FlowDiagram />
-      </div>
-      <div className={cn(wrap, "mt-14")}>
-        <Accordion label="See the full architecture" className="items-start">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Zoomable id="arch-vertex-full" />
-            <Zoomable id="arch-sequence" />
-          </div>
-        </Accordion>
       </div>
     </Chapter>
   );
