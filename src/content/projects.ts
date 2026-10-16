@@ -242,8 +242,8 @@ export const projects: Record<string, ProjectMeta> = {
 export const projectOrder = [
   "phonitale",
   "mars",
-  "ai-curation",
   "ai-search",
+  "ai-curation",
   "sommind",
   "sleepvice",
   "asleeptrack",

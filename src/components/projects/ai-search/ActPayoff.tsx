@@ -18,8 +18,8 @@ import {
   wrap,
 } from "./ui";
 
-// Act 5, Payoff: 10 Integration · 11 Monitoring · 12 Business Impact ·
-// Outro (spec §5.10–5.13).
+// Act 5, Payoff: 10 Integration · 11 Monitoring · 12 Business Impact,
+// hidden behind ComingSoon for now (spec §5.10–5.12).
 
 const linkClass =
   "text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent-3 hover:decoration-accent-3";
@@ -445,34 +445,18 @@ export function BusinessImpact() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Outro                                                               */
+/* Coming soon                                                         */
 /* ------------------------------------------------------------------ */
 
-const RELATED = [
-  { label: "Kurly Tech Blog", url: "https://helloworld.kurly.com/blog/vertex-ai-search-nr/" },
-  { label: "Google Cloud Summit 2024 talk", url: TALK_URL },
-  { label: "PDF version", url: "/pdf/SuyoungKwon_Portfolio.pdf" },
-];
-
-export function Outro() {
+// Stands in for 10–12 while they're being reworked, so the page can ship
+// through 09. Not a chapter: the sidebar nav ends at 09 until they return.
+export function ComingSoon() {
   return (
     <div className="border-t border-line">
-      <div className={cn(wrap, "py-20 md:py-28")}>
-        {/* TODO(spec §9.2): two-sentence reflection, hidden until written. */}
-        <div className="flex flex-col gap-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">
-            Related links
-          </p>
-          <ul className="flex flex-col gap-3">
-            {RELATED.map((link) => (
-              <li key={link.url}>
-                <a href={link.url} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                  {link.label} ↗
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className={cn(wrap, "py-24 md:py-32")}>
+        <p className="text-center text-base text-ink md:text-lg">
+          Integration, Improvement, and Business Impact are coming soon.
+        </p>
       </div>
     </div>
   );

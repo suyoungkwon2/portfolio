@@ -1,6 +1,6 @@
 import { AbTest, Architecture } from "./ActProof";
 import { CompanyProblem, UserProblem } from "./ActConflict";
-import { BusinessImpact, Integration, Monitoring, Outro } from "./ActPayoff";
+import { ComingSoon } from "./ActPayoff";
 import { Context, Hero, Impact, Roles } from "./ActSetup";
 import { Define, PocApproach } from "./ActTurn";
 import { resolveAssets } from "./assets.server";
@@ -29,10 +29,9 @@ export function AiSearchCaseStudy() {
       <PocApproach />
       <Architecture />
       <AbTest />
-      <Integration />
-      <Monitoring />
-      <BusinessImpact />
-      <Outro />
+      {/* 10 Integration, 11 Monitoring, 12 Business Impact are still being
+          reworked; they come back here once done. */}
+      <ComingSoon />
     </AssetProvider>
   );
 }

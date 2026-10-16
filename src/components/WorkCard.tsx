@@ -6,6 +6,7 @@ import Link from "next/link";
 import { projects } from "@/content/projects";
 import type { WorkItem } from "@/content/works";
 import { ChipGroup } from "./project/ChipGroup";
+import { AiSearchThumbnail } from "./projects/ai-search/AiSearchThumbnail";
 import { GradientBackdrop } from "./GradientBackdrop";
 
 // Placeholder thumbnail tint per sector, until real case-study screenshots
@@ -39,6 +40,12 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
   );
 }
 
+// Cards whose picture is a live scene, drawn over their gradient backdrop
+// in place of the thumbnail image.
+const scenes: Record<string, React.ComponentType> = {
+  "ai-search": AiSearchThumbnail,
+};
+
 // The card's picture: a clip, a shader backdrop with the thumbnail over it,
 // or a plain thumbnail. Also used by the case-study footer's prev/next
 // links. Zooms on hover of the nearest `group`.
@@ -49,6 +56,7 @@ export function WorkThumbnail({
   work: WorkItem;
   sizes?: string;
 }) {
+  const Scene = scenes[work.slug];
   return work.video && work.videoLayout === "full" ? (
     <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-line">
       <video
@@ -88,14 +96,20 @@ export function WorkThumbnail({
         seed={work.slug}
         className="absolute inset-0"
       />
-      {work.thumbnail && (
-        <Image
-          src={work.thumbnail}
-          alt=""
-          fill
-          sizes={sizes}
-          className="object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
-        />
+      {Scene ? (
+        <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]">
+          <Scene />
+        </div>
+      ) : (
+        work.thumbnail && (
+          <Image
+            src={work.thumbnail}
+            alt=""
+            fill
+            sizes={sizes}
+            className="object-cover transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0,1)] group-hover:scale-[1.03]"
+          />
+        )
       )}
     </div>
   ) : work.thumbnail ? (

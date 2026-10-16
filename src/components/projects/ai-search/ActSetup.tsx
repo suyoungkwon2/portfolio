@@ -13,7 +13,8 @@ import { AssetMedia, B, Body, Chapter, MetricCounter, PhoneFrame, SectionHeader,
 // Act 1, Setup: Hero · 01 Context · 02 Impact · 03 R&R (spec §5.0–5.3).
 // The reader learns what was achieved before learning how.
 
-export const TALK_URL = "https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333";
+const BLOG_URL = "https://helloworld.kurly.com/blog/vertex-ai-search-nr/";
+export const TALK_URL ="https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333";
 
 // One entry per line, like the other project heroes.
 const META: [string, string[]][] = [
@@ -315,17 +316,12 @@ export function Hero() {
             </dl>
 
             <a
-              href="#context"
-              className="mt-10 inline-flex items-center gap-2 text-sm font-medium text-ink transition-colors hover:text-accent-3"
+              href={BLOG_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-10 text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent-3 hover:decoration-accent-3"
             >
-              Follow one typo
-              <motion.span
-                aria-hidden
-                animate={useStill() ? undefined : { y: [0, 4, 0] }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-              >
-                ↓
-              </motion.span>
+              Read the Kurly Tech Blog post ↗
             </a>
           </div>
 

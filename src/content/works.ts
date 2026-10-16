@@ -151,4 +151,4 @@ export const works: WorkItem[] = projectOrder.map(
 
 // The landing page's "Selected Projects", in this order. The rest stay on
 // the Projects and Research pages.
-export const featuredSlugs = ["phonitale", "sommind", "ai-curation", "ai-search"];
+export const featuredSlugs = ["ai-search", "phonitale", "ai-curation", "sommind"];
