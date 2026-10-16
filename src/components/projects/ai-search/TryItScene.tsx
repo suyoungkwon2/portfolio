@@ -377,15 +377,17 @@ function FindList() {
 }
 
 function TryItHeader() {
-  return <SectionHeader as="h3" headline="Test Results: Same Typos, Products Found" />;
+  return <SectionHeader as="h3" headline="Internal Demo: Same Typos, Products Found" />;
 }
 
 function TryItBody() {
   return (
-    <Body>
-      Qualitative checks showed clearly better results for all four query types. That was enough to
-      ask for a full A/B test.
-    </Body>
+    <div className="flex flex-col gap-4">
+      <Body>
+        In an internal demo, the PoC returned clearly better results for all four query types.
+      </Body>
+      <Body>The quality was strong enough to ask for a full A/B test with real users.</Body>
+    </div>
   );
 }
 

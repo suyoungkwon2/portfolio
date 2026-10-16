@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, StickyScene, useStill, useTypewriter } from "./motion";
+import { ProcessFlow } from "./ProcessFlow";
 import { TryItStage } from "./TryItScene";
 import { B, Body, Chapter, Em, SectionHeader, wrap } from "./ui";
 
@@ -137,27 +138,7 @@ function Kpis({ animate }: { animate: boolean }) {
 const Goals = ({ animate }: { animate: boolean }) => (
   <TermTable title="Objectives and Goals" rows={GOALS} animate={animate} />
 );
-// Prove the case, build it, then give it back to the team that owns search.
-const STRATEGY = [
-  {
-    name: "PoC",
-    text: "Show that similar products convert far better than the Bestsellers on a No-Result search.",
-  },
-  {
-    name: "CEO Decision",
-    text: "Bring the evidence to the CEO and get the go-ahead.",
-    gate: true,
-  },
-  { name: "Improvement", text: "Tune the AI layer on what the PoC taught us." },
-  { name: "Integration", text: "Ship it into Kurly’s live search." },
-  {
-    name: "Hand-off",
-    text: "Pass it to the Search Engine team as part of their roadmap.",
-  },
-];
-
 function Strategy({ animate }: { animate: boolean }) {
-  const still = useStill() || !animate;
   return (
     <div className="flex flex-col gap-8">
       <Subhead>Strategic Process</Subhead>
@@ -167,38 +148,7 @@ function Strategy({ animate }: { animate: boolean }) {
         So the plan was to <B>test that belief with real data</B>, prove the engine update was worth
         it, and then <B>hand the work back</B> to the team that owned search.
       </Body>
-      <ol className="grid gap-3 md:grid-cols-5 md:gap-0">
-        {STRATEGY.map((s, i) => (
-          <motion.li
-            key={s.name}
-            initial={still ? false : { opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{
-              duration: 0.45,
-              ease: EASE_OUT,
-              delay: 0.2 + i * 0.18,
-            }}
-            className="flex flex-col gap-3 md:pr-6"
-          >
-            <span className="flex items-center gap-3">
-              <span
-                aria-hidden
-                className={cn(
-                  "grid size-7 shrink-0 place-items-center bg-accent text-xs font-semibold text-paper",
-                  s.gate ? "rotate-45 rounded-sm" : "rounded-full",
-                )}
-              >
-                <span className={cn(s.gate && "-rotate-45")}>{i + 1}</span>
-              </span>
-              {i < STRATEGY.length - 1 && (
-                <span aria-hidden className="hidden h-px flex-1 bg-accent/30 md:block" />
-              )}
-            </span>
-            <p className="font-display text-lg font-medium text-ink md:text-xl">{s.name}</p>
-            <p className="text-base leading-relaxed text-ink-muted md:text-lg">{s.text}</p>
-          </motion.li>
-        ))}
-      </ol>
+      <ProcessFlow animate={animate} />
     </div>
   );
 }

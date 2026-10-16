@@ -430,21 +430,23 @@ function FrustrationScene({ step: scrollStep, goTo }: { step: number; goTo: (i: 
 }
 
 function UserProblemHeader() {
-  return <SectionHeader label="04 USER PROBLEM" headline="Users Were Punished for Tiny Mistakes" />;
+  return (
+    <SectionHeader label="04 USER PROBLEM" headline="Tiny Mistakes Left Users Empty-Handed" />
+  );
 }
 
 function UserProblemBody({ className }: { className?: string }) {
   return (
-    <Body className={className}>
-      <span className="block">The old search engine only accepted exact matches.</span>
-      <span className="block">
-        A typo, an extra space, or a different word for the same thing meant <B>an empty page</B>.
-      </span>
-      <span className="block">
+    <div className="flex flex-col gap-4">
+      <Body className={className}>
+        The old search engine only accepted exact matches, so a typo, an extra space, or a
+        different word for the same thing meant <B>an empty page</B>.
+      </Body>
+      <Body className={className}>
         Users were left with <B>a frustrating search experience</B>: guess the “right” spelling, try
         again, or simply leave.
-      </span>
-    </Body>
+      </Body>
+    </div>
   );
 }
 
@@ -466,7 +468,7 @@ function FrustrationStage() {
           <div className="flex flex-col gap-10">
             <div className={cn(wrap, "flex flex-col gap-6")}>
               <UserProblemHeader />
-              {/* Wide enough for one sentence per line. */}
+              {/* Wide enough for the first paragraph in two lines. */}
               <UserProblemBody className="max-w-[48rem]" />
             </div>
             <FrustrationList />
@@ -570,7 +572,7 @@ function BestsellerScene({ step, live }: { step: number; live: boolean }) {
       <div className="flex flex-col gap-8">
         <motion.div {...beat(0)} className="flex flex-col gap-3">
           <p className="font-display font-medium tracking-tight text-2xl leading-snug text-ink text-balance md:text-[2rem]">
-            Meanwhile, leadership believed the Bestsellers would catch them.
+            Meanwhile, leadership believed <em>the Bestsellers would catch them.</em>
           </p>
           <Body>
             Curation is Kurly’s core value, and customers trust its picks. Even an empty search
