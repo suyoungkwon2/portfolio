@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, StickyScene, useStill } from "./motion";
 import { SCREENS } from "./ActSetup";
@@ -53,6 +53,8 @@ const ROUTES = {
   cabage: ["N1", "N2", "D1", "N4", "N5", "N6", "D2", "N8"],
 } as const;
 type Route = keyof typeof ROUTES;
+// The system's own emoji (Apple, Android), so no image is needed.
+const EMOJI: Record<Route, string> = { milk: "🥛", cabage: "🥬" };
 
 const W_MAIN = 270;
 const W_SIDE = 215;
@@ -249,38 +251,60 @@ function FlowEdge({ from, to, label, on }: { from: Node; to: Node; label?: strin
   );
 }
 
-// The query travelling its route as a dot, one segment at a time.
-function Traveller({ route, label }: { route: readonly string[]; label: string }) {
-  // Stops at the edge of the last box, so it doesn't sit on its label.
+// The travelling token: the query's emoji and the query in a pill, centred
+// on its point. Mono 14px runs about 8.4px a character.
+const PILL_H = 36;
+const pillWidth = (label: string) => 12 + 22 + 6 + label.length * 8.4 + 14;
+
+// Where the token stops along a route, and when (0 → 1, by distance). It
+// parks beside the last box, so it never sits on a label: left of a side
+// box, right of a main-column one.
+function routePath(route: readonly string[], label: string) {
   const sideEnd = byId[route[route.length - 2]].row === byId[route[route.length - 1]].row;
-  const pts = route.map((id, i) => {
-    const n = byId[id];
-    if (i < route.length - 1) return { x: n.x, y: y(n.row) };
-    return sideEnd
-      ? { x: n.x - W_SIDE / 2 - 12, y: y(n.row) }
-      : { x: n.x, y: y(n.row) - H / 2 - 12 };
-  });
+  const half = pillWidth(label) / 2;
+  const last = byId[route[route.length - 1]];
+  const pts = route.map((id) => ({ x: byId[id].x, y: y(byId[id].row) }));
+  if (sideEnd) pts[pts.length - 1] = { x: last.x - W_SIDE / 2 - half - 10, y: y(last.row) };
+  else pts.push({ x: last.x + W_MAIN / 2 + half + 14, y: y(last.row) });
   const lengths = pts.slice(1).map((p, i) => Math.hypot(p.x - pts[i].x, p.y - pts[i].y));
   const total = lengths.reduce((a, b) => a + b, 0);
   const times = lengths.reduce((t, l) => [...t, t[t.length - 1] + l / total], [0]);
-  const transition = { duration: route.length * 0.45, times, ease: "easeInOut" as const };
+  return { pts, times };
+}
+
+function TravellerToken({ label }: { label: Route }) {
+  const w = pillWidth(label);
+  const left = -w / 2;
   return (
-    <motion.g
-      initial={{ x: pts[0].x, y: pts[0].y }}
-      animate={{ x: pts.map((p) => p.x), y: pts.map((p) => p.y) }}
-      transition={transition}
-    >
-      <circle
-        r={9}
-        fill="var(--color-ink)"
-        stroke="var(--color-paper)"
+    <>
+      <rect
+        x={left}
+        y={-PILL_H / 2}
+        width={w}
+        height={PILL_H}
+        rx={PILL_H / 2}
+        fill="var(--color-paper)"
+        stroke="var(--color-ink)"
         strokeWidth={1}
         vectorEffect="non-scaling-stroke"
+        style={{ filter: "drop-shadow(0 6px 10px rgba(21,21,21,0.18))" }}
       />
       <text
-        x={-16}
-        y={sideEnd ? 26 : -10}
-        textAnchor="end"
+        x={left + 12 + 11}
+        y={1}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={20}
+        style={{
+          fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
+        }}
+      >
+        {EMOJI[label]}
+      </text>
+      <text
+        x={left + 12 + 22 + 6}
+        y={0}
+        dominantBaseline="central"
         fontSize={14}
         fontWeight={600}
         fill="var(--color-ink)"
@@ -288,6 +312,42 @@ function Traveller({ route, label }: { route: readonly string[]; label: string }
       >
         {label}
       </text>
+    </>
+  );
+}
+
+// The query travelling its route, one segment at a time.
+function Traveller({ route, label }: { route: readonly string[]; label: Route }) {
+  const { pts, times } = routePath(route, label);
+  const transition = { duration: route.length * 0.45, times, ease: "easeInOut" as const };
+  return (
+    <motion.g
+      initial={{ x: pts[0].x, y: pts[0].y }}
+      animate={{ x: pts.map((p) => p.x), y: pts.map((p) => p.y) }}
+      transition={transition}
+    >
+      <TravellerToken label={label} />
+    </motion.g>
+  );
+}
+
+// The same token, moved by scroll instead of a timer: it walks the route as
+// the diagram passes 60% down the screen.
+function ScrollTraveller({
+  route,
+  label,
+  progress,
+}: {
+  route: readonly string[];
+  label: Route;
+  progress: MotionValue<number>;
+}) {
+  const { pts, times } = routePath(route, label);
+  const tx = useTransform(progress, times, pts.map((p) => p.x));
+  const ty = useTransform(progress, times, pts.map((p) => p.y));
+  return (
+    <motion.g style={{ x: tx, y: ty }}>
+      <TravellerToken label={label} />
     </motion.g>
   );
 }
@@ -297,6 +357,8 @@ function FlowDiagram() {
   const [run, setRun] = useState(0);
   const still = useStill();
   const path = ROUTES[route];
+  const flow = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: flow, offset: ["start 0.6", "end 0.6"] });
 
   return (
     <div className="flex w-full max-w-[620px] flex-col gap-6 justify-self-center">
@@ -326,37 +388,45 @@ function FlowDiagram() {
                 : "border-line text-ink hover:border-accent",
             )}
           >
-            {r}
+            <span aria-hidden>{EMOJI[r]}</span> {r}
           </button>
         ))}
       </div>
-      <svg
-        viewBox={`${VIEW_X} 0 ${VIEW_W} ${VIEW_H}`}
-        className="w-full"
-        role="img"
-        aria-labelledby="flow-desc"
-      >
-        <desc id="flow-desc">
-          {route === "milk"
-            ? "“milk”: legacy search finds results, so the user sees the legacy results. AI is never called."
-            : "“cabage”: legacy search finds nothing. After the multi-section and blocklist checks, Vertex AI Search is called; it returns results, so the user sees the AI Search Result view."}
-        </desc>
-        <FlowDefs />
-        <StageRail />
-        {EDGES.map((e) => (
-          <FlowEdge
-            key={`${e.from}-${e.to}`}
-            from={byId[e.from]}
-            to={byId[e.to]}
-            label={e.label}
-            on={edgeOnRoute(path, e.from, e.to)}
-          />
-        ))}
-        {NODES.map((n) => (
-          <FlowNode key={n.id} node={n} on={path.includes(n.id as never)} />
-        ))}
-        {!still && <Traveller key={`${route}-${run}`} route={path} label={route} />}
-      </svg>
+      <div ref={flow}>
+        <svg
+          viewBox={`${VIEW_X} 0 ${VIEW_W} ${VIEW_H}`}
+          className="w-full"
+          role="img"
+          aria-labelledby="flow-desc"
+        >
+          <desc id="flow-desc">
+            {route === "milk"
+              ? "“milk”: legacy search finds results, so the user sees the legacy results. AI is never called."
+              : "“cabage”: legacy search finds nothing. After the multi-section and blocklist checks, Vertex AI Search is called; it returns results, so the user sees the AI Search Result view."}
+          </desc>
+          <FlowDefs />
+          <StageRail />
+          {EDGES.map((e) => (
+            <FlowEdge
+              key={`${e.from}-${e.to}`}
+              from={byId[e.from]}
+              to={byId[e.to]}
+              label={e.label}
+              on={edgeOnRoute(path, e.from, e.to)}
+            />
+          ))}
+          {NODES.map((n) => (
+            <FlowNode key={n.id} node={n} on={path.includes(n.id as never)} />
+          ))}
+          {/* cabage follows the scroll until a route is picked; picks replay on a timer. */}
+          {!still &&
+            (run === 0 ? (
+              <ScrollTraveller route={path} label={route} progress={scrollYProgress} />
+            ) : (
+              <Traveller key={`${route}-${run}`} route={path} label={route} />
+            ))}
+        </svg>
+      </div>
     </div>
   );
 }

@@ -1,16 +1,25 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
-import { CABBAGE, JALAPENO, RecentScreen, historyAt, type Want } from "./ActConflict";
+import {
+  CABBAGE,
+  JALAPENO,
+  PhoneSplit,
+  RecentScreen,
+  StepChips,
+  WantCard,
+  historyAt,
+  type Want,
+} from "./ActConflict";
 import { SCREENS, SearchQuery } from "./ActSetup";
 import { IosKeyboard } from "./IosKeyboard";
-import { EASE_OUT, StickyScene, useHeldClock } from "./motion";
+import { EASE_OUT, StickyScene, scrollToStep, useBeatClock } from "./motion";
 import { Body, PhoneFrame, SectionHeader, ThoughtBubble, wrap } from "./ui";
 
 // 07B: the same four searches that failed in 04, on the same screens, now
-// finding products. Plays on its own like 04; scrolling speeds it up.
+// finding products. One scroll step per find, like 04.
 
 type Product = {
   src: string;
@@ -111,6 +120,9 @@ const BEATS: Beat[] = (() => {
   });
 })();
 const FINISH_S = BEATS[BEATS.length - 1].start + BEATS[BEATS.length - 1].end;
+// One scroll step per find: where each starts and ends on the timeline.
+const STARTS = BEATS.map((b) => b.start);
+const ENDS = BEATS.map((b) => b.start + b.end);
 
 type Frame = {
   step: number;
@@ -284,117 +296,60 @@ function FindScreen({ frame }: { frame: Frame }) {
   );
 }
 
-// The four query types, type on top and its example under it. They track
-// the scene and get a check when their turn comes; clicking one plays that
-// search.
-function FindChips({ step, onPick }: { step: number; onPick: (i: number) => void }) {
-  return (
-    <ol aria-label="Four query types" className="flex flex-wrap justify-center gap-2 md:gap-3">
-      {FINDS.map((f, i) => {
-        const on = i === step;
-        return (
-          <li key={f.query}>
-            <button
-              type="button"
-              aria-current={on ? "step" : undefined}
-              onClick={() => onPick(i)}
-              className={cn(
-                "flex min-w-36 cursor-pointer flex-col items-center gap-1 rounded-xl border px-4 py-2.5 text-center transition-colors duration-300",
-                on
-                  ? "border-[#16a34a] bg-[#16a34a] text-paper"
-                  : "border-line bg-paper text-ink hover:border-[#16a34a]",
-              )}
-            >
-              <span className="font-display text-base font-semibold leading-tight md:text-lg">
-                {/* Checked off once its search has played (the first from the start). */}
-                {i <= step && (
-                  <motion.span
-                    aria-hidden
-                    className="inline-block"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 420, damping: 18 }}
-                  >
-                    ✅&nbsp;
-                  </motion.span>
-                )}
-                {f.type}
-              </span>
-              <span className={cn("font-mono text-sm", on ? "text-paper/80" : "text-ink-muted")}>
-                {f.query}
-              </span>
-            </button>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-function FindScene({ stage }: { stage: React.RefObject<HTMLDivElement | null> }) {
-  const { ref, frame, seek } = useHeldClock({
-    stage,
-    finish: FINISH_S,
+function FindScene({ step: scrollStep, goTo }: { step: number; goTo: (i: number) => void }) {
+  const { ref, frame } = useBeatClock({
+    step: scrollStep,
+    starts: STARTS,
+    ends: ENDS,
     frameAt,
     same: sameFrame,
   });
   const find = FINDS[frame.step];
   return (
-    <div ref={ref} className="flex w-full flex-col gap-10">
-      <FindChips step={frame.step} onPick={(i) => seek(BEATS[i].start)} />
-      <div className="grid w-full items-center gap-8 md:grid-cols-[1fr_272px_1fr] md:gap-10">
-        {/* What the user is after, as in 04. */}
-        <div className="flex flex-col items-center gap-3 text-center md:justify-self-end">
-          <p className="text-sm font-medium uppercase tracking-[0.15em] text-ink-muted">
-            What users want
-          </p>
-          <div className="relative size-40 overflow-hidden rounded-2xl md:size-44">
-            <AnimatePresence initial={false}>
-              <motion.img
-                key={find.want.src}
-                src={find.want.src}
-                alt={find.want.name}
+    <div ref={ref} className="w-full">
+      <PhoneSplit
+        header={<TryItHeader />}
+        copy={<TryItBody />}
+        phone={
+          <div className="relative">
+            {/* The hero's After glow, each time results come in. */}
+            {frame.result && (
+              <motion.div
+                key={`glow-${frame.step}`}
+                aria-hidden
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-                className="absolute inset-0 size-full object-cover"
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.4, times: [0, 0.35, 1] }}
+                className="pointer-events-none absolute -inset-4 rounded-[3rem] bg-[linear-gradient(90deg,rgba(176,114,255,0.75),rgba(91,225,255,0.75))] blur-[20px]"
               />
-            </AnimatePresence>
+            )}
+            <PhoneFrame>
+              <FindScreen key={frame.step} frame={frame} />
+            </PhoneFrame>
           </div>
-          <p className="font-display text-lg font-medium text-ink">{find.want.name}</p>
-        </div>
-
-        <div className="relative flex justify-center">
-          {/* The hero's After glow, each time results come in. */}
-          {frame.result && (
-            <motion.div
-              key={`glow-${frame.step}`}
-              aria-hidden
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 1.4, times: [0, 0.35, 1] }}
-              className="pointer-events-none absolute -inset-4 rounded-[3rem] bg-[linear-gradient(90deg,rgba(176,114,255,0.75),rgba(91,225,255,0.75))] blur-[20px]"
-            />
-          )}
-          <PhoneFrame>
-            <FindScreen key={frame.step} frame={frame} />
-          </PhoneFrame>
-        </div>
-
-        <div className="flex min-h-24 justify-center md:justify-start">
-          <motion.div
-            key={frame.step}
-            initial={{ opacity: 0, x: -10, scale: 0.96 }}
-            animate={
-              frame.bubble ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -10, scale: 0.96 }
-            }
-            transition={{ duration: 0.4, ease: EASE_OUT }}
-          >
-            <ThoughtBubble emoji={find.emoji} text={find.bubble} />
-          </motion.div>
-        </div>
-      </div>
+        }
+        side={
+          <>
+            {/* What the user is after, as in 04. */}
+            <WantCard want={find.want} />
+            <StepChips items={FINDS} step={frame.step} onPick={goTo} tone="pass" />
+            <div className="min-h-24">
+              <motion.div
+                key={frame.step}
+                initial={{ opacity: 0, x: -10, scale: 0.96 }}
+                animate={
+                  frame.bubble
+                    ? { opacity: 1, x: 0, scale: 1 }
+                    : { opacity: 0, x: -10, scale: 0.96 }
+                }
+                transition={{ duration: 0.4, ease: EASE_OUT }}
+              >
+                <ThoughtBubble emoji={find.emoji} text={find.bubble} />
+              </motion.div>
+            </div>
+          </>
+        }
+      />
     </div>
   );
 }
@@ -421,43 +376,44 @@ function FindList() {
   );
 }
 
-function TryItCopy() {
+function TryItHeader() {
+  return <SectionHeader as="h3" headline="Test Results: Same Typos, Products Found" />;
+}
+
+function TryItBody() {
   return (
-    <div className="flex flex-col gap-5">
-      <SectionHeader as="h3" headline="Test Results: Same Typos, Products Found" />
-      <Body>
-        Qualitative checks showed clearly better results for all four query types. That was enough
-        to ask for a full A/B test.
-      </Body>
-    </div>
+    <Body>
+      Qualitative checks showed clearly better results for all four query types. That was enough to
+      ask for a full A/B test.
+    </Body>
   );
 }
 
-// The copy is pinned with the chips and phone, so the title and body stay on
-// screen while the searches play.
+// One scroll step per find; the title and body stay pinned with the phone.
 export function TryItStage() {
   const stage = useRef<HTMLDivElement>(null);
+  // The StickyScene is the stage's only child.
+  const goTo = (i: number) => {
+    const scene = stage.current?.firstElementChild;
+    if (scene instanceof HTMLElement) scrollToStep(scene, i, FINDS.length);
+  };
   return (
     <div ref={stage} id="try-it" className="pt-16 md:pt-24">
       <StickyScene
-        steps={1}
-        vh={130}
+        steps={FINDS.length}
+        vh={100}
         still={() => (
           <div className="flex flex-col gap-10">
-            <div className={wrap}>
-              <TryItCopy />
+            <div className={cn(wrap, "flex flex-col gap-5")}>
+              <TryItHeader />
+              <TryItBody />
             </div>
             <FindList />
           </div>
         )}
         label="The same four searches, now finding products"
       >
-        {() => (
-          <div className={cn(wrap, "flex flex-col gap-6")}>
-            <TryItCopy />
-            <FindScene stage={stage} />
-          </div>
-        )}
+        {({ step }) => <FindScene step={step} goTo={goTo} />}
       </StickyScene>
     </div>
   );

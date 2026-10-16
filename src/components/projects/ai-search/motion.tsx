@@ -102,6 +102,14 @@ export function StickyScene({
   );
 }
 
+// Scrolls the page to the start of step `i` of the StickyScene `scene` (a
+// hair past it, so rounding can't land on the step before).
+export function scrollToStep(scene: HTMLElement, i: number, steps: number) {
+  const top = scene.getBoundingClientRect().top + window.scrollY;
+  const range = scene.offsetHeight - window.innerHeight;
+  window.scrollTo({ top: top + ((i + 0.02) / steps) * range, behavior: "instant" });
+}
+
 // Fades its children up once, the first time they scroll into view.
 export function Reveal({
   children,
@@ -150,102 +158,45 @@ export function useTypewriter(
   return { typed: text.slice(0, count), done: count >= text.length };
 }
 
-// Scrolling while a held scene is pinned plays it this much faster: down
-// runs it forward, up runs it back.
-const FAST_RATE = 4;
-const FAST_WINDOW_MS = 250;
-
-// One clock for a scene that plays on its own once on screen (`ref`). While
-// `stage` is pinned, scrolling down doesn't leave until the clock reaches
-// `finish`: it runs the clock faster instead. Scrolling up rewinds it the
-// same way back to the start, so the scene can be watched again. `seek`
-// jumps the clock. `frameAt` turns clock seconds into what the scene shows;
-// `same` keeps React from re-rendering every frame when nothing visible
-// changed.
-export function useHeldClock<F>({
-  stage,
-  finish,
+// One clock per beat of a scroll scene. Each scroll step is a beat; landing
+// on one, from above or below, plays it from its start at normal speed and
+// holds on its last frame. `starts` and `ends` are the beats' times on one
+// timeline (seconds), `frameAt` turns a time on it into what the scene shows,
+// and `same` keeps React from re-rendering every frame when nothing visible
+// changed. Nothing plays until the scene (`ref`) is mostly on screen.
+export function useBeatClock<F>({
+  step,
+  starts,
+  ends,
   frameAt,
   same,
 }: {
-  stage: React.RefObject<HTMLDivElement | null>;
-  finish: number;
+  step: number;
+  starts: readonly number[];
+  ends: readonly number[];
   frameAt: (t: number) => F;
   same: (a: F, b: F) => boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const seen = useInView(ref, { once: true, amount: 0.6 });
-  const [frame, setFrame] = useState(() => frameAt(0));
-  const clock = useRef(0);
-  const lastPush = useRef(-Infinity);
-  const lastPull = useRef(-Infinity);
+  const [frame, setFrame] = useState(() => frameAt(starts[step]));
+  const local = useRef(0);
+  const shownStep = useRef(step);
 
-  useAnimationFrame((time, delta) => {
+  useAnimationFrame((_, delta) => {
     if (!seen) return;
-    const s = delta / 1000;
-    const pulling = time - lastPull.current < FAST_WINDOW_MS;
-    if (pulling) {
-      if (clock.current <= 0) return;
-      clock.current = Math.max(0, clock.current - s * FAST_RATE);
+    if (shownStep.current !== step) {
+      shownStep.current = step;
+      local.current = 0;
     } else {
-      if (clock.current >= finish) return;
-      const fast = time - lastPush.current < FAST_WINDOW_MS;
-      clock.current = Math.min(finish, clock.current + s * (fast ? FAST_RATE : 1));
+      // Stop just short of the end, which belongs to the next beat.
+      const length = ends[step] - starts[step] - 0.001;
+      if (local.current >= length) return;
+      local.current = Math.min(length, local.current + delta / 1000);
     }
-    const next = frameAt(clock.current);
+    const next = frameAt(starts[step] + local.current);
     setFrame((f) => (same(f, next) ? f : next));
   });
 
-  const seek = useCallback(
-    (t: number) => {
-      clock.current = Math.min(finish, Math.max(0, t));
-      lastPull.current = -Infinity;
-      setFrame(frameAt(clock.current));
-    },
-    [finish, frameAt],
-  );
-
-  useEffect(() => {
-    const pinned = () => {
-      const el = stage.current;
-      if (!el) return false;
-      const top = window.matchMedia("(min-width: 1024px)").matches ? 0 : 56;
-      const r = el.getBoundingClientRect();
-      return r.top <= top + 1 && r.bottom >= window.innerHeight - 1;
-    };
-    const go = (e: Event, down: boolean) => {
-      if (!pinned()) return;
-      if (down ? clock.current >= finish : clock.current <= 0) return;
-      e.preventDefault();
-      if (down) lastPush.current = performance.now();
-      else lastPull.current = performance.now();
-    };
-    const onWheel = (e: WheelEvent) => {
-      if (e.deltaY !== 0) go(e, e.deltaY > 0);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (["ArrowDown", "PageDown", " "].includes(e.key)) go(e, true);
-      else if (["ArrowUp", "PageUp"].includes(e.key)) go(e, false);
-    };
-    let touchY = 0;
-    const onTouchStart = (e: TouchEvent) => {
-      touchY = e.touches[0].clientY;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      const y = e.touches[0].clientY;
-      if (y !== touchY) go(e, y < touchY);
-    };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
-    };
-  }, [stage, finish]);
-
-  return { ref, frame, seek };
+  return { ref, frame };
 }

@@ -5,31 +5,10 @@ import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { SCREENS, SearchQuery } from "./ActSetup";
 import { IosKeyboard } from "./IosKeyboard";
-import { EASE_OUT, Reveal, StickyScene, useHeldClock } from "./motion";
+import { EASE_OUT, Reveal, StickyScene, scrollToStep, useBeatClock } from "./motion";
 import { B, Body, Chapter, CountUp, PhoneFrame, SectionHeader, ThoughtBubble, wrap } from "./ui";
 
 // Act 2, Conflict: 04 User Problem · 05 Company's Problem (spec §5.4–5.5).
-
-// The query being typed, with its failure type above it.
-export function QueryCaption({
-  type,
-  query,
-  note,
-}: {
-  type: string;
-  query: string;
-  note?: string;
-}) {
-  return (
-    <>
-      {note && <p className="text-sm font-medium text-ink-muted">{note}</p>}
-      <p className="font-display text-xl font-semibold uppercase tracking-[0.12em] text-accent md:text-2xl">
-        {type}
-      </p>
-      <p className="font-mono text-2xl text-ink md:text-[1.75rem]">{query}</p>
-    </>
-  );
-}
 
 /* ------------------------------------------------------------------ */
 /* 04 User Problem                                                     */
@@ -118,6 +97,9 @@ const BEATS: Beat[] = (() => {
   });
 })();
 const FINISH_S = BEATS[BEATS.length - 1].start + BEATS[BEATS.length - 1].end;
+// One scroll step per try: where each starts and ends on the timeline.
+const STARTS = BEATS.map((b) => b.start);
+const ENDS = BEATS.map((b) => b.start + b.end);
 
 // Everything the scene shows at clock time `t` (seconds).
 type Frame = {
@@ -256,10 +238,135 @@ function TryScreen({ frame }: { frame: Frame }) {
   );
 }
 
-// Plays on its own once on screen, on one clock; scrolling while pinned
-// speeds it up (see useHeldClock).
-function FrustrationScene({ stage }: { stage: React.RefObject<HTMLDivElement | null> }) {
-  const { ref, frame } = useHeldClock({ stage, finish: FINISH_S, frameAt, same: sameFrame });
+// What the user is after, beside the phone in 04 and 07B.
+export function WantCard({ want }: { want: Want }) {
+  return (
+    <div className="flex items-center gap-4">
+      <div className="relative size-20 shrink-0 overflow-hidden rounded-xl">
+        <AnimatePresence initial={false}>
+          <motion.img
+            key={want.src}
+            src={want.src}
+            alt={want.name}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute inset-0 size-full object-cover"
+          />
+        </AnimatePresence>
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
+          What users want
+        </p>
+        <p className="font-display text-lg font-medium text-ink">{want.name}</p>
+      </div>
+    </div>
+  );
+}
+
+// Text on the left, the phone and what goes with it on the right; the title
+// spans both. One layout for 04 and 07B so their phones line up. The text
+// and the side column start level with the top of the phone.
+export function PhoneSplit({
+  header,
+  copy,
+  phone,
+  side,
+}: {
+  header: React.ReactNode;
+  copy: React.ReactNode;
+  phone: React.ReactNode;
+  side: React.ReactNode;
+}) {
+  return (
+    <div className={cn(wrap, "flex flex-col gap-8 lg:gap-10")}>
+      {header}
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-14">
+        <div className="flex flex-col gap-8">{copy}</div>
+        <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:justify-center lg:gap-10">
+          {phone}
+          <div className="flex w-[18.5rem] flex-col items-start gap-6">{side}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// The four query types as fixed-size chips: type on top, its example under
+// it. The current one fills in; ones already played get a mark in the
+// corner (✅ in 07B, ❌ in 04), outside the text so no chip changes size.
+// Clicking one scrolls to it.
+const CHIP_TONE = {
+  fail: { color: "#dc2626", mark: "❌" },
+  pass: { color: "#16a34a", mark: "✅" },
+} as const;
+
+export function StepChips({
+  items,
+  step,
+  onPick,
+  tone,
+}: {
+  items: { type: string; query: string }[];
+  step: number;
+  onPick: (i: number) => void;
+  tone: keyof typeof CHIP_TONE;
+}) {
+  const { color, mark } = CHIP_TONE[tone];
+  return (
+    <ol aria-label="Four query types" className="grid grid-cols-2 gap-2.5">
+      {items.map((it, i) => {
+        const on = i === step;
+        return (
+          <li key={it.query} className="relative">
+            <button
+              type="button"
+              aria-current={on ? "step" : undefined}
+              onClick={() => onPick(i)}
+              style={{ "--tone": color } as React.CSSProperties}
+              className={cn(
+                "flex h-16 w-36 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border text-center transition-colors duration-300",
+                on
+                  ? "border-(--tone) bg-(--tone) text-paper"
+                  : "border-line bg-paper text-ink hover:border-(--tone)",
+              )}
+            >
+              <span className="font-display text-base font-semibold leading-tight">{it.type}</span>
+              <span className={cn("font-mono text-sm", on ? "text-paper/80" : "text-ink-muted")}>
+                {it.query}
+              </span>
+            </button>
+            {/* Marked once its search has played (the first from the start). */}
+            {i <= step && (
+              <motion.span
+                aria-hidden
+                className="pointer-events-none absolute -right-1.5 -top-2 text-base leading-none"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 420, damping: 18 }}
+              >
+                {mark}
+              </motion.span>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+// Each scroll step is one try: landing on it, from either direction, plays
+// it from the start (see useBeatClock).
+function FrustrationScene({ step: scrollStep, goTo }: { step: number; goTo: (i: number) => void }) {
+  const { ref, frame } = useBeatClock({
+    step: scrollStep,
+    starts: STARTS,
+    ends: ENDS,
+    frameAt,
+    same: sameFrame,
+  });
 
   const { step, result, off } = frame;
   const attempt = ATTEMPTS[step];
@@ -267,141 +374,107 @@ function FrustrationScene({ stage }: { stage: React.RefObject<HTMLDivElement | n
   // On the last try the bubble lands with the screen going dark.
   const bubble = last ? off : result;
   return (
-    <div
-      ref={ref}
-      className="grid w-full items-center gap-8 md:grid-cols-[1fr_272px_1fr] md:gap-10"
-    >
-      {/* What the user is after, the whole time. */}
-      <div className="flex flex-col items-center gap-3 text-center md:justify-self-end">
-        <p className="text-sm font-medium uppercase tracking-[0.15em] text-ink-muted">
-          What users want
-        </p>
-        <div className="relative size-40 overflow-hidden rounded-2xl md:size-44">
-          <AnimatePresence initial={false}>
-            <motion.img
-              key={attempt.want.src}
-              src={attempt.want.src}
-              alt={attempt.want.name}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="absolute inset-0 size-full object-cover"
-            />
-          </AnimatePresence>
-        </div>
-        <p className="font-display text-lg font-medium text-ink">{attempt.want.name}</p>
-      </div>
-
-      <div className="flex justify-center">
-        <PhoneFrame>
-          {/* The screen behind the app, once it switches off. */}
-          <div aria-hidden className="absolute inset-0 bg-black" />
-          <motion.div
-            key={step}
-            className="absolute inset-0 origin-center overflow-hidden bg-paper"
-            initial={false}
-            animate={
-              off
-                ? {
-                    scaleY: [1, 0.006, 0.006, 0.006],
-                    scaleX: [1, 1, 0.02, 0.02],
-                    filter: ["brightness(1)", "brightness(3)", "brightness(4)", "brightness(4)"],
-                    opacity: [1, 1, 1, 0],
-                  }
-                : { scaleY: 1, scaleX: 1, filter: "brightness(1)", opacity: 1 }
-            }
-            transition={
-              off ? { duration: OFF_S, times: [0, 0.45, 0.8, 1], ease: "easeIn" } : { duration: 0 }
-            }
-          >
-            <TryScreen key={step} frame={frame} />
-          </motion.div>
-        </PhoneFrame>
-      </div>
-
-      {/* The try: its number holds still, the rest swaps per step. */}
-      <div className="flex min-h-56 flex-col items-center gap-3 md:items-start">
-        <p className="text-sm font-medium text-ink-muted">
-          {step + 1} / {ATTEMPTS.length}
-        </p>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={attempt.query}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12, transition: { duration: 0.2 } }}
-            transition={{ duration: 0.35, ease: EASE_OUT }}
-            className="flex flex-col items-center gap-3 md:items-start"
-          >
-            <QueryCaption type={attempt.type} query={attempt.query} />
+    <div ref={ref} className="w-full">
+      <PhoneSplit
+        header={<UserProblemHeader />}
+        copy={<UserProblemBody />}
+        phone={
+          <PhoneFrame>
+            {/* The screen behind the app, once it switches off. */}
+            <div aria-hidden className="absolute inset-0 bg-black" />
             <motion.div
-              initial={{ opacity: 0, x: -10, scale: 0.96 }}
+              key={step}
+              className="absolute inset-0 origin-center overflow-hidden bg-paper"
+              initial={false}
               animate={
-                bubble ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -10, scale: 0.96 }
+                off
+                  ? {
+                      scaleY: [1, 0.006, 0.006, 0.006],
+                      scaleX: [1, 1, 0.02, 0.02],
+                      filter: ["brightness(1)", "brightness(3)", "brightness(4)", "brightness(4)"],
+                      opacity: [1, 1, 1, 0],
+                    }
+                  : { scaleY: 1, scaleX: 1, filter: "brightness(1)", opacity: 1 }
               }
-              transition={{
-                duration: 0.4,
-                ease: EASE_OUT,
-                delay: last ? 0 : 0.2,
-              }}
-              className="mt-4"
+              transition={
+                off
+                  ? { duration: OFF_S, times: [0, 0.45, 0.8, 1], ease: "easeIn" }
+                  : { duration: 0 }
+              }
             >
-              <ThoughtBubble emoji={attempt.emoji} text={attempt.bubble} />
+              <TryScreen key={step} frame={frame} />
             </motion.div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+          </PhoneFrame>
+        }
+        side={
+          <>
+            <WantCard want={attempt.want} />
+            <StepChips items={ATTEMPTS} step={step} onPick={goTo} tone="fail" />
+            <div className="min-h-24">
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, x: -10, scale: 0.96 }}
+                animate={
+                  bubble ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -10, scale: 0.96 }
+                }
+                transition={{ duration: 0.4, ease: EASE_OUT, delay: last ? 0 : 0.2 }}
+              >
+                <ThoughtBubble emoji={attempt.emoji} text={attempt.bubble} />
+              </motion.div>
+            </div>
+          </>
+        }
+      />
     </div>
   );
 }
 
-function UserProblemCopy() {
+function UserProblemHeader() {
+  return <SectionHeader label="04 USER PROBLEM" headline="Users Were Punished for Tiny Mistakes" />;
+}
+
+function UserProblemBody({ className }: { className?: string }) {
   return (
-    <div className="flex flex-col gap-6">
-      <SectionHeader label="04 USER PROBLEM" headline="Users Were Punished for Tiny Mistakes" />
-      {/* Wide enough for one sentence per line. */}
-      <Body className="max-w-[48rem]">
-        <span className="block">The old search engine only accepted exact matches.</span>
-        <span className="block">
-          A typo, an extra space, or a different word for the same thing meant <B>an empty page</B>.
-        </span>
-        <span className="block">
-          Users were left with <B>a frustrating search experience</B>: guess the “right” spelling,
-          try again, or simply leave.
-        </span>
-      </Body>
-    </div>
+    <Body className={className}>
+      <span className="block">The old search engine only accepted exact matches.</span>
+      <span className="block">
+        A typo, an extra space, or a different word for the same thing meant <B>an empty page</B>.
+      </span>
+      <span className="block">
+        Users were left with <B>a frustrating search experience</B>: guess the “right” spelling, try
+        again, or simply leave.
+      </span>
+    </Body>
   );
 }
 
-// The copy is pinned with the phone, so the title and body stay on screen
-// while the tries play. The pin is short (the scene's 140vh is one viewport
-// plus 40vh of scroll): the scene holds the page until it finishes, rather
-// than spreading the tries over scroll length.
+// One scroll step per try, so the reader sets the pace: scrolling down plays
+// the next try, scrolling up plays the one before again.
 function FrustrationStage() {
   const stage = useRef<HTMLDivElement>(null);
+  // The StickyScene is the stage's only child.
+  const goTo = (i: number) => {
+    const scene = stage.current?.firstElementChild;
+    if (scene instanceof HTMLElement) scrollToStep(scene, i, ATTEMPTS.length);
+  };
   return (
     <div ref={stage}>
       <StickyScene
-        steps={1}
-        vh={130}
+        steps={ATTEMPTS.length}
+        vh={100}
         still={() => (
           <div className="flex flex-col gap-10">
-            <div className={wrap}>
-              <UserProblemCopy />
+            <div className={cn(wrap, "flex flex-col gap-6")}>
+              <UserProblemHeader />
+              {/* Wide enough for one sentence per line. */}
+              <UserProblemBody className="max-w-[48rem]" />
             </div>
             <FrustrationList />
           </div>
         )}
         label="One user, four searches, no results"
       >
-        {() => (
-          <div className={cn(wrap, "flex flex-col gap-8")}>
-            <UserProblemCopy />
-            <FrustrationScene stage={stage} />
-          </div>
-        )}
+        {({ step }) => <FrustrationScene step={step} goTo={goTo} />}
       </StickyScene>
     </div>
   );

@@ -26,15 +26,15 @@ describe("AiSearchCaseStudy", () => {
     );
   });
 
-  it("lists the four query types in the demo, type above its example", () => {
+  it("lists the four query types in 04 and 07B, type above its example", () => {
     render(<AiSearchCaseStudy />);
 
-    const types = screen.getAllByRole("list", { name: "Four query types" })[0];
-    expect([...types.querySelectorAll("li")].map((c) => c.textContent)).toEqual([
-      "✅\u00a0Misspellingcabage",
-      "Spacingca bbage",
-      "Synonymcole",
-      "Foreign wordhalapeno",
+    // 04 marks played tries with ❌, 07B with ✅; the first is played from the start.
+    const lists = screen.getAllByRole("list", { name: "Four query types" });
+    const chips = (list: HTMLElement) => [...list.querySelectorAll("li")].map((c) => c.textContent);
+    expect(lists.map(chips)).toEqual([
+      ["Misspellingcabage❌", "Spacingca bbage", "Synonymcole", "Foreign wordhalapeno"],
+      ["Misspellingcabage✅", "Spacingca bbage", "Synonymcole", "Foreign wordhalapeno"],
     ]);
   });
 
