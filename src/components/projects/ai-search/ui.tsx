@@ -77,6 +77,11 @@ export function B({ children }: { children: React.ReactNode }) {
   return <strong className="font-semibold text-ink">{children}</strong>;
 }
 
+// The turn in a headline (“But…”, “without…”): black, bold, italic.
+export function Em({ children }: { children: React.ReactNode }) {
+  return <em className="font-bold italic text-ink">{children}</em>;
+}
+
 /* ------------------------------------------------------------------ */
 /* Assets                                                              */
 /* ------------------------------------------------------------------ */

@@ -593,11 +593,7 @@ const CONTEXT_BEATS = [
     ),
   },
   {
-    headline: (
-      <>
-        <span className="text-alert">But</span> 6.8% of Searches Ended in “No&nbsp;Result” Every Day
-      </>
-    ),
+    headline: <>But 6.8% of Searches Ended in “No&nbsp;Result” Every Day</>,
     body: (
       <>
         Each “No Result” left a shopper who was ready to buy with two choices:{" "}

@@ -684,7 +684,7 @@ function Hourglass({ stuck, live }: { stuck: boolean; live: boolean }) {
       viewBox="34 6 192 328"
       role="img"
       aria-label="An hourglass: small manual keyword fixes drip through the neck one at a time, while the search engine rebuild sits stuck on top, too big to pass."
-      className="w-[150px] shrink-0"
+      className="w-[190px] shrink-0 md:w-[230px]"
     >
       <g className="fill-none stroke-accent" strokeWidth="1" strokeLinecap="round">
         <path
@@ -764,19 +764,34 @@ export function CompanyProblem() {
               headline="Small Fixes Kept the Big Fix Waiting"
             />
             <div className="grid items-center gap-10 md:grid-cols-[1fr_auto] md:gap-16">
-              <Body className="max-w-[44rem]">
+              {/* Narrow enough that "…the search engine rebuild," ends the line. */}
+              <Body className="max-w-[33rem]">
                 <span className="block">
                   When a search found nothing or the wrong products, merchandisers and marketers
-                  asked the search engineers to fix it.
+                  asked the search engineers to fix it. Each fix was <B>a manual keyword update</B>,
+                  one request at a time.
                 </span>
-                <span className="block">
-                  Each fix was <B>a manual keyword update</B>, one request at a time.
-                </span>
+                <motion.span
+                  aria-hidden
+                  className="my-4 flex justify-center text-accent"
+                  initial={false}
+                  animate={!live || step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: -8 }}
+                  transition={{ duration: 0.4, ease: EASE_OUT }}
+                >
+                  <svg viewBox="0 0 16 40" className="h-10 w-4" fill="none" stroke="currentColor">
+                    <path
+                      d="M8 2V37M2 31l6 6 6-6"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </motion.span>
                 <motion.span
                   className="block"
                   initial={false}
                   animate={!live || step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-                  transition={{ duration: 0.5, ease: EASE_OUT }}
+                  transition={{ duration: 0.5, ease: EASE_OUT, delay: !live ? 0 : 0.25 }}
                 >
                   With the team buried in small fixes, <B>the search engine rebuild</B>, the work
                   that mattered most, kept getting pushed back.
@@ -792,8 +807,8 @@ export function CompanyProblem() {
 
       <div className={cn(wrap, "pb-28 pt-12 md:pb-36")}>
         <Reveal>
-          <p className="font-display font-medium tracking-tight text-[1.4rem] leading-snug text-ink md:text-[1.75rem]">
-            We couldn’t wait for a new engine. So I asked a different question. ↓
+          <p className="font-display font-medium tracking-tight text-center text-[1.4rem] leading-snug text-ink md:text-[1.75rem]">
+            So I asked a different question. ↓
           </p>
         </Reveal>
       </div>
