@@ -7,12 +7,19 @@ import { CABBAGE, JALAPENO, RecentScreen, historyAt, type Want } from "./ActConf
 import { SCREENS, SearchQuery } from "./ActSetup";
 import { IosKeyboard } from "./IosKeyboard";
 import { EASE_OUT, StickyScene, useHeldClock } from "./motion";
-import { PhoneFrame, ThoughtBubble, wrap } from "./ui";
+import { Body, PhoneFrame, SectionHeader, ThoughtBubble, wrap } from "./ui";
 
 // 07B: the same four searches that failed in 04, on the same screens, now
 // finding products. Plays on its own like 04; scrolling speeds it up.
 
-type Product = { src: string; name: string; was: string; off: string; price: string };
+type Product = {
+  src: string;
+  name?: string;
+  blurb?: string;
+  was?: string;
+  off?: string;
+  price?: string;
+};
 
 type Find = {
   type: string;
@@ -23,14 +30,30 @@ type Find = {
   // Coded result cards over after.webp. Left out: after.webp's own cabbage
   // results show as they are.
   products?: Product[];
-  // Shown until the real result screen is in.
-  standIn?: boolean;
 };
 
-// TODO(user): real jalapeño results (product photos, names, prices).
-const JALAPENO_STAND_IN: Product[] = [
-  { src: JALAPENO.src, name: "Jalapeño", was: "₩0,000", off: "0%", price: "₩0,000" },
-  { src: JALAPENO.src, name: "Jalapeño", was: "₩0,000", off: "0%", price: "₩0,000" },
+// Kurly's real halapeno results. The second row only peeks out above the
+// tab bar, so it needs no text.
+const RESULTS = "/images/ai-search/results";
+const JALAPENO_RESULTS: Product[] = [
+  {
+    src: `${RESULTS}/jalapeno-melis.webp`,
+    name: "[Melis] Jalapeño 3 types (select 1)",
+    blurb: "A pleasantly spicy and charming taste",
+    was: "₩4,780",
+    off: "52%",
+    price: "₩2,270~",
+  },
+  {
+    src: `${RESULTS}/jalapeno-la-costena.webp`,
+    name: "[La Costeña] Jalapeño Pepper Slices",
+    blurb: "A mouth-watering foreign spicy taste",
+    was: "₩6,580",
+    off: "45%",
+    price: "₩3,580",
+  },
+  { src: `${RESULTS}/jalapeno-prebe.webp` },
+  { src: `${RESULTS}/jalapeno-bowl.webp` },
 ];
 
 const FINDS: Find[] = [
@@ -61,8 +84,7 @@ const FINDS: Find[] = [
     want: JALAPENO,
     emoji: "🤩",
     bubble: "Finally!",
-    products: JALAPENO_STAND_IN,
-    standIn: true,
+    products: JALAPENO_RESULTS,
   },
 ];
 
@@ -123,6 +145,8 @@ const sameFrame = (a: Frame, b: Frame) =>
 // Screen px (590 wide), read off after.webp.
 const c = (px: number) => `${(px / 590) * 100}cqw`;
 const CARD_X = [24, 300];
+// Top of the second row of cards, under the first row's text.
+const ROW_2 = 640;
 
 function CartIcon() {
   return (
@@ -149,14 +173,14 @@ function ProductCards({ products }: { products: Product[] }) {
   return (
     <div
       aria-hidden
-      className="absolute inset-x-0 bg-white"
+      className="absolute inset-x-0 overflow-hidden bg-white"
       style={{ top: c(292), height: c(1150 - 292) }}
     >
-      {products.slice(0, 2).map((p, i) => (
+      {products.slice(0, 4).map((p, i) => (
         <div
           key={i}
           className="absolute flex flex-col text-[#333]"
-          style={{ left: c(CARD_X[i]), top: c(6), width: c(266) }}
+          style={{ left: c(CARD_X[i % 2]), top: c(i < 2 ? 6 : ROW_2), width: c(266) }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
           <img
@@ -178,19 +202,29 @@ function ProductCards({ products }: { products: Product[] }) {
             <CartIcon />
             Add to Cart
           </span>
-          <span className="text-[#a6a6a6]" style={{ marginTop: c(14), fontSize: c(17) }}>
-            Early-morning delivery
-          </span>
-          <span style={{ marginTop: c(4), fontSize: c(21), lineHeight: c(28) }}>{p.name}</span>
-          <span
-            className="text-[#b5b5b5] line-through"
-            style={{ marginTop: c(6), fontSize: c(17) }}
-          >
-            {p.was}
-          </span>
-          <span className="font-bold" style={{ fontSize: c(22) }}>
-            <span className="text-[#fa622f]">{p.off}</span> {p.price}
-          </span>
+          {p.name && (
+            <>
+              <span className="text-[#a6a6a6]" style={{ marginTop: c(14), fontSize: c(17) }}>
+                Next-morning delivery
+              </span>
+              <span style={{ marginTop: c(4), fontSize: c(21), lineHeight: c(28) }}>{p.name}</span>
+              <span
+                className="text-[#a6a6a6]"
+                style={{ marginTop: c(4), fontSize: c(17), lineHeight: c(23) }}
+              >
+                {p.blurb}
+              </span>
+              <span
+                className="text-[#b5b5b5] line-through"
+                style={{ marginTop: c(6), fontSize: c(17) }}
+              >
+                {p.was}
+              </span>
+              <span className="font-bold" style={{ fontSize: c(22) }}>
+                <span className="text-[#fa622f]">{p.off}</span> {p.price}
+              </span>
+            </>
+          )}
         </div>
       ))}
     </div>
@@ -223,11 +257,6 @@ function FindScreen({ frame }: { frame: Frame }) {
             {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
             <img src={`${SCREENS}/after.webp`} alt="" className="absolute inset-0 size-full" />
             {shown.products && <ProductCards products={shown.products} />}
-            {shown.standIn && (
-              <span className="absolute bottom-[14%] left-2 rounded bg-ink/70 px-1.5 py-0.5 font-mono text-[9px] text-paper">
-                placeholder · halapeno results
-              </span>
-            )}
           </motion.div>
         )}
         <motion.div
@@ -256,27 +285,32 @@ function FindScreen({ frame }: { frame: Frame }) {
 }
 
 // The four query types, type on top and its example under it. They track
-// the scene rather than take clicks.
-function FindChips({ step }: { step?: number }) {
+// the scene; clicking one plays that search.
+function FindChips({ step, onPick }: { step: number; onPick: (i: number) => void }) {
   return (
     <ol aria-label="Four query types" className="flex flex-wrap justify-center gap-2 md:gap-3">
       {FINDS.map((f, i) => {
         const on = i === step;
         return (
-          <li
-            key={f.query}
-            aria-current={on ? "step" : undefined}
-            className={cn(
-              "flex min-w-36 flex-col items-start gap-1 rounded-xl border px-4 py-2.5 transition-colors duration-300",
-              on ? "border-accent bg-accent text-paper" : "border-line bg-paper text-ink",
-            )}
-          >
-            <span className="font-display text-base font-semibold leading-tight md:text-lg">
-              {f.type}
-            </span>
-            <span className={cn("font-mono text-sm", on ? "text-paper/75" : "text-ink-muted")}>
-              {f.query}
-            </span>
+          <li key={f.query}>
+            <button
+              type="button"
+              aria-current={on ? "step" : undefined}
+              onClick={() => onPick(i)}
+              className={cn(
+                "flex min-w-36 cursor-pointer flex-col items-center gap-1 rounded-xl border px-4 py-2.5 text-center transition-colors duration-300",
+                on
+                  ? "border-accent bg-accent text-paper"
+                  : "border-line bg-paper text-ink hover:border-accent",
+              )}
+            >
+              <span className="font-display text-base font-semibold leading-tight md:text-lg">
+                {f.type}
+              </span>
+              <span className={cn("font-mono text-sm", on ? "text-paper/75" : "text-ink-muted")}>
+                {f.query}
+              </span>
+            </button>
           </li>
         );
       })}
@@ -285,11 +319,16 @@ function FindChips({ step }: { step?: number }) {
 }
 
 function FindScene({ stage }: { stage: React.RefObject<HTMLDivElement | null> }) {
-  const { ref, frame } = useHeldClock({ stage, finish: FINISH_S, frameAt, same: sameFrame });
+  const { ref, frame, seek } = useHeldClock({
+    stage,
+    finish: FINISH_S,
+    frameAt,
+    same: sameFrame,
+  });
   const find = FINDS[frame.step];
   return (
     <div ref={ref} className="flex w-full flex-col gap-10">
-      <FindChips step={frame.step} />
+      <FindChips step={frame.step} onPick={(i) => seek(BEATS[i].start)} />
       <div className="grid w-full items-center gap-8 md:grid-cols-[1fr_272px_1fr] md:gap-10">
         {/* What the user is after, as in 04. */}
         <div className="flex flex-col items-center gap-3 text-center md:justify-self-end">
@@ -313,7 +352,18 @@ function FindScene({ stage }: { stage: React.RefObject<HTMLDivElement | null> })
           <p className="font-display text-lg font-medium text-ink">{find.want.name}</p>
         </div>
 
-        <div className="flex justify-center">
+        <div className="relative flex justify-center">
+          {/* The hero's After glow, each time results come in. */}
+          {frame.result && (
+            <motion.div
+              key={`glow-${frame.step}`}
+              aria-hidden
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 1.4, times: [0, 0.35, 1] }}
+              className="pointer-events-none absolute -inset-4 rounded-[3rem] bg-[linear-gradient(90deg,rgba(176,114,255,0.75),rgba(91,225,255,0.75))] blur-[20px]"
+            />
+          )}
           <PhoneFrame>
             <FindScreen key={frame.step} frame={frame} />
           </PhoneFrame>
@@ -358,20 +408,40 @@ function FindList() {
   );
 }
 
-// Pulled up under the copy like 04's scene: the pinned block (chips + phone,
-// ~680px) is centred in the viewport, which otherwise leaves a tall gap.
+function TryItCopy() {
+  return (
+    <div className="flex flex-col gap-5">
+      <SectionHeader as="h3" headline="Test Results: Same Typos, Products Found" />
+      <Body>
+        Qualitative checks showed clearly better results for all four query types. That was enough
+        to ask for a full A/B test.
+      </Body>
+    </div>
+  );
+}
+
+// The copy is pinned with the chips and phone, so the title and body stay on
+// screen while the searches play.
 export function TryItStage() {
   const stage = useRef<HTMLDivElement>(null);
   return (
-    <div ref={stage} className="md:motion-safe:-mt-[max(0px,calc((100svh-680px)/2-3rem))]">
+    <div ref={stage} id="try-it" className="pt-16 md:pt-24">
       <StickyScene
         steps={1}
         vh={130}
-        still={() => <FindList />}
+        still={() => (
+          <div className="flex flex-col gap-10">
+            <div className={wrap}>
+              <TryItCopy />
+            </div>
+            <FindList />
+          </div>
+        )}
         label="The same four searches, now finding products"
       >
         {() => (
-          <div className={wrap}>
+          <div className={cn(wrap, "flex flex-col gap-6")}>
+            <TryItCopy />
             <FindScene stage={stage} />
           </div>
         )}

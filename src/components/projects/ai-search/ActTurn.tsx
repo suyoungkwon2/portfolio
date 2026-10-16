@@ -119,7 +119,7 @@ function Kpis({ animate }: { animate: boolean }) {
             className="flex flex-col gap-4"
           >
             <p className="border-b border-line pb-3 text-base text-ink-muted md:text-lg">{group}</p>
-            <ul className="flex flex-col gap-2 text-lg text-ink md:text-xl">
+            <ul className="flex flex-col gap-2 text-base leading-relaxed text-ink md:text-lg">
               {metrics.map(([abbr, name]) => (
                 <li key={name} className="grid grid-cols-[6rem_1fr] gap-4">
                   <span className="font-semibold">{abbr}</span>
@@ -705,16 +705,6 @@ export function PocApproach() {
         )}
       </StickyScene>
 
-      <div
-        id="try-it"
-        className={cn(wrap, "flex flex-col items-center gap-5 pt-28 text-center md:pt-40")}
-      >
-        <SectionHeader as="h3" headline="Test Results: Same Typos, Products Found" />
-        <Body className="text-center">
-          Qualitative checks showed clearly better results for all four query types. That was enough
-          to ask for a full A/B test.
-        </Body>
-      </div>
       <TryItStage />
       <div className="pb-16 md:pb-24" />
     </Chapter>

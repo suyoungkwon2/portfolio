@@ -9,7 +9,7 @@ import {
   useScroll,
   type MotionValue,
 } from "framer-motion";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 
 // Motion plumbing for the AI Search case study (spec §2.2–2.3).
@@ -150,15 +150,18 @@ export function useTypewriter(
   return { typed: text.slice(0, count), done: count >= text.length };
 }
 
-// Scrolling down while a held scene is pinned plays it this much faster.
+// Scrolling while a held scene is pinned plays it this much faster: down
+// runs it forward, up runs it back.
 const FAST_RATE = 4;
 const FAST_WINDOW_MS = 250;
 
 // One clock for a scene that plays on its own once on screen (`ref`). While
-// `stage` is pinned and the clock hasn't reached `finish`, scrolling down
-// doesn't leave: it runs the clock faster instead, then the page scrolls on.
-// `frameAt` turns clock seconds into what the scene shows; `same` keeps
-// React from re-rendering every frame when nothing visible changed.
+// `stage` is pinned, scrolling down doesn't leave until the clock reaches
+// `finish`: it runs the clock faster instead. Scrolling up rewinds it the
+// same way back to the start, so the scene can be watched again. `seek`
+// jumps the clock. `frameAt` turns clock seconds into what the scene shows;
+// `same` keeps React from re-rendering every frame when nothing visible
+// changed.
 export function useHeldClock<F>({
   stage,
   finish,
@@ -175,40 +178,62 @@ export function useHeldClock<F>({
   const [frame, setFrame] = useState(() => frameAt(0));
   const clock = useRef(0);
   const lastPush = useRef(-Infinity);
+  const lastPull = useRef(-Infinity);
 
   useAnimationFrame((time, delta) => {
-    if (!seen || clock.current >= finish) return;
-    const fast = time - lastPush.current < FAST_WINDOW_MS;
-    clock.current = Math.min(finish, clock.current + (delta / 1000) * (fast ? FAST_RATE : 1));
+    if (!seen) return;
+    const s = delta / 1000;
+    const pulling = time - lastPull.current < FAST_WINDOW_MS;
+    if (pulling) {
+      if (clock.current <= 0) return;
+      clock.current = Math.max(0, clock.current - s * FAST_RATE);
+    } else {
+      if (clock.current >= finish) return;
+      const fast = time - lastPush.current < FAST_WINDOW_MS;
+      clock.current = Math.min(finish, clock.current + s * (fast ? FAST_RATE : 1));
+    }
     const next = frameAt(clock.current);
     setFrame((f) => (same(f, next) ? f : next));
   });
 
+  const seek = useCallback(
+    (t: number) => {
+      clock.current = Math.min(finish, Math.max(0, t));
+      lastPull.current = -Infinity;
+      setFrame(frameAt(clock.current));
+    },
+    [finish, frameAt],
+  );
+
   useEffect(() => {
-    const held = () => {
+    const pinned = () => {
       const el = stage.current;
-      if (!el || clock.current >= finish) return false;
+      if (!el) return false;
       const top = window.matchMedia("(min-width: 1024px)").matches ? 0 : 56;
       const r = el.getBoundingClientRect();
       return r.top <= top + 1 && r.bottom >= window.innerHeight - 1;
     };
-    const push = (e: Event) => {
-      if (!held()) return;
+    const go = (e: Event, down: boolean) => {
+      if (!pinned()) return;
+      if (down ? clock.current >= finish : clock.current <= 0) return;
       e.preventDefault();
-      lastPush.current = performance.now();
+      if (down) lastPush.current = performance.now();
+      else lastPull.current = performance.now();
     };
     const onWheel = (e: WheelEvent) => {
-      if (e.deltaY > 0) push(e);
+      if (e.deltaY !== 0) go(e, e.deltaY > 0);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (["ArrowDown", "PageDown", "End", " "].includes(e.key)) push(e);
+      if (["ArrowDown", "PageDown", " "].includes(e.key)) go(e, true);
+      else if (["ArrowUp", "PageUp"].includes(e.key)) go(e, false);
     };
     let touchY = 0;
     const onTouchStart = (e: TouchEvent) => {
       touchY = e.touches[0].clientY;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (e.touches[0].clientY < touchY) push(e);
+      const y = e.touches[0].clientY;
+      if (y !== touchY) go(e, y < touchY);
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKey);
@@ -222,5 +247,5 @@ export function useHeldClock<F>({
     };
   }, [stage, finish]);
 
-  return { ref, frame };
+  return { ref, frame, seek };
 }

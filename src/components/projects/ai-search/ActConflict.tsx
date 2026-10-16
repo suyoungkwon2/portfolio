@@ -92,7 +92,8 @@ const ATTEMPTS: Attempt[] = [
 const KEY_S = 0.11;
 const KEY_DOWN_S = 0.09;
 const HOLD_S = 1.6;
-const OFF_AFTER_S = 0.6;
+// The last no-result screen holds long enough to read before it goes dark.
+const OFF_AFTER_S = 2.1;
 const OFF_S = 0.6;
 
 type Beat = {
@@ -355,23 +356,49 @@ function FrustrationScene({ stage }: { stage: React.RefObject<HTMLDivElement | n
   );
 }
 
-// Pulled up under the copy: the pinned phone (~574px) is centred in the
-// viewport, which otherwise leaves a tall gap above it on arrival. Leaves 3rem
-// of that gap, and none is taken on short screens. The pin is short (the
-// scene's 140vh is one viewport plus 40vh of scroll): the scene holds the page
-// until it finishes, rather than spreading the tries over scroll length.
+function UserProblemCopy() {
+  return (
+    <div className="flex flex-col gap-6">
+      <SectionHeader label="04 USER PROBLEM" headline="Users Were Punished for Tiny Mistakes" />
+      {/* Wide enough for one sentence per line. */}
+      <Body className="max-w-[48rem]">
+        <span className="block">The old search engine only accepted exact matches.</span>
+        <span className="block">
+          A typo, an extra space, or a different word for the same thing meant <B>an empty page</B>.
+        </span>
+        <span className="block">
+          Users were left with <B>a frustrating search experience</B>: guess the “right” spelling,
+          try again, or simply leave.
+        </span>
+      </Body>
+    </div>
+  );
+}
+
+// The copy is pinned with the phone, so the title and body stay on screen
+// while the tries play. The pin is short (the scene's 140vh is one viewport
+// plus 40vh of scroll): the scene holds the page until it finishes, rather
+// than spreading the tries over scroll length.
 function FrustrationStage() {
   const stage = useRef<HTMLDivElement>(null);
   return (
-    <div ref={stage} className="md:motion-safe:-mt-[max(0px,calc((100svh-574px)/2-3rem))]">
+    <div ref={stage}>
       <StickyScene
         steps={1}
         vh={130}
-        still={() => <FrustrationList />}
+        still={() => (
+          <div className="flex flex-col gap-10">
+            <div className={wrap}>
+              <UserProblemCopy />
+            </div>
+            <FrustrationList />
+          </div>
+        )}
         label="One user, four searches, no results"
       >
         {() => (
-          <div className={wrap}>
+          <div className={cn(wrap, "flex flex-col gap-8")}>
+            <UserProblemCopy />
             <FrustrationScene stage={stage} />
           </div>
         )}
@@ -534,22 +561,6 @@ export function UserProblem() {
           </div>
         )}
       </StickyScene>
-
-      <div className={cn(wrap, "flex flex-col gap-6")}>
-        <SectionHeader label="04 USER PROBLEM" headline="Users Were Punished for Tiny Mistakes" />
-        {/* Wide enough for one sentence per line. */}
-        <Body className="max-w-[48rem]">
-          <span className="block">The old search engine only accepted exact matches.</span>
-          <span className="block">
-            A typo, an extra space, or a different word for the same thing meant{" "}
-            <B>an empty page</B>.
-          </span>
-          <span className="block">
-            Users were left with <B>a frustrating search experience</B>: guess the “right” spelling,
-            try again, or simply leave.
-          </span>
-        </Body>
-      </div>
 
       <FrustrationStage />
 
