@@ -1,41 +1,14 @@
 "use client";
 
-import {
-  AnimatePresence,
-  motion,
-  useAnimationFrame,
-  useInView,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useInView, useTransform, type MotionValue } from "framer-motion";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { SCREENS, SearchQuery } from "./ActSetup";
 import { IosKeyboard } from "./IosKeyboard";
-import { EASE_OUT, Reveal, StickyScene } from "./motion";
+import { EASE_OUT, Reveal, StickyScene, useHeldClock } from "./motion";
 import { B, Body, Chapter, CountUp, PhoneFrame, SectionHeader, ThoughtBubble, wrap } from "./ui";
 
 // Act 2, Conflict: 04 User Problem · 05 Company's Problem (spec §5.4–5.5).
-
-// Shared by 04 (Before) and 07B (After) so the phone sits at exactly the
-// same size and place in both: caption left, phone centre, bubble right.
-export function PhoneStage({
-  caption,
-  phone,
-  bubble,
-}: {
-  caption: React.ReactNode;
-  phone: React.ReactNode;
-  bubble: React.ReactNode;
-}) {
-  return (
-    <div className="grid w-full items-center gap-8 md:grid-cols-[1fr_272px_1fr] md:gap-10">
-      <div className="flex flex-col items-center gap-3 md:items-end md:text-right">{caption}</div>
-      <div className="flex justify-center">{phone}</div>
-      <div className="flex min-h-24 justify-center md:justify-start">{bubble}</div>
-    </div>
-  );
-}
 
 // The query being typed, with its failure type above it.
 export function QueryCaption({
@@ -62,13 +35,13 @@ export function QueryCaption({
 /* 04 User Problem                                                     */
 /* ------------------------------------------------------------------ */
 
-type Want = { name: string; src: string };
+export type Want = { name: string; src: string };
 
-const CABBAGE: Want = {
+export const CABBAGE: Want = {
   name: "Cabbage",
   src: "/images/ai-search/want/cabbage.webp",
 };
-const JALAPENO: Want = {
+export const JALAPENO: Want = {
   name: "Jalapeño",
   src: "/images/ai-search/want/jalapeno.webp",
 };
@@ -91,7 +64,7 @@ const ATTEMPTS: Attempt[] = [
   },
   {
     type: "Spacing",
-    query: "ca bage",
+    query: "ca bbage",
     want: CABBAGE,
     emoji: "😕",
     bubble: "Maybe I typed it wrong…",
@@ -179,10 +152,6 @@ function frameAt(t: number): Frame {
 const sameFrame = (a: Frame, b: Frame) =>
   (Object.keys(a) as (keyof Frame)[]).every((k) => a[k] === b[k]);
 
-// Scrolling down while the scene is pinned plays it this much faster.
-const FAST_RATE = 4;
-const FAST_WINDOW_MS = 250;
-
 // The Recent Searches list baked into the Figma screen (recent.webp has it
 // blanked so the list can grow). Each failed try lands on top.
 const RECENT = [
@@ -197,19 +166,14 @@ const RECENT = [
   "Chicken breast",
   "Fresh blueberries",
 ];
-const historyAt = (step: number) =>
-  [
-    ...ATTEMPTS.slice(0, step)
-      .map((a) => a.query)
-      .reverse(),
-    ...RECENT,
-  ].slice(0, RECENT.length);
+export const historyAt = (tried: string[]) => [...[...tried].reverse(), ...RECENT];
 
 // Screen px (590 × 1280), read off the Figma export.
 const sx = (px: number) => `${(px / 590) * 100}%`;
 const sy = (px: number) => `${(px / 1280) * 100}%`;
 
-function RecentScreen({ step }: { step: number }) {
+// `grew`: the top item just arrived, so it slides in.
+export function RecentScreen({ items, grew }: { items: string[]; grew: boolean }) {
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
@@ -219,10 +183,10 @@ function RecentScreen({ step }: { step: number }) {
         className="absolute inset-x-0 overflow-hidden text-[3.7cqw] text-[#333]"
         style={{ top: sy(196), height: sy(66 * RECENT.length) }}
       >
-        {historyAt(step).map((q, i) => (
+        {items.slice(0, RECENT.length).map((q, i) => (
           <motion.li
             key={q}
-            initial={step > 0 && i === 0 ? { opacity: 0, height: 0 } : false}
+            initial={grew && i === 0 ? { opacity: 0, height: 0 } : false}
             animate={{ opacity: 1, height: "auto" }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
             className="overflow-hidden"
@@ -272,7 +236,10 @@ function TryScreen({ frame }: { frame: Frame }) {
           transition={{ duration: 0.2 }}
           className="absolute inset-0"
         >
-          <RecentScreen step={step} />
+          <RecentScreen
+            items={historyAt(ATTEMPTS.slice(0, step).map((a) => a.query))}
+            grew={step > 0}
+          />
         </motion.div>
         {query && <SearchQuery text={query} caret={searching} />}
       </div>
@@ -288,62 +255,10 @@ function TryScreen({ frame }: { frame: Frame }) {
   );
 }
 
-// Plays on its own once on screen, on one clock. While the scene is pinned and
-// the last try hasn't finished, scrolling down doesn't leave: it runs the
-// clock faster instead, then the page scrolls on as usual.
+// Plays on its own once on screen, on one clock; scrolling while pinned
+// speeds it up (see useHeldClock).
 function FrustrationScene({ stage }: { stage: React.RefObject<HTMLDivElement | null> }) {
-  // The scene mounts with the page; hold the first try until it's on screen.
-  const ref = useRef<HTMLDivElement>(null);
-  const seen = useInView(ref, { once: true, amount: 0.6 });
-  const [frame, setFrame] = useState(() => frameAt(0));
-  const clock = useRef(0);
-  const lastPush = useRef(-Infinity);
-
-  useAnimationFrame((time, delta) => {
-    if (!seen || clock.current >= FINISH_S) return;
-    const fast = time - lastPush.current < FAST_WINDOW_MS;
-    clock.current = Math.min(FINISH_S, clock.current + (delta / 1000) * (fast ? FAST_RATE : 1));
-    const next = frameAt(clock.current);
-    setFrame((f) => (sameFrame(f, next) ? f : next));
-  });
-
-  useEffect(() => {
-    const held = () => {
-      const el = stage.current;
-      if (!el || clock.current >= FINISH_S) return false;
-      const top = window.matchMedia("(min-width: 1024px)").matches ? 0 : 56;
-      const r = el.getBoundingClientRect();
-      return r.top <= top + 1 && r.bottom >= window.innerHeight - 1;
-    };
-    const push = (e: Event) => {
-      if (!held()) return;
-      e.preventDefault();
-      lastPush.current = performance.now();
-    };
-    const onWheel = (e: WheelEvent) => {
-      if (e.deltaY > 0) push(e);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (["ArrowDown", "PageDown", "End", " "].includes(e.key)) push(e);
-    };
-    let touchY = 0;
-    const onTouchStart = (e: TouchEvent) => {
-      touchY = e.touches[0].clientY;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches[0].clientY < touchY) push(e);
-    };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
-    };
-  }, [stage]);
+  const { ref, frame } = useHeldClock({ stage, finish: FINISH_S, frameAt, same: sameFrame });
 
   const { step, result, off } = frame;
   const attempt = ATTEMPTS[step];

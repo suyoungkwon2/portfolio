@@ -2,6 +2,8 @@
 
 import {
   motion,
+  useAnimationFrame,
+  useInView,
   useMotionValue,
   useMotionValueEvent,
   useScroll,
@@ -146,4 +148,79 @@ export function useTypewriter(
     return () => clearTimeout(timer);
   }, [text, speed, startDelay, instant]);
   return { typed: text.slice(0, count), done: count >= text.length };
+}
+
+// Scrolling down while a held scene is pinned plays it this much faster.
+const FAST_RATE = 4;
+const FAST_WINDOW_MS = 250;
+
+// One clock for a scene that plays on its own once on screen (`ref`). While
+// `stage` is pinned and the clock hasn't reached `finish`, scrolling down
+// doesn't leave: it runs the clock faster instead, then the page scrolls on.
+// `frameAt` turns clock seconds into what the scene shows; `same` keeps
+// React from re-rendering every frame when nothing visible changed.
+export function useHeldClock<F>({
+  stage,
+  finish,
+  frameAt,
+  same,
+}: {
+  stage: React.RefObject<HTMLDivElement | null>;
+  finish: number;
+  frameAt: (t: number) => F;
+  same: (a: F, b: F) => boolean;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const seen = useInView(ref, { once: true, amount: 0.6 });
+  const [frame, setFrame] = useState(() => frameAt(0));
+  const clock = useRef(0);
+  const lastPush = useRef(-Infinity);
+
+  useAnimationFrame((time, delta) => {
+    if (!seen || clock.current >= finish) return;
+    const fast = time - lastPush.current < FAST_WINDOW_MS;
+    clock.current = Math.min(finish, clock.current + (delta / 1000) * (fast ? FAST_RATE : 1));
+    const next = frameAt(clock.current);
+    setFrame((f) => (same(f, next) ? f : next));
+  });
+
+  useEffect(() => {
+    const held = () => {
+      const el = stage.current;
+      if (!el || clock.current >= finish) return false;
+      const top = window.matchMedia("(min-width: 1024px)").matches ? 0 : 56;
+      const r = el.getBoundingClientRect();
+      return r.top <= top + 1 && r.bottom >= window.innerHeight - 1;
+    };
+    const push = (e: Event) => {
+      if (!held()) return;
+      e.preventDefault();
+      lastPush.current = performance.now();
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY > 0) push(e);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (["ArrowDown", "PageDown", "End", " "].includes(e.key)) push(e);
+    };
+    let touchY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchY = e.touches[0].clientY;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches[0].clientY < touchY) push(e);
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [stage, finish]);
+
+  return { ref, frame };
 }

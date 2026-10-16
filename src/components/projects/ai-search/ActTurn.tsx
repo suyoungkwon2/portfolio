@@ -10,23 +10,9 @@ import {
 } from "framer-motion";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import type { AssetId } from "./assets";
-import { PhoneStage, QueryCaption } from "./ActConflict";
 import { EASE_OUT, StickyScene, useStill, useTypewriter } from "./motion";
-import { SearchSequence } from "./SearchSequence";
-import {
-  AssetMedia,
-  B,
-  Body,
-  Chapter,
-  Em,
-  PhoneFrame,
-  SectionHeader,
-  StandInTag,
-  ThoughtBubble,
-  useAsset,
-  wrap,
-} from "./ui";
+import { TryItStage } from "./TryItScene";
+import { B, Body, Chapter, Em, SectionHeader, wrap } from "./ui";
 
 // Act 3, Turn: 06 Define · 07 PoC Approach (spec §5.6–5.7). 07B is the
 // page's climax: the same typos from 04, in the same phone, now found.
@@ -597,150 +583,6 @@ function DataSourceShowdown({ animate }: { animate: boolean }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* 07B Try it yourself                                                 */
-/* ------------------------------------------------------------------ */
-
-type Demo = {
-  id: string;
-  label: string;
-  type: string;
-  video: AssetId;
-  emoji: string;
-  bubble: string;
-  // Stand-in result tiles until the recordings exist.
-  product: string;
-};
-
-// Spec §5.7 data. The contextual query isn't chosen yet, so its chip is
-// left out until it is (TODO in the spec).
-const DEMOS: Demo[] = [
-  {
-    id: "misspelling",
-    label: "cabage",
-    type: "Misspelling",
-    video: "demo-cabage",
-    emoji: "😊",
-    bubble: "There it is.",
-    product: "🥬",
-  },
-  {
-    id: "spacing",
-    label: "ca bbage",
-    type: "Spacing",
-    video: "demo-ca-bbage",
-    emoji: "😊",
-    bubble: "There it is.",
-    product: "🥬",
-  },
-  {
-    id: "synonym",
-    label: "lettuce",
-    type: "Synonym",
-    video: "demo-lettuce",
-    emoji: "😮",
-    bubble: "Oh, that’s what it’s called.",
-    product: "🥬",
-  },
-  {
-    id: "foreign",
-    label: "granma padano",
-    type: "Foreign word",
-    video: "demo-granma-padano",
-    emoji: "😮",
-    bubble: "Oh, that’s what it’s called.",
-    product: "🧀",
-  },
-  // { id: "contextual", label: "TODO", type: "Contextual", video: "demo-contextual", emoji: "😊", bubble: "There it is.", product: "" },
-];
-
-function DemoScreen({ demo }: { demo: Demo }) {
-  const has = !!useAsset(demo.video).src;
-  return (
-    <>
-      <AssetMedia
-        id={demo.video}
-        fallback={<SearchSequence query={demo.label} emoji={demo.product} recover />}
-      />
-      {!has && <StandInTag id={demo.video} className="bottom-3 left-3" />}
-    </>
-  );
-}
-
-// `QueryDemo` (▶ Interactive): pick a query, watch it fail for half a
-// second, then come back with AI results.
-function QueryDemo() {
-  const [selected, setSelected] = useState(DEMOS[0].id);
-  // Bumped on every press, so pressing the same chip replays it.
-  const [run, setRun] = useState(0);
-  const still = useStill();
-  const demo = DEMOS.find((d) => d.id === selected)!;
-  // Typing + half a second of No Result, then the bubble.
-  const bubbleDelay = still ? 0 : 0.25 + demo.label.length * 0.09 + 0.5 + 0.5;
-
-  return (
-    <div className="flex flex-col gap-10">
-      <div
-        role="group"
-        aria-label="Choose a search to try"
-        className="flex flex-wrap justify-center gap-2"
-      >
-        {DEMOS.map((d) => {
-          const on = d.id === selected;
-          return (
-            <button
-              key={d.id}
-              type="button"
-              aria-pressed={on}
-              onClick={() => {
-                setSelected(d.id);
-                setRun((r) => r + 1);
-              }}
-              className={cn(
-                "flex flex-col items-start rounded-xl border px-4 py-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-                on
-                  ? "border-accent bg-accent text-paper"
-                  : "border-line bg-paper text-ink hover:border-accent",
-              )}
-            >
-              <span className="font-mono text-sm">{d.label}</span>
-              <span
-                className={cn(
-                  "text-[10px] uppercase tracking-[0.15em]",
-                  on ? "text-paper/70" : "text-ink-muted",
-                )}
-              >
-                {d.type}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <PhoneStage
-        caption={<QueryCaption type={demo.type} query={demo.label} note="After" />}
-        phone={
-          <PhoneFrame>
-            <div key={`${selected}-${run}`} className="absolute inset-0" aria-live="polite">
-              <DemoScreen demo={demo} />
-            </div>
-          </PhoneFrame>
-        }
-        bubble={
-          <motion.div
-            key={`${selected}-${run}`}
-            initial={still ? false : { opacity: 0, x: -10, scale: 0.96 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.4, ease: EASE_OUT, delay: bubbleDelay }}
-          >
-            <ThoughtBubble emoji={demo.emoji} text={demo.bubble} />
-          </motion.div>
-        }
-      />
-    </div>
-  );
-}
-
 // Three calls, in the order they were made: how to prove it fast, which
 // model, which data.
 const PICKS = [
@@ -863,16 +705,18 @@ export function PocApproach() {
         )}
       </StickyScene>
 
-      <div id="try-it" className={cn(wrap, "flex flex-col gap-12 pb-28 pt-28 md:pb-36 md:pt-40")}>
-        <div className="flex flex-col items-center gap-5 text-center">
-          <SectionHeader as="h3" headline="Same Typos. This Time, Real Results." />
-          <Body className="text-center">
-            Qualitative checks showed clearly better results for all five query types. That was
-            enough to ask for a full A/B test.
-          </Body>
-        </div>
-        <QueryDemo />
+      <div
+        id="try-it"
+        className={cn(wrap, "flex flex-col items-center gap-5 pt-28 text-center md:pt-40")}
+      >
+        <SectionHeader as="h3" headline="Test Results: Same Typos, Products Found" />
+        <Body className="text-center">
+          Qualitative checks showed clearly better results for all four query types. That was enough
+          to ask for a full A/B test.
+        </Body>
       </div>
+      <TryItStage />
+      <div className="pb-16 md:pb-24" />
     </Chapter>
   );
 }

@@ -28,21 +28,20 @@ describe("AiSearchCaseStudy", () => {
     );
   });
 
-  it("lets the reader pick a query in the demo and a route in the flow diagram", () => {
+  it("lists the four query types in the demo, type above its example", () => {
     render(<AiSearchCaseStudy />);
 
-    const demo = screen.getByRole("group", { name: "Choose a search to try" });
-    const chips = [...demo.querySelectorAll("button")];
-    expect(chips.map((c) => c.textContent)).toEqual([
-      "cabageMisspelling",
-      "ca bbageSpacing",
-      "lettuceSynonym",
-      "granma padanoForeign word",
+    const types = screen.getAllByRole("list", { name: "Four query types" })[0];
+    expect([...types.querySelectorAll("li")].map((c) => c.textContent)).toEqual([
+      "Misspellingcabage",
+      "Spacingca bbage",
+      "Synonymcole",
+      "Foreign wordhalapeno",
     ]);
-    expect(chips[0]).toHaveAttribute("aria-pressed", "true");
-    fireEvent.click(chips[2]);
-    expect(chips[2]).toHaveAttribute("aria-pressed", "true");
-    expect(chips[0]).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("lets the reader pick a route in the flow diagram", () => {
+    render(<AiSearchCaseStudy />);
 
     const milk = screen.getByRole("button", { name: "milk" });
     fireEvent.click(milk);
