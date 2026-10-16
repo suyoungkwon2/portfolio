@@ -1,10 +1,11 @@
 "use client";
 
-import { AnimatePresence, motion, useInView } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, Reveal, StickyScene, useStill } from "./motion";
-import { AssetMedia, B, Body, Chapter, ProcessStrip, SectionHeader, wrap } from "./ui";
+import { EASE_OUT, StickyScene, useStill } from "./motion";
+import { SCREENS } from "./ActSetup";
+import { B, Body, Chapter, CountUp, PhoneFrame, SectionHeader, wrap } from "./ui";
 
 // Act 4, Proof: 08 Search Flow · 09 A/B Test (spec §5.8–5.9).
 
@@ -337,8 +338,8 @@ function FlowDiagram() {
       >
         <desc id="flow-desc">
           {route === "milk"
-            ? "“milk”: legacy search finds results, so the shopper sees the legacy results. AI is never called."
-            : "“cabage”: legacy search finds nothing. After the multi-section and blocklist checks, Vertex AI Search is called; it returns results, so the shopper sees the AI Search Result view."}
+            ? "“milk”: legacy search finds results, so the user sees the legacy results. AI is never called."
+            : "“cabage”: legacy search finds nothing. After the multi-section and blocklist checks, Vertex AI Search is called; it returns results, so the user sees the AI Search Result view."}
         </desc>
         <FlowDefs />
         <StageRail />
@@ -388,153 +389,263 @@ export function Architecture() {
 /* 09 A/B Test                                                         */
 /* ------------------------------------------------------------------ */
 
-const AB_ROWS = [
-  ["No-Result searches", "Click-Through Rate", "3.83%", "26.50%"],
-  ["No-Result searches", "No-Result Rate", "99.98%", "2.93%"],
-  ["All searches", "Click-Through Rate", "58.60%", "60.14%"],
-  ["All searches", "No-Result Rate", "6.80%", "0.22%"],
-];
+const AB_OVERVIEW = [
+  ["Objective", "Improve Kurly’s search performance with AI Search"],
+  [
+    "Hypothesis",
+    "Google AI Search will return meaningful results for “No Result” searches, lifting search conversion (CVR) and customer satisfaction",
+  ],
+  ["Target", "All customers (3.5M MAU), 50% Control : 50% Treatment"],
+  ["Duration", "2 weeks"],
+] as const;
 
-function BigCtr({ size = "lg" }: { size?: "lg" | "sm" }) {
+// Two scopes, the same two metrics in each. Control first, then Treatment.
+type AbMetric = { metric: string; control: number; treatment: number };
+const AB_GROUPS: { scope: string; note: string; rows: AbMetric[] }[] = [
+  {
+    scope: "No-Result searches",
+    note: "Searches the old engine found nothing for",
+    rows: [
+      { metric: "Click-Through Rate", control: 3.83, treatment: 26.5 },
+      { metric: "No-Result Rate", control: 99.98, treatment: 2.93 },
+    ],
+  },
+  {
+    scope: "All searches",
+    note: "Every search on Kurly",
+    rows: [
+      { metric: "Click-Through Rate", control: 58.6, treatment: 60.14 },
+      { metric: "No-Result Rate", control: 6.8, treatment: 0.22 },
+    ],
+  },
+];
+const AB_ROW_COUNT = AB_GROUPS.reduce((n, g) => n + g.rows.length, 0);
+const pct = (v: number) => `${v.toFixed(2)}%`;
+
+// One arm of the test: the screen its users saw for the same search.
+const ARMS = {
+  control: { name: "Control", note: "Legacy search", src: `${SCREENS}/before.webp` },
+  treatment: { name: "Treatment", note: "AI Search", src: `${SCREENS}/after.webp` },
+} as const;
+
+function ArmLabel({ arm }: { arm: keyof typeof ARMS }) {
+  const { name, note } = ARMS[arm];
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-        No-Result searches · Click-Through Rate
-      </p>
-      <p
+    <p className="flex flex-col items-center text-center">
+      <span
         className={cn(
-          "font-display font-medium tracking-tight leading-none",
-          size === "lg" ? "text-[2.75rem] md:text-[6rem]" : "text-[2.25rem] md:text-[3.25rem]",
+          "font-display text-base font-medium uppercase tracking-[0.2em]",
+          arm === "control" ? "text-ink-muted" : "text-accent",
         )}
       >
-        <span className="text-ink-muted/80">3.83%</span>
-        <span aria-hidden className="mx-3 text-ink-muted/40">
-          →
-        </span>
-        <span className="sr-only"> to </span>
-        <span className="text-accent">26.50%</span>
-      </p>
+        {name}
+      </span>
+      <span className="text-sm text-ink-muted">{note}</span>
+    </p>
+  );
+}
+
+function ArmScreen({ arm }: { arm: keyof typeof ARMS }) {
+  const control = arm === "control";
+  return (
+    <div className="flex justify-center">
+      <PhoneFrame muted={control}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+        <img
+          src={ARMS[arm].src}
+          alt={
+            control
+              ? "Control: searching “Cabage” shows “No products found.”"
+              : "Treatment: the same search shows cabbage results from AI Search."
+          }
+          className="w-full"
+        />
+      </PhoneFrame>
     </div>
   );
 }
 
-function AbTable() {
+function ArmPhone({ arm }: { arm: keyof typeof ARMS }) {
   return (
-    <table className="w-full max-w-[760px] border-collapse text-left text-[12px] md:text-sm">
-      <thead>
-        <tr className="border-b border-ink/20 text-ink-muted">
-          {["Scope", "Metric", "Control", "AI Search"].map((h, i) => (
-            <th key={h} scope="col" className={cn("py-3 pr-2 font-medium", i > 1 && "text-right")}>
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {AB_ROWS.map(([scope, metric, control, ai], i) => (
-          <tr key={i} className={cn("border-b border-line", i === 0 && "bg-accent/[0.05]")}>
-            <td className="py-3 pr-2 text-ink-muted">{scope}</td>
-            <td className="py-3 pr-2 text-ink">{metric}</td>
-            <td className="py-3 pr-2 text-right tabular-nums text-ink-muted">{control}</td>
-            <td className="py-3 text-right font-semibold tabular-nums text-accent">{ai}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="flex flex-col items-center gap-3">
+      <ArmLabel arm={arm} />
+      <ArmScreen arm={arm} />
+    </div>
   );
 }
 
-export function AbTest() {
-  // The gate reads "current" for a beat once in view, then turns done.
-  const endRef = useRef<HTMLDivElement>(null);
-  const seen = useInView(endRef, { once: true, amount: 1 });
-  const [decided, setDecided] = useState(false);
+// One metric: Control's value sits on the Control side, Treatment's on the
+// Treatment side. Control lands first; Treatment then slides over from it,
+// counting from Control's value to its own.
+function ResultRow({ row, on }: { row: AbMetric; on: boolean }) {
+  const still = useStill();
+  const [go, setGo] = useState(false);
   useEffect(() => {
-    if (!seen) return;
-    const timer = setTimeout(() => setDecided(true), 900);
+    const timer = setTimeout(() => setGo(on), on ? 450 : 0);
     return () => clearTimeout(timer);
-  }, [seen]);
+  }, [on]);
+  const played = (on && go) || still;
+  return (
+    <motion.div
+      initial={false}
+      animate={on ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+      transition={{ duration: 0.45, ease: EASE_OUT }}
+      className="flex flex-col gap-1.5"
+    >
+      <p className="text-center text-sm text-ink-muted">{row.metric}</p>
+      <p
+        className={cn(
+          "grid grid-cols-[1fr_auto_1fr] items-baseline gap-3 font-display font-medium leading-none tracking-tight tabular-nums",
+          "text-[1.75rem] md:text-[2.25rem]",
+        )}
+      >
+        <span className="text-left text-ink-muted/80">{pct(row.control)}</span>
+        <motion.span
+          aria-hidden
+          initial={false}
+          animate={played ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0 }}
+          transition={{ duration: 0.35, ease: EASE_OUT }}
+          className="origin-left text-[0.6em] text-ink-muted/50"
+        >
+          →
+        </motion.span>
+        <span className="sr-only"> to </span>
+        <motion.span
+          initial={false}
+          animate={played ? { opacity: 1, x: 0 } : { opacity: 0, x: -48 }}
+          transition={{ duration: 0.6, ease: EASE_OUT }}
+          className="text-right text-accent"
+        >
+          <CountUp
+            from={row.control}
+            to={{ value: row.treatment, decimals: 2, suffix: "%" }}
+            play={played}
+          />
+        </motion.span>
+      </p>
+    </motion.div>
+  );
+}
 
+// The two scopes as labelled groups; rows come in one per scroll step.
+function ResultRows({ shown }: { shown: number }) {
+  let index = 0;
+  return (
+    <div aria-label="A/B test results" className="flex w-full flex-col gap-10">
+      {AB_GROUPS.map((g) => {
+        const first = index;
+        const rows = g.rows.map((row) => ({ row, i: index++ }));
+        return (
+          <motion.section
+            key={g.scope}
+            initial={false}
+            animate={shown > first ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="flex flex-col gap-5"
+          >
+            {/* ---- Scope ---- : the group's name sits in the middle of its rule. */}
+            <header className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-4">
+                <span aria-hidden className="h-px flex-1 bg-line" />
+                <h4 className="font-display text-lg font-medium text-ink md:text-xl">{g.scope}</h4>
+                <span aria-hidden className="h-px flex-1 bg-line" />
+              </div>
+              <p className="text-center text-sm text-ink-muted">{g.note}</p>
+            </header>
+            {rows.map(({ row, i }) => (
+              <ResultRow key={row.metric} row={row} on={i < shown} />
+            ))}
+          </motion.section>
+        );
+      })}
+    </div>
+  );
+}
+
+const ResultsTitle = () => (
+  <h3 className="text-center font-display font-medium tracking-tight text-2xl text-ink md:text-[2rem]">
+    Test Results
+  </h3>
+);
+
+// Arrives on the two phones alone, then one result per scroll, plus a spare
+// step so a quick scroll can't skip the last.
+const RESULT_STEPS = AB_ROW_COUNT + 2;
+
+export function AbTest() {
   return (
     <Chapter id="ab-test" label="09 A/B Test" className="border-t border-line pt-24 md:pt-32">
       <div className={cn(wrap, "flex flex-col gap-8")}>
-        <SectionHeader
-          label="09 A/B TEST"
-          headline="Would Shoppers Actually Click on AI Results?"
-        />
-        <div className="flex flex-col gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-            Hypothesis
-          </p>
-          <p className="font-display max-w-[36ch] text-[1.3rem] font-medium leading-snug tracking-tight text-ink md:text-[1.6rem]">
-            AI search will turn No-Result moments into meaningful results and lift search
-            conversion.
-          </p>
-        </div>
-        <ul className="flex flex-wrap gap-2">
-          {["All customers (3.5M MAU)", "50 / 50 split", "2 weeks"].map((chip) => (
-            <li
-              key={chip}
-              className="rounded-full border border-line px-3.5 py-1.5 text-sm text-ink"
+        <SectionHeader label="09 A/B TEST" headline="Would Users Actually Click on AI Results?" />
+        <Body className="max-w-none">
+          To prove the system’s value, I <B>designed an A/B test around the KPIs</B> we set in
+          Define.
+        </Body>
+        <dl className="flex flex-col">
+          {AB_OVERVIEW.map(([term, value]) => (
+            <div
+              key={term}
+              className="grid gap-1 border-b border-line py-4 first:pt-0 last:border-b-0 md:grid-cols-[14rem_1fr] md:gap-8"
             >
-              {chip}
-            </li>
+              <dt className="text-base text-ink-muted md:text-lg">{term}</dt>
+              <dd className="text-base leading-relaxed text-ink md:text-lg">{value}</dd>
+            </div>
           ))}
-        </ul>
-        <Reveal className="relative mt-4 aspect-video overflow-hidden rounded-2xl border border-line bg-paper-2">
-          <AssetMedia id="ab-split-screen" />
-        </Reveal>
+        </dl>
       </div>
 
       <StickyScene
-        steps={2}
-        label="A/B test results"
+        steps={RESULT_STEPS}
+        label="A/B test results: Control and Treatment"
+        className="mt-16 md:mt-0"
         still={() => (
-          <div className={cn(wrap, "flex flex-col items-center gap-12 py-10")}>
-            <BigCtr size="sm" />
-            <AbTable />
+          <div className={cn(wrap, "flex flex-col gap-10")}>
+            <ResultsTitle />
+            <ResultRows shown={AB_ROW_COUNT} />
+            <div className="flex flex-wrap justify-center gap-8">
+              <ArmPhone arm="control" />
+              <ArmPhone arm="treatment" />
+            </div>
           </div>
         )}
       >
         {({ step }) => (
-          <div className={cn(wrap, "flex justify-center")}>
-            <AnimatePresence mode="wait" initial={false}>
-              {step === 0 ? (
-                <motion.div
-                  key="zoom"
-                  initial={{ opacity: 0, scale: 0.92 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.7 }}
-                  transition={{ duration: 0.5, ease: EASE_OUT }}
-                >
-                  <BigCtr />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="table"
-                  initial={{ opacity: 0, scale: 1.25 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.55, ease: EASE_OUT }}
-                  className="flex w-full flex-col items-center gap-10"
-                >
-                  <BigCtr size="sm" />
-                  <AbTable />
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div className={cn(wrap, "flex w-full flex-col gap-8")}>
+            <ResultsTitle />
+            {/* Labels on one row, phones and results on the next, so the
+                results start level with the top of the phones. */}
+            <div className="grid w-full grid-cols-[272px_1fr_272px] gap-x-10 gap-y-3">
+              <ArmLabel arm="control" />
+              <div />
+              <ArmLabel arm="treatment" />
+              <ArmScreen arm="control" />
+              <div className="self-start">
+                <ResultRows shown={Math.min(step, AB_ROW_COUNT)} />
+              </div>
+              <ArmScreen arm="treatment" />
+            </div>
           </div>
         )}
       </StickyScene>
 
-      <div className={cn(wrap, "flex flex-col gap-6 pb-28 pt-10 md:pb-36")}>
-        <SectionHeader as="h3" headline="Hypothesis Validated, Across Every KPI" />
-        <Body>
-          Shoppers who used to hit an empty page clicked <B>about 7x more often</B>. The CEO
-          approved full integration.
+      <div
+        className={cn(wrap, "flex flex-col items-center gap-6 pb-28 pt-10 text-center md:pb-36")}
+      >
+        <SectionHeader
+          as="h3"
+          headline="Hypothesis Validated, Across Every KPI"
+          className="items-center"
+        />
+        {/* One sentence per line. */}
+        <Body className="max-w-[60rem]">
+          <span className="block">
+            I shared the test’s progress and results with every stakeholder, every day.
+          </span>
+          <span className="block">
+            With that result, I went to the CEO and got approval to{" "}
+            <B>integrate AI Search into the full system</B>.
+          </span>
         </Body>
-        <div ref={endRef} className="mt-4">
-          <ProcessStrip at="CEO Decision" complete={decided} />
-        </div>
       </div>
     </Chapter>
   );

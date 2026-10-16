@@ -72,7 +72,7 @@ function TermTable({
             className="grid gap-1 border-b border-line py-5 first:pt-0 last:border-b-0 md:grid-cols-[14rem_1fr] md:gap-8"
           >
             <dt className="text-base text-ink-muted md:text-lg">{term}</dt>
-            <dd className="text-lg text-ink md:text-xl">{value}</dd>
+            <dd className="text-base leading-relaxed text-ink md:text-lg">{value}</dd>
           </motion.div>
         ))}
       </dl>
@@ -194,8 +194,8 @@ function Strategy({ animate }: { animate: boolean }) {
                 <span aria-hidden className="hidden h-px flex-1 bg-accent/30 md:block" />
               )}
             </span>
-            <p className="font-display text-base font-medium text-ink">{s.name}</p>
-            <p className="text-sm leading-relaxed text-ink-muted">{s.text}</p>
+            <p className="font-display text-lg font-medium text-ink md:text-xl">{s.name}</p>
+            <p className="text-base leading-relaxed text-ink-muted md:text-lg">{s.text}</p>
           </motion.li>
         ))}
       </ol>
@@ -321,7 +321,9 @@ function Rules({ animate }: { animate: boolean }) {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
         <Subhead>Guardrails</Subhead>
-        <p className="text-lg text-ink-muted md:text-xl">Three rules the AI had to follow:</p>
+        <p className="text-base leading-relaxed text-ink-muted md:text-lg">
+          Three rules the AI had to follow:
+        </p>
       </div>
       <ol className="grid gap-4 md:grid-cols-3">
         {RULES.map((rule, i) => (
@@ -339,8 +341,8 @@ function Rules({ animate }: { animate: boolean }) {
             <span className="font-display font-medium tracking-tight text-2xl leading-none text-accent">
               {i + 1}
             </span>
-            <p className="font-display text-base font-medium text-ink">{rule.name}</p>
-            <p className="text-sm leading-relaxed text-ink-muted">{rule.text}</p>
+            <p className="font-display text-lg font-medium text-ink md:text-xl">{rule.name}</p>
+            <p className="text-base leading-relaxed text-ink-muted md:text-lg">{rule.text}</p>
           </motion.li>
         ))}
       </ol>

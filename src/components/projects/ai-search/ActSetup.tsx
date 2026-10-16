@@ -596,7 +596,7 @@ const CONTEXT_BEATS = [
     headline: <>But 6.8% of Searches Ended in “No&nbsp;Result” Every Day</>,
     body: (
       <>
-        Each “No Result” left a shopper who was ready to buy with two choices:{" "}
+        Each “No Result” left a user who was ready to buy with two choices:{" "}
         <B>search again and again</B>, or <B>give up on the purchase</B>.
       </>
     ),
@@ -716,7 +716,7 @@ function ImpactScene({ step, live }: { step: number; live: boolean }) {
             <br />
             Google Cloud Summit Seoul 2024
           </h3>
-          <p className="text-base leading-relaxed text-ink-muted">
+          <p className="text-base leading-relaxed text-ink-muted md:text-lg">
             Google selected this project as a leading enterprise case of AI innovation on GCP.
             Kurly’s CEO presented it on stage, and I built the presentation.
           </p>
@@ -768,8 +768,8 @@ const ROLES: { title: string; cue: RoleCue; body: React.ReactNode }[] = [
     cue: "me",
     body: (
       <>
-        Designed the <B>“Beta” notice</B> that tells shoppers which results come from AI, so a new
-        kind of result felt honest, not confusing.
+        Designed the <B>“Beta” notice</B> that tells users which results come from AI, so a new kind
+        of result felt honest, not confusing.
       </>
     ),
   },
@@ -953,8 +953,10 @@ function RolesScene({ step, live }: { step: number; live: boolean }) {
                 transition={{ duration: 0.45, ease: "easeOut" }}
                 className="flex flex-col gap-1.5"
               >
-                <h3 className="font-display text-lg font-medium text-ink">{role.title}</h3>
-                <p className="text-[15px] leading-relaxed text-ink-muted">{role.body}</p>
+                <h3 className="font-display text-lg font-medium text-ink md:text-xl">
+                  {role.title}
+                </h3>
+                <p className="text-base leading-relaxed text-ink-muted md:text-lg">{role.body}</p>
               </motion.li>
             );
           })}

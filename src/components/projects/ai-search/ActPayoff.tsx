@@ -191,8 +191,8 @@ export function Integration() {
               delay={i * 0.1}
               className="flex flex-col gap-2 rounded-2xl border border-line p-6"
             >
-              <p className="font-display text-base font-medium text-ink">{g.name}</p>
-              <p className="text-sm leading-relaxed text-ink-muted">{g.text}</p>
+              <p className="font-display text-lg font-medium text-ink md:text-xl">{g.name}</p>
+              <p className="text-base leading-relaxed text-ink-muted md:text-lg">{g.text}</p>
             </Reveal>
           ))}
         </ul>
@@ -426,7 +426,7 @@ export function BusinessImpact() {
           <h3 className="font-display font-medium tracking-tight text-[1.4rem] leading-tight text-ink md:text-[1.75rem]">
             Google Cloud Summit Seoul 2024
           </h3>
-          <p className="text-base leading-relaxed text-ink-muted">
+          <p className="text-base leading-relaxed text-ink-muted md:text-lg">
             Google featured this project as a leading enterprise case of AI on GCP. Kurly’s CEO told
             the story on stage, and I built the presentation.
           </p>

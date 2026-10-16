@@ -511,10 +511,10 @@ function BestsellerScene({ step, live }: { step: number; live: boolean }) {
           But I believed users who came with a goal would scroll right past it.
         </motion.p>
         <motion.div {...beat(2)} className="flex flex-col gap-2">
-          <p className="text-lg leading-snug text-ink md:text-xl">
+          <p className="text-base leading-relaxed text-ink md:text-lg">
             Based on data analysis, of the 6.8% of searches that found nothing,
           </p>
-          <p className="flex flex-wrap items-baseline gap-x-3 text-lg text-ink md:text-xl">
+          <p className="flex flex-wrap items-baseline gap-x-3 text-base text-ink md:text-lg">
             <span>only</span>
             <CountUp
               to={{ value: 3.83, decimals: 2, suffix: "%" }}

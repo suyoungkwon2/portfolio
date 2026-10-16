@@ -285,7 +285,8 @@ function FindScreen({ frame }: { frame: Frame }) {
 }
 
 // The four query types, type on top and its example under it. They track
-// the scene; clicking one plays that search.
+// the scene and get a check when their turn comes; clicking one plays that
+// search.
 function FindChips({ step, onPick }: { step: number; onPick: (i: number) => void }) {
   return (
     <ol aria-label="Four query types" className="flex flex-wrap justify-center gap-2 md:gap-3">
@@ -300,14 +301,26 @@ function FindChips({ step, onPick }: { step: number; onPick: (i: number) => void
               className={cn(
                 "flex min-w-36 cursor-pointer flex-col items-center gap-1 rounded-xl border px-4 py-2.5 text-center transition-colors duration-300",
                 on
-                  ? "border-accent bg-accent text-paper"
-                  : "border-line bg-paper text-ink hover:border-accent",
+                  ? "border-[#16a34a] bg-[#16a34a] text-paper"
+                  : "border-line bg-paper text-ink hover:border-[#16a34a]",
               )}
             >
               <span className="font-display text-base font-semibold leading-tight md:text-lg">
+                {/* Checked off once its search has played (the first from the start). */}
+                {i <= step && (
+                  <motion.span
+                    aria-hidden
+                    className="inline-block"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 420, damping: 18 }}
+                  >
+                    ✅&nbsp;
+                  </motion.span>
+                )}
                 {f.type}
               </span>
-              <span className={cn("font-mono text-sm", on ? "text-paper/75" : "text-ink-muted")}>
+              <span className={cn("font-mono text-sm", on ? "text-paper/80" : "text-ink-muted")}>
                 {f.query}
               </span>
             </button>

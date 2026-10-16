@@ -33,7 +33,7 @@ describe("AiSearchCaseStudy", () => {
 
     const types = screen.getAllByRole("list", { name: "Four query types" })[0];
     expect([...types.querySelectorAll("li")].map((c) => c.textContent)).toEqual([
-      "Misspellingcabage",
+      "✅\u00a0Misspellingcabage",
       "Spacingca bbage",
       "Synonymcole",
       "Foreign wordhalapeno",
