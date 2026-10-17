@@ -661,7 +661,7 @@ export function Context() {
 /* ------------------------------------------------------------------ */
 
 // Number and label centred in their column.
-const CENTERED = "items-center text-center [&>p:first-child]:justify-center";
+export const CENTERED = "items-center text-center [&>p:first-child]:justify-center";
 
 // The scene holds on arrival with the old values only; one scroll counts the
 // new ones up from zero, and a spare step keeps a quick scroll from skipping it.
@@ -679,7 +679,6 @@ const IMPACT: { from?: Num; to: Num; extra?: string; label: string }[] = [
   },
   {
     to: { value: 3.6, decimals: 1, prefix: "$", suffix: "M" },
-    extra: "(₩5B)",
     label: "New Monthly Revenue from Former Dead Ends",
   },
 ];

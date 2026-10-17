@@ -1,9 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { AiSearchCaseStudy } from "./AiSearchCaseStudy";
 
 describe("AiSearchCaseStudy", () => {
-  it("lists the chapters through 09, in order, for the sidebar's chapter nav", () => {
+  it("lists the twelve chapters, in order, for the sidebar's chapter nav", () => {
     const { container } = render(<AiSearchCaseStudy />);
 
     const chapters = [...container.querySelectorAll<HTMLElement>("[data-chapter][id]")].map(
@@ -19,8 +19,10 @@ describe("AiSearchCaseStudy", () => {
       "07 PoC Approach",
       "08 Search Flow",
       "09 A/B Test",
+      "10 Improvement",
+      "11 Integration & Impact",
+      "12 Reflection",
     ]);
-    expect(screen.getByText(/coming soon/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "AI Search: Recovering Lost Revenue",
     );
@@ -49,6 +51,8 @@ describe("AiSearchCaseStudy", () => {
 
   it("labels the hero device Before, then After", () => {
     render(<AiSearchCaseStudy />);
-    expect(screen.getByText("Before")).toBeInTheDocument();
+    // Scoped to the hero: 10's proxy scene has its own Before/After label.
+    const hero = screen.getByRole("heading", { level: 1 }).closest("div.border-b") as HTMLElement;
+    expect(within(hero).getByText("Before")).toBeInTheDocument();
   });
 });
