@@ -161,7 +161,7 @@ export const projects: Record<string, ProjectMeta> = {
       why: "With fewer merchandisers, campaigns went stale, sold-out items lingered, and there was no way to scale.",
       how: "Built a system where you type a theme and AI picks, ranks, and refreshes products every hour. An A/B test showed it performs on par with human curators.",
     },
-    slides: 4,
+    // No slides: the page is its own story (components/projects/ai-curation).
   },
   asleeptrack: {
     slug: "asleeptrack",

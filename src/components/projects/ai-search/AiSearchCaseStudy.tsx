@@ -4,7 +4,7 @@ import { Improvement, IntegrationImpact, Reflection } from "./ActPayoff";
 import { Context, Hero, Impact, Roles } from "./ActSetup";
 import { Define, PocApproach } from "./ActTurn";
 import { resolveAssets } from "./assets.server";
-import { ReadingProgress } from "./ReadingProgress";
+import { ReadingProgress } from "../story/ReadingProgress";
 import { AssetProvider } from "./ui";
 
 // The AI Search case study as one story, "Follow one typo": the query

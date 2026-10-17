@@ -10,10 +10,19 @@ import {
 } from "framer-motion";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, StickyScene, useStill, useTypewriter } from "./motion";
-import { ProcessFlow } from "./ProcessFlow";
+import { EASE_OUT, StickyScene, useStill, useTypewriter } from "../story/motion";
+import { ProcessFlow, type ProcessStep } from "../story/ProcessFlow";
+import {
+  B,
+  Body,
+  Chapter,
+  GradioWindow,
+  Question as StoryQuestion,
+  SectionHeader,
+  Subhead,
+  wrap,
+} from "../story/ui";
 import { TryItStage } from "./TryItScene";
-import { B, Body, Chapter, Em, SectionHeader, wrap } from "./ui";
 
 // Act 3, Turn: 06 Define · 07 PoC Approach (spec §5.6–5.7). 07B is the
 // page's climax: the same typos from 04, in the same phone, now found.
@@ -23,25 +32,13 @@ import { B, Body, Chapter, Em, SectionHeader, wrap } from "./ui";
 /* ------------------------------------------------------------------ */
 
 function Question({ progress, live }: { progress?: MotionValue<number>; live: boolean }) {
-  // The rest of the sentence dims so only the constraint stays lit.
-  const idle = useMotionValue(0);
-  const dim = useTransform(progress ?? idle, [0.06, 0.2], [1, 0.25]);
-  const rest = live ? { opacity: dim } : undefined;
   return (
-    <p className="font-display font-medium tracking-tight text-[1.75rem] leading-[1.2] text-ink md:text-[2.6rem]">
-      <motion.span style={rest}>How might we turn “No Results” into results,</motion.span>
-      <br />
-      <Em>without rebuilding the search engine</Em>
-      <motion.span style={rest}>?</motion.span>
-    </p>
-  );
-}
-
-function Subhead({ children }: { children: React.ReactNode }) {
-  return (
-    <h3 className="font-display font-medium tracking-tight text-2xl text-ink md:text-[2rem]">
-      {children}
-    </h3>
+    <StoryQuestion
+      lead="How might we turn “No Results” into results,"
+      turn="without rebuilding the search engine"
+      progress={progress}
+      live={live}
+    />
   );
 }
 
@@ -135,6 +132,25 @@ function Kpis({ animate }: { animate: boolean }) {
   );
 }
 
+// Prove the case, build it, then give it back to the team that owns search.
+export const STRATEGY: ProcessStep[] = [
+  {
+    name: "PoC",
+    text: "Show that similar products convert far better than the Bestsellers on a No-Result search.",
+  },
+  {
+    name: "CEO Decision",
+    text: "Bring the evidence to the CEO and get the go-ahead.",
+    gate: true,
+  },
+  { name: "Improvement", text: "Tune the AI layer on what the PoC taught us." },
+  { name: "Integration", text: "Ship it into Kurly’s live search." },
+  {
+    name: "Hand-off",
+    text: "Pass it to the Search Engine team as part of their roadmap.",
+  },
+];
+
 const Goals = ({ animate }: { animate: boolean }) => (
   <TermTable title="Objectives and Goals" rows={GOALS} animate={animate} />
 );
@@ -148,7 +164,7 @@ function Strategy({ animate }: { animate: boolean }) {
         So the plan was to <B>test that belief with real data</B>, prove the engine update was worth
         it, and then <B>hand the work back</B> to the team that owned search.
       </Body>
-      <ProcessFlow animate={animate} />
+      <ProcessFlow steps={STRATEGY} animate={animate} />
     </div>
   );
 }
@@ -436,21 +452,10 @@ function DataSourceShowdown({ animate }: { animate: boolean }) {
   );
 
   return (
-    <div
-      role="img"
-      aria-label="AI Search - Demo dashboard, built with Gradio: searching “Granma Padano”. Kurly search finds nothing. Web crawling returns one Grana Padano and four unrelated meal shakes and bars. Structured data returns five Grana Padano and related cheeses, and wins."
-      className="flex flex-col gap-3 rounded-2xl border border-line bg-paper-2/60 p-3 md:p-4"
+    <GradioWindow
+      title="AI Search - Demo"
+      label="AI Search - Demo dashboard, built with Gradio: searching “Granma Padano”. Kurly search finds nothing. Web crawling returns one Grana Padano and four unrelated meal shakes and bars. Structured data returns five Grana Padano and related cheeses, and wins."
     >
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold text-ink md:text-base">AI Search - Demo</span>
-        <span className="flex items-center gap-1.5">
-          {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized PNG */}
-          <img src="/images/ai-search/logo_gradio.png" alt="" className="h-[18px] w-auto" />
-          <span className="text-[17px] font-semibold leading-none tracking-tight text-ink">
-            gradio
-          </span>
-        </span>
-      </div>
       <div className="grid items-end gap-3 md:grid-cols-[1fr_1fr_auto] md:gap-5">
         <div className="flex h-9 items-center rounded-lg border border-line bg-paper px-3 text-sm text-ink">
           {typed}
@@ -531,7 +536,7 @@ function DataSourceShowdown({ animate }: { animate: boolean }) {
           </ul>,
         )}
       </div>
-    </div>
+    </GradioWindow>
   );
 }
 

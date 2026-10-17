@@ -7,6 +7,7 @@ import { SlideDeck } from "@/components/project/SlideDeck";
 import { TenSecondSummary } from "@/components/project/TenSecondSummary";
 import { MarsHeroVideo, MarsOverview } from "@/components/projects/MarsOverview";
 import { PhonitaleDetail, PhonitaleHeroVideos } from "@/components/projects/PhonitaleDetail";
+import { AiCurationCaseStudy } from "@/components/projects/ai-curation/AiCurationCaseStudy";
 import { AiSearchCaseStudy } from "@/components/projects/ai-search/AiSearchCaseStudy";
 import { projectOrder, projects } from "@/content/projects";
 import { works } from "@/content/works";
@@ -23,6 +24,7 @@ const detailComponents: Record<string, React.ComponentType> = {
 // prev/next nav stays.
 const storyComponents: Record<string, React.ComponentType> = {
   "ai-search": AiSearchCaseStudy,
+  "ai-curation": AiCurationCaseStudy,
 };
 
 // Rebuilt chapters shown above a project's slides while the rest of its

@@ -12,7 +12,7 @@ import {
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 
-// Motion plumbing for the AI Search case study (spec §2.2–2.3).
+// Motion plumbing for the case-study story pages (AI Search spec §2.2–2.3).
 
 function useMediaQuery(query: string) {
   return useSyncExternalStore(
@@ -199,4 +199,21 @@ export function useBeatClock<F>({
   });
 
   return { ref, frame };
+}
+
+// Draws a fixed-size scene (`width` px wide) inside a column that may be
+// narrower: returns a ref for the column and the scale that fits it.
+export function useFitScale(width: number) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) =>
+      setScale(Math.min(1, entry.contentRect.width / width)),
+    );
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [width]);
+  return { ref, scale };
 }

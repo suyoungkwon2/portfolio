@@ -5,8 +5,20 @@ import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { SCREENS, SearchQuery } from "./ActSetup";
 import { IosKeyboard } from "./IosKeyboard";
-import { EASE_OUT, Reveal, StickyScene, scrollToStep, useBeatClock } from "./motion";
-import { B, Body, Chapter, CountUp, PhoneFrame, SectionHeader, ThoughtBubble, wrap } from "./ui";
+import { EASE_OUT, StickyScene, scrollToStep, useBeatClock } from "../story/motion";
+import {
+  B,
+  Body,
+  Chapter,
+  CountUp,
+  HookLines,
+  Kicker,
+  PhoneFrame,
+  PhoneSplit,
+  SectionHeader,
+  ThoughtBubble,
+  wrap,
+} from "../story/ui";
 
 // Act 2, Conflict: 04 User Problem · 05 Company's Problem (spec §5.4–5.5).
 
@@ -261,34 +273,6 @@ export function WantCard({ want }: { want: Want }) {
           What users want
         </p>
         <p className="font-display text-lg font-medium text-ink">{want.name}</p>
-      </div>
-    </div>
-  );
-}
-
-// Text on the left, the phone and what goes with it on the right; the title
-// spans both. One layout for 04 and 07B so their phones line up. The text
-// and the side column start level with the top of the phone.
-export function PhoneSplit({
-  header,
-  copy,
-  phone,
-  side,
-}: {
-  header: React.ReactNode;
-  copy: React.ReactNode;
-  phone: React.ReactNode;
-  side: React.ReactNode;
-}) {
-  return (
-    <div className={cn(wrap, "flex flex-col gap-8 lg:gap-10")}>
-      {header}
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-14">
-        <div className="flex flex-col gap-8">{copy}</div>
-        <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:justify-center lg:gap-10">
-          {phone}
-          <div className="flex w-[18.5rem] flex-col items-start gap-6">{side}</div>
-        </div>
       </div>
     </div>
   );
@@ -607,35 +591,14 @@ function BestsellerScene({ step, live }: { step: number; live: boolean }) {
   );
 }
 
-// The hook holds on the first line; one scroll brings in the second, and a
-// spare step keeps a quick scroll from skipping it (same rhythm as 02 Impact).
-const HOOK_STEPS = 3;
-
 export function UserProblem() {
   return (
     <Chapter id="user-problem" label="04 User Problem" className="border-t border-line">
-      <StickyScene
-        steps={HOOK_STEPS}
+      <HookLines
+        first="Users knew exactly what they wanted."
+        second="Search told them it didn’t exist."
         label="Users knew what they wanted; search said it didn't exist"
-      >
-        {({ step, live }) => (
-          <div
-            className={cn(wrap, "grid w-full place-items-center", !live && "min-h-[60svh] py-14")}
-          >
-            <p className="font-display font-medium tracking-tight text-center text-[2rem] leading-[1.15] text-ink text-balance md:text-[3.25rem]">
-              <span className="block">Users knew exactly what they wanted.</span>
-              <motion.span
-                className="block"
-                initial={false}
-                animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-                transition={{ duration: 0.6, ease: EASE_OUT }}
-              >
-                Search told them it didn’t exist.
-              </motion.span>
-            </p>
-          </div>
-        )}
-      </StickyScene>
+      />
 
       <FrustrationStage />
 
@@ -806,13 +769,7 @@ export function CompanyProblem() {
         )}
       </StickyScene>
 
-      <div className={cn(wrap, "pb-28 pt-12 md:pb-36")}>
-        <Reveal>
-          <p className="font-display font-medium tracking-tight text-center text-[1.4rem] leading-snug text-ink md:text-[1.75rem]">
-            So I asked a different question. ↓
-          </p>
-        </Reveal>
-      </div>
+      <Kicker>So I asked a different question. ↓</Kicker>
     </Chapter>
   );
 }

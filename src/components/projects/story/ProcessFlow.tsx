@@ -4,50 +4,50 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, useStill } from "./motion";
 
-// Prove the case, build it, then give it back to the team that owns search.
-const STRATEGY = [
-  {
-    name: "PoC",
-    text: "Show that similar products convert far better than the Bestsellers on a No-Result search.",
-  },
-  {
-    name: "CEO Decision",
-    text: "Bring the evidence to the CEO and get the go-ahead.",
-    gate: true,
-  },
-  { name: "Improvement", text: "Tune the AI layer on what the PoC taught us." },
-  { name: "Integration", text: "Ship it into Kurly’s live search." },
-  {
-    name: "Hand-off",
-    text: "Pass it to the Search Engine team as part of their roadmap.",
-  },
-];
-const GATE = STRATEGY.findIndex((s) => s.gate);
+export type ProcessStep = {
+  name: string;
+  text: string;
+  // The CEO's go-ahead: a diamond that turns green with a check once passed.
+  gate?: boolean;
+};
+
 const GREEN = "#16a34a";
 
-// The five-step plan from 06 Define. Without `approved` every step is lit, as
-// planned. With it (09), the steps past the PoC wait in gray until the CEO
-// says yes: the gate turns green with a check and says so, then the rest
-// light up in turn. That version is centred under its centred heading,
-// names only.
+// A project's Strategic Process. Without `lit`, every step is lit and
+// explained, as planned (Define). With it, the page tracks progress: the
+// first `lit` steps are lit, the rest wait in gray, and `current` gets a
+// ring. Steps from `from` on light up in turn, as if just reached, and a gate
+// passed on this beat says “OK, go!”. That version is centred under its
+// centred heading, names only.
 export function ProcessFlow({
+  steps,
   animate,
-  approved,
+  lit,
+  from = lit,
+  current,
 }: {
+  steps: readonly ProcessStep[];
   animate: boolean;
-  approved?: boolean;
+  lit?: number;
+  from?: number;
+  current?: number;
 }) {
   const still = useStill() || !animate;
-  const gated = approved !== undefined;
-  // How long after approval step i lights up (the gate first).
+  const gated = lit !== undefined;
+  const on = (i: number) => !gated || i < lit;
+  // How long after the beat lands step i lights up.
   const wait = (i: number) =>
-    approved && i >= GATE ? 0.15 + (i - GATE) * 0.3 : 0;
-  const lit = (i: number) => !gated || approved || i < GATE;
+    gated && from !== undefined && i >= from && i < lit ? 0.15 + (i - from) * 0.3 : 0;
   return (
-    <ol className="grid gap-3 md:grid-cols-5 md:gap-0">
-      {STRATEGY.map((s, i) => {
-        const on = lit(i);
-        const passed = gated && approved && s.gate;
+    <ol
+      className="grid gap-3 md:grid-cols-(--cols) md:gap-0"
+      style={{ "--cols": `repeat(${steps.length}, minmax(0, 1fr))` } as React.CSSProperties}
+    >
+      {steps.map((s, i) => {
+        const lightOn = on(i);
+        const passed = gated && lightOn && s.gate;
+        const cheer = passed && from !== undefined && i >= from;
+        const ring = gated && i === current;
         const color = { transitionDelay: `${wait(i)}s` };
         return (
           <motion.li
@@ -59,18 +59,16 @@ export function ProcessFlow({
               ease: EASE_OUT,
               delay: 0.2 + i * 0.18,
             }}
+            aria-current={ring ? "step" : undefined}
             className={cn(
               "relative flex flex-col gap-3",
               gated ? "items-center px-3 text-center" : "md:pr-6",
             )}
           >
             <span
-              className={cn(
-                "relative flex items-center gap-3",
-                gated && "w-full justify-center",
-              )}
+              className={cn("relative flex items-center gap-3", gated && "w-full justify-center")}
             >
-              {passed && <GoBubble />}
+              {cheer && <GoBubble />}
               <span
                 aria-hidden
                 style={{
@@ -79,22 +77,16 @@ export function ProcessFlow({
                 }}
                 className={cn(
                   "relative grid size-7 shrink-0 place-items-center text-xs font-semibold text-paper transition-colors duration-500",
-                  on ? "bg-accent" : "bg-line",
+                  lightOn ? "bg-accent" : "bg-line",
                   s.gate ? "rotate-45 rounded-sm" : "rounded-full",
+                  ring && "ring-2 ring-accent ring-offset-4 ring-offset-paper",
                 )}
               >
                 <motion.span
                   initial={false}
-                  animate={
-                    passed
-                      ? { opacity: 0, scale: 0.5 }
-                      : { opacity: 1, scale: 1 }
-                  }
+                  animate={passed ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
                   transition={{ duration: 0.25 }}
-                  className={cn(
-                    "col-start-1 row-start-1",
-                    s.gate && "-rotate-45",
-                  )}
+                  className={cn("col-start-1 row-start-1", s.gate && "-rotate-45")}
                 >
                   {i + 1}
                 </motion.span>
@@ -102,11 +94,7 @@ export function ProcessFlow({
                   <motion.svg
                     viewBox="0 0 16 16"
                     initial={false}
-                    animate={
-                      passed
-                        ? { opacity: 1, scale: 1 }
-                        : { opacity: 0, scale: 0.5 }
-                    }
+                    animate={passed ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
                     transition={{
                       duration: 0.3,
                       ease: EASE_OUT,
@@ -125,7 +113,7 @@ export function ProcessFlow({
                   </motion.svg>
                 )}
               </span>
-              {i < STRATEGY.length - 1 && (
+              {i < steps.length - 1 && (
                 <span
                   aria-hidden
                   style={{ transitionDelay: `${wait(i + 1)}s` }}
@@ -135,7 +123,7 @@ export function ProcessFlow({
                     gated
                       ? "absolute left-[calc(50%+1.25rem)] top-1/2 w-[calc(100%-2.5rem+1.5rem)]"
                       : "flex-1",
-                    lit(i + 1) ? "bg-accent/30" : "bg-line",
+                    on(i + 1) ? "bg-accent/30" : "bg-line",
                   )}
                 />
               )}
@@ -144,16 +132,14 @@ export function ProcessFlow({
               style={color}
               className={cn(
                 "font-display text-lg font-medium transition-colors duration-500 md:text-xl",
-                on ? "text-ink" : "text-ink-muted/50",
+                lightOn || ring ? "text-ink" : "text-ink-muted/50",
               )}
             >
               {s.name}
             </p>
-            {/* 09 shows the names alone; 06 already explained each step. */}
+            {/* The tracker shows the names alone; Define already explained each step. */}
             {!gated && (
-              <p className="text-base leading-relaxed text-ink-muted md:text-lg">
-                {s.text}
-              </p>
+              <p className="text-base leading-relaxed text-ink-muted md:text-lg">{s.text}</p>
             )}
           </motion.li>
         );

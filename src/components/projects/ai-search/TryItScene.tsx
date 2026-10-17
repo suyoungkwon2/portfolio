@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import {
   CABBAGE,
   JALAPENO,
-  PhoneSplit,
   RecentScreen,
   StepChips,
   WantCard,
@@ -15,8 +14,8 @@ import {
 } from "./ActConflict";
 import { SCREENS, SearchQuery } from "./ActSetup";
 import { IosKeyboard } from "./IosKeyboard";
-import { EASE_OUT, StickyScene, scrollToStep, useBeatClock } from "./motion";
-import { Body, PhoneFrame, SectionHeader, ThoughtBubble, wrap } from "./ui";
+import { EASE_OUT, StickyScene, scrollToStep, useBeatClock } from "../story/motion";
+import { Body, PhoneFrame, PhoneSplit, SectionHeader, ThoughtBubble, wrap } from "../story/ui";
 
 // 07B: the same four searches that failed in 04, on the same screens, now
 // finding products. One scroll step per find, like 04.

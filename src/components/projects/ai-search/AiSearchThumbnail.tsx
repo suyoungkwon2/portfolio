@@ -4,7 +4,7 @@ import { motion, useInView } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SCREENS, SearchQuery } from "./ActSetup";
-import { useStill, useTypewriter } from "./motion";
+import { useStill, useTypewriter } from "../story/motion";
 
 // The AI Search card thumbnail, played live from the hero's Kurly screens
 // instead of a flat image: "granma padano" is typed into a search bar, the

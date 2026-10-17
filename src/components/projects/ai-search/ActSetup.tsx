@@ -2,13 +2,27 @@
 
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { ShoppingCart } from "lucide-react";
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChipGroup } from "@/components/project/ChipGroup";
 import { cn } from "@/lib/utils";
-import type { Num } from "./ui";
-import { Reveal, StickyScene, useStill, useTypewriter } from "./motion";
-import { AssetMedia, B, Body, Chapter, MetricCounter, PhoneFrame, SectionHeader, wrap } from "./ui";
+import { Reveal, StickyScene, useStill, useTypewriter } from "../story/motion";
+import { RolesChapter, type Role } from "../story/OrgChart";
+import {
+  B,
+  BeatCopy,
+  Body,
+  CENTERED,
+  Chapter,
+  FlipLabel,
+  MetricCounter,
+  PhoneFrame,
+  SectionHeader,
+  StoryHero,
+  textLink,
+  wrap,
+  type CopyBeat,
+  type Num,
+} from "../story/ui";
+import { AssetMedia } from "./ui";
 
 // Act 1, Setup: Hero · 01 Context · 02 Impact · 03 R&R (spec §5.0–5.3).
 // The reader learns what was achieved before learning how.
@@ -17,12 +31,12 @@ const BLOG_URL = "https://helloworld.kurly.com/blog/vertex-ai-search-nr/";
 export const TALK_URL ="https://youtu.be/qv0YMg7kwuM?si=km0mZKGjRI3rPVdX&t=2333";
 
 // One entry per line, like the other project heroes.
-const META: [string, string[]][] = [
+const META = [
   ["Period", ["May 2024", "- August 2024"]],
   ["Role", ["AI Product Manager", "A/B Test Design", "CEO Communication", "QA"]],
   ["Team", ["AI PM (Me)", "1 ML Engineer", "1 Backend Engineer"]],
   ["Org", ["Kurly"]],
-];
+] as const;
 
 type HeroState = "before" | "after";
 const HERO_HOLD: Record<HeroState, number> = { before: 4300, after: 5400 };
@@ -190,23 +204,7 @@ function HeroDevice() {
 
   return (
     <div className="flex flex-col items-center gap-5">
-      <div className="relative h-6 w-full">
-        <AnimatePresence initial={false}>
-          <motion.p
-            key={shown}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.25 }}
-            className={cn(
-              "font-display absolute inset-0 text-center text-base font-medium uppercase tracking-[0.2em]",
-              shown === "after" ? "text-accent" : "text-ink-muted",
-            )}
-          >
-            {shown === "before" ? "Before" : "After"}
-          </motion.p>
-        </AnimatePresence>
-      </div>
+      <FlipLabel text={shown === "before" ? "Before" : "After"} on={shown === "after"} />
 
       <div
         className="relative"
@@ -272,65 +270,25 @@ function HeroDevice() {
 
 export function Hero() {
   return (
-    <div className="border-b border-line">
-      <div className={cn(wrap, "pb-16 pt-10 md:pb-24 md:pt-16")}>
-        <Link
-          href="/#work"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted transition-colors hover:text-accent-3"
-        >
-          <span aria-hidden>←</span> Selected Works
-        </Link>
-
-        <div className="mt-10 grid items-center gap-12 md:grid-cols-[1fr_auto] md:gap-16">
-          <div className="order-2 flex flex-col items-start md:order-1">
-            <ChipGroup
-              chips={{ type: "AI Transformation", domain: "Commerce", proof: "A/B Validated" }}
-            />
-            <h1 className="font-display font-medium tracking-tight mt-6 text-[2.25rem] leading-[1.1] text-ink text-balance md:text-[3.25rem]">
-              AI Search: <br />
-              Recovering Lost Revenue
-            </h1>
-            <p className="mt-4 text-lg italic text-ink-muted md:text-xl">
-              “Just type it out. We’ll find what you need.”
-            </p>
-            <Body className="mt-6">
-              On Kurly, one typo could end a shopping trip. I led an AI search that catches what the
-              old engine missed, so every search can lead to a cart.
-            </Body>
-
-            <dl className="mt-10 grid w-full grid-cols-2 gap-x-6 gap-y-5 border-t border-line pt-6 lg:grid-cols-4">
-              {META.map(([term, value]) => (
-                <div key={term}>
-                  <dt className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
-                    {term}
-                  </dt>
-                  <dd className="font-display mt-1.5 text-sm font-medium text-ink">
-                    {value.map((line) => (
-                      <span key={line} className="block">
-                        {line}
-                      </span>
-                    ))}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-
-            <a
-              href={BLOG_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-10 text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent-3 hover:decoration-accent-3"
-            >
-              Read the Kurly Tech Blog post ↗
-            </a>
-          </div>
-
-          <div className="order-1 flex justify-center md:order-2">
-            <HeroDevice />
-          </div>
-        </div>
-      </div>
-    </div>
+    <StoryHero
+      chips={{ type: "AI Transformation", domain: "Commerce", proof: "A/B Validated" }}
+      title={
+        <>
+          AI Search: <br />
+          Recovering Lost Revenue
+        </>
+      }
+      tagline="“Just type it out. We’ll find what you need.”"
+      body={
+        <>
+          On Kurly, one typo could end a shopping trip. I led an AI search that catches what the old
+          engine missed, so every search can lead to a cart.
+        </>
+      }
+      meta={META}
+      link={{ href: BLOG_URL, label: "Read the Kurly Tech Blog post ↗" }}
+      device={<HeroDevice />}
+    />
   );
 }
 
@@ -577,7 +535,7 @@ function SearchRain({
 // One more scroll after the rain swaps the headline and body: the front
 // door has a leak. Both beats share one grid cell, so nothing reflows.
 // Phones and reduced motion read them one after the other.
-const CONTEXT_BEATS = [
+const CONTEXT_BEATS: CopyBeat[] = [
   {
     headline: "Search Was Where Kurly Made the Most Money",
     body: (
@@ -600,33 +558,8 @@ const CONTEXT_BEATS = [
 ];
 
 function ContextCopy({ problem, live }: { problem: boolean; live: boolean }) {
-  const active = problem ? 1 : 0;
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">01 CONTEXT</p>
-      <div className={live ? "grid" : "flex flex-col gap-10"}>
-        {CONTEXT_BEATS.map((beat, i) => {
-          const shown = !live || i === active;
-          return (
-            <motion.div
-              key={i}
-              aria-hidden={!shown || undefined}
-              initial={false}
-              animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: i < active ? -16 : 16 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className={cn(
-                "flex flex-col gap-6",
-                live && "[grid-area:1/1]",
-                !shown && "pointer-events-none",
-              )}
-            >
-              <SectionHeader headline={beat.headline} as={i === 0 ? "h2" : "h3"} />
-              <Body>{beat.body}</Body>
-            </motion.div>
-          );
-        })}
-      </div>
-    </div>
+    <BeatCopy label="01 CONTEXT" beats={CONTEXT_BEATS} active={problem ? 1 : 0} live={live} />
   );
 }
 
@@ -659,9 +592,6 @@ export function Context() {
 /* ------------------------------------------------------------------ */
 /* 02 Impact                                                           */
 /* ------------------------------------------------------------------ */
-
-// Number and label centred in their column.
-export const CENTERED = "items-center text-center [&>p:first-child]:justify-center";
 
 // The scene holds on arrival with the old values only; one scroll counts the
 // new ones up from zero, and a spare step keeps a quick scroll from skipping it.
@@ -719,7 +649,7 @@ function ImpactScene({ step, live }: { step: number; live: boolean }) {
             href={TALK_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent-3 hover:decoration-accent-3"
+            className={textLink}
           >
             Watch the talk →
           </a>
@@ -743,10 +673,7 @@ export function Impact() {
 /* 03 Role and Responsibility                                          */
 /* ------------------------------------------------------------------ */
 
-// What each role lights up in the org chart while it's the newest one.
-type RoleCue = "me" | "team" | "links";
-
-const ROLES: { title: string; cue: RoleCue; body: React.ReactNode }[] = [
+const ROLES: Role[] = [
   {
     title: "Strategy",
     cue: "me",
@@ -787,189 +714,16 @@ const ROLES: { title: string; cue: RoleCue; body: React.ReactNode }[] = [
     ),
   },
 ];
-// Arrives on the header and chart alone, then one role per scroll, plus a
-// spare step so a quick scroll can't skip the last.
-const ROLE_STEPS = ROLES.length + 2;
-
-// Who I worked between: the C-level above, the project team around me, and
-// the search engine and product management teams below. Drawn in a
-// 500 × 440 box that scales with its column. Both groups keep the same 24px
-// padding on every side of their chips.
-type OrgNode = { label: string; cx: number; cy: number; w: number; me?: boolean; team?: boolean };
-const NODE_H = 52;
-const GROUP_PAD = 24;
-const GROUP_H = NODE_H + GROUP_PAD * 2;
-const TEAM_Y = 200;
-const BELOW_Y = 380;
-const ORG_NODES: OrgNode[] = [
-  { label: "C-Level", cx: 110, cy: 46, w: 160 },
-  { label: "AI PM (Me)", cx: 110, cy: TEAM_Y, w: 160, me: true, team: true },
-  { label: "ML Engineer", cx: 270, cy: TEAM_Y, w: 136, team: true },
-  { label: "BE Engineer", cx: 410, cy: TEAM_Y, w: 120, team: true },
-  { label: "Search Engine Team", cx: 124, cy: BELOW_Y, w: 188 },
-  { label: "Product Management Team", cx: 342, cy: BELOW_Y, w: 224 },
-];
-// Groups around a row of chips: x from the first chip's left to the last's right.
-const ORG_GROUPS = [
-  { x1: 30, x2: 470, cy: TEAM_Y, filled: true },
-  { x1: 30, x2: 454, cy: BELOW_Y, filled: false },
-];
-// Two-way links, each a pair of dashed arrows (down, up) either side of AI PM.
-const ORG_LINKS = [
-  { y1: 46 + NODE_H / 2, y2: TEAM_Y - NODE_H / 2 },
-  { y1: TEAM_Y + NODE_H / 2, y2: BELOW_Y - GROUP_H / 2 },
-];
-const LINK_X = [86, 134];
-const DASH = 8;
-
-const BLINK = { opacity: [1, 0.3, 1, 0.3, 1] };
-
-function OrgChart({ cue, beat }: { cue?: RoleCue; beat: number }) {
-  const blinks = (n: OrgNode) => (cue === "me" && n.me) || (cue === "team" && n.team);
-  return (
-    <svg
-      viewBox="0 0 500 440"
-      role="img"
-      aria-label="Team structure: the AI PM (me) reports to and gets approval from the C-level, works in one team with an ML engineer and a backend engineer, and works back and forth with the search engine team and the product management team."
-      className="font-display w-full text-ink"
-    >
-      <defs>
-        <marker
-          id="org-arrow"
-          viewBox="0 0 10 10"
-          refX="9"
-          refY="5"
-          markerWidth="7"
-          markerHeight="7"
-          orient="auto-start-reverse"
-        >
-          <path d="M1 1 9 5 1 9" fill="none" stroke="var(--color-ink-muted)" strokeWidth="1" />
-        </marker>
-      </defs>
-
-      {ORG_GROUPS.map(({ x1, x2, cy, filled }) => (
-        <motion.rect
-          key={`${beat}-${cy}`}
-          initial={{ opacity: 1 }}
-          animate={cue === "team" && filled ? BLINK : { opacity: 1 }}
-          transition={{ duration: 1.6, ease: "easeInOut" }}
-          x={x1 - GROUP_PAD}
-          y={cy - GROUP_H / 2}
-          width={x2 - x1 + GROUP_PAD * 2}
-          height={GROUP_H}
-          rx={GROUP_H / 2}
-          fill={filled ? "var(--color-paper-2)" : "none"}
-          stroke={filled ? "none" : "var(--color-line)"}
-          strokeWidth="1"
-          vectorEffect="non-scaling-stroke"
-        />
-      ))}
-
-      {/* Alignment: the dashes run the way each arrow points, briefly. */}
-      {ORG_LINKS.map(({ y1, y2 }) =>
-        [
-          [LINK_X[0], y1 + 4, y2 - 4],
-          [LINK_X[1], y2 - 4, y1 + 4],
-        ].map(([x, from, to]) => (
-          <motion.line
-            key={`${beat}-${x}-${y1}`}
-            x1={x}
-            y1={from}
-            x2={x}
-            y2={to}
-            stroke="var(--color-ink-muted)"
-            strokeWidth="1"
-            vectorEffect="non-scaling-stroke"
-            strokeDasharray={`${DASH / 2} ${DASH / 2}`}
-            markerEnd="url(#org-arrow)"
-            initial={{ strokeDashoffset: 0 }}
-            animate={cue === "links" ? { strokeDashoffset: -DASH * 6 } : { strokeDashoffset: 0 }}
-            transition={{ duration: 2, ease: "linear" }}
-          />
-        )),
-      )}
-
-      {ORG_NODES.map((n) => (
-        <motion.g
-          key={`${beat}-${n.label}`}
-          initial={{ opacity: 1 }}
-          animate={blinks(n) ? BLINK : { opacity: 1 }}
-          transition={{ duration: 1.6, ease: "easeInOut" }}
-        >
-          <rect
-            x={n.cx - n.w / 2}
-            y={n.cy - NODE_H / 2}
-            width={n.w}
-            height={NODE_H}
-            rx={NODE_H / 2}
-            fill={n.me ? "var(--color-accent)" : "var(--color-paper)"}
-            stroke={n.me ? "none" : "var(--color-ink)"}
-            strokeWidth="1"
-            vectorEffect="non-scaling-stroke"
-          />
-          <text
-            x={n.cx}
-            y={n.cy}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize="15"
-            fontWeight="500"
-            fill={n.me ? "var(--color-paper)" : "currentColor"}
-          >
-            {n.label}
-          </text>
-        </motion.g>
-      ))}
-    </svg>
-  );
-}
-
-function RolesScene({ step, live }: { step: number; live: boolean }) {
-  // Step 0 is the empty arrival; step n shows roles 1…n. The newest role
-  // cues the chart, and the spare last step cues nothing new.
-  const revealed = live ? step : ROLES.length;
-  const current = live && step >= 1 && step <= ROLES.length ? step - 1 : -1;
-  return (
-    <div className={wrap}>
-      <SectionHeader
-        label="03 ROLE AND RESPONSIBILITY"
-        headline="A Three-Person Team, a Company-Wide Change"
-      />
-      <div className="mt-12 grid items-center gap-12 md:grid-cols-[1fr_1.05fr] md:gap-16">
-        <ol className="flex flex-col gap-7">
-          {ROLES.map((role, i) => {
-            const shown = i < revealed;
-            return (
-              <motion.li
-                key={role.title}
-                aria-hidden={!shown || undefined}
-                initial={false}
-                animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
-                className="flex flex-col gap-1.5"
-              >
-                <h3 className="font-display text-lg font-medium text-ink md:text-xl">
-                  {role.title}
-                </h3>
-                <p className="text-base leading-relaxed text-ink-muted md:text-lg">{role.body}</p>
-              </motion.li>
-            );
-          })}
-        </ol>
-        <Reveal>
-          <OrgChart cue={ROLES[current]?.cue} beat={current} />
-        </Reveal>
-      </div>
-    </div>
-  );
-}
-
 export function Roles() {
   return (
-    <Chapter id="roles" label="03 Role and Responsibility" className="border-t border-line">
-      <StickyScene steps={ROLE_STEPS} label="My roles, one at a time">
-        {({ step, live }) => <RolesScene step={step} live={live} />}
-      </StickyScene>
-    </Chapter>
+    <RolesChapter
+      headline="A Three-Person Team, a Company-Wide Change"
+      roles={ROLES}
+      below={[
+        { label: "Search Engine Team", w: 188 },
+        { label: "Product Management Team", w: 224 },
+      ]}
+      orgLabel="Team structure: the AI PM (me) reports to and gets approval from the C-level, works in one team with an ML engineer and a backend engineer, and works back and forth with the search engine team and the product management team."
+    />
   );
 }

@@ -3,10 +3,11 @@
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, StickyScene, useStill } from "./motion";
+import { EASE_OUT, StickyScene, useStill } from "../story/motion";
+import { ProcessFlow } from "../story/ProcessFlow";
+import { B, Body, Chapter, CountUp, PhoneFrame, SectionHeader, TermList, wrap } from "../story/ui";
 import { SCREENS } from "./ActSetup";
-import { ProcessFlow } from "./ProcessFlow";
-import { B, Body, Chapter, CountUp, PhoneFrame, SectionHeader, wrap } from "./ui";
+import { STRATEGY } from "./ActTurn";
 
 // Act 4, Proof: 08 Search Flow · 09 A/B Test (spec §5.8–5.9).
 
@@ -640,6 +641,8 @@ const ResultsTitle = () => (
 );
 
 const VERDICT_STEPS = 3;
+// Before the CEO's yes, only the steps ahead of the gate are lit.
+const GATE = STRATEGY.findIndex((s) => s.gate);
 
 function Verdict({ approved }: { approved: boolean }) {
   return (
@@ -662,7 +665,12 @@ function Verdict({ approved }: { approved: boolean }) {
         </Body>
       </div>
       <div className="w-full">
-        <ProcessFlow animate={false} approved={approved} />
+        <ProcessFlow
+          steps={STRATEGY}
+          animate={false}
+          lit={approved ? STRATEGY.length : GATE}
+          from={GATE}
+        />
       </div>
     </div>
   );
@@ -681,17 +689,7 @@ export function AbTest() {
           To prove the system’s value, I <B>designed an A/B test around the KPIs</B> we set in
           Define.
         </Body>
-        <dl className="flex flex-col">
-          {AB_OVERVIEW.map(([term, value]) => (
-            <div
-              key={term}
-              className="grid gap-1 border-b border-line py-4 first:pt-0 last:border-b-0 md:grid-cols-[14rem_1fr] md:gap-8"
-            >
-              <dt className="text-base text-ink-muted md:text-lg">{term}</dt>
-              <dd className="text-base leading-relaxed text-ink md:text-lg">{value}</dd>
-            </div>
-          ))}
-        </dl>
+        <TermList rows={AB_OVERVIEW} />
       </div>
 
       <StickyScene

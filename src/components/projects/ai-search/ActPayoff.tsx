@@ -13,19 +13,24 @@ import {
 import { ShoppingCart } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { CENTERED } from "./ActSetup";
-import { EASE_OUT, Reveal, StickyScene, useStill } from "./motion";
+import { EASE_OUT, StickyScene, useStill } from "../story/motion";
 import {
   B,
   Body,
+  CENTERED,
   Chapter,
   CountUp,
+  DataNote,
+  Lessons,
   MetricCounter,
   SectionHeader,
+  SubHeading,
+  SubSubHeading,
   ThoughtBubble,
   wrap,
+  type Lesson,
   type Num,
-} from "./ui";
+} from "../story/ui";
 
 // Act 5, Payoff: 10 Improvement (A: proxy server, B: monitoring) ·
 // 11 Integration & Impact · 12 Reflection (spec §5.10–5.12).
@@ -35,14 +40,6 @@ const smallMetric = "[&>p:first-child]:text-[1.5rem] md:[&>p:first-child]:text-[
 /* ------------------------------------------------------------------ */
 /* 10 Improvement                                                      */
 /* ------------------------------------------------------------------ */
-
-function SubHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h3 className="font-display font-medium tracking-tight text-[1.4rem] leading-tight text-ink md:text-[1.75rem]">
-      {children}
-    </h3>
-  );
-}
 
 // A: the proxy server. One scene, Before turning into After on scroll:
 // queries pour in from the left toward Vertex AI, and every one that lands
@@ -496,15 +493,6 @@ function SlackMessage({ date, terms }: (typeof SLACK_DAYS)[number]) {
 
 // One message pops in per scroll step, each on top of and a little below
 // the day before, like a channel filling up over a week.
-// Sits under the Slack bot and the dashboard: their numbers are made up.
-function DataNote({ className }: { className?: string }) {
-  return (
-    <p className={cn("text-xs text-ink-muted", className)}>
-      Illustrative data. Internal figures have been changed.
-    </p>
-  );
-}
-
 function SlackStack({ shown, bubble }: { shown: number; bubble: boolean }) {
   const still = useStill();
   return (
@@ -650,14 +638,6 @@ function DashWindow({ step, live }: { step: number; live: boolean }) {
         <DataNote />
       </figcaption>
     </figure>
-  );
-}
-
-function SubSubHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h4 className="font-display text-xl font-medium tracking-tight text-ink md:text-2xl">
-      {children}
-    </h4>
   );
 }
 
@@ -991,7 +971,7 @@ export function IntegrationImpact() {
 /* ------------------------------------------------------------------ */
 
 // Three takeaways, one more per scroll, then a hold.
-const LESSONS = [
+const LESSONS: Lesson[] = [
   {
     title: "Deciding with Data, at Scale",
     body: (
@@ -1027,37 +1007,7 @@ const LESSONS = [
 ];
 
 export function Reflection() {
-  const still = useStill();
   return (
-    <Chapter id="reflection" label="12 Reflection" className="border-t border-line pt-24 md:pt-32">
-      <StickyScene steps={LESSONS.length + 1} vh={50} label="Three takeaways">
-        {({ step, live }) => (
-          <div className={cn(wrap, "flex flex-col gap-12")}>
-            <SectionHeader label="12 REFLECTION" headline="What This Project Taught Me" />
-            <ol className="grid gap-10 border-t border-line pt-10 md:grid-cols-3 md:gap-8">
-              {LESSONS.map((l, i) => {
-                const on = !live || step >= i;
-                return (
-                  <motion.li
-                    key={l.title}
-                    initial={false}
-                    animate={on ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT }}
-                    className="flex flex-col gap-3"
-                  >
-                    <span className="font-display text-sm font-medium text-accent">0{i + 1}</span>
-                    <h3 className="font-display text-xl font-medium tracking-tight text-ink md:text-2xl">
-                      {l.title}
-                    </h3>
-                    <Body>{l.body}</Body>
-                  </motion.li>
-                );
-              })}
-            </ol>
-          </div>
-        )}
-      </StickyScene>
-      <div className="pb-16 md:pb-24" />
-    </Chapter>
+    <Lessons id="reflection" label="12 REFLECTION" chapter="12 Reflection" lessons={LESSONS} />
   );
 }
