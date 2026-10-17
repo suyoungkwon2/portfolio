@@ -25,6 +25,7 @@ import {
   SectionHeader,
   SubHeading,
   ThoughtBubble,
+  textLink,
   wrap,
   type Lesson,
   type Num,
@@ -226,6 +227,15 @@ export function Improvement() {
 /* ------------------------------------------------------------------ */
 /* 12 Integration & Impact: SheetToHome                                */
 /* ------------------------------------------------------------------ */
+
+const PRESS = [
+  {
+    outlet: "Economist Korea",
+    date: "Feb 2025",
+    url: "https://economist.co.kr/article/view/ecn202502140048",
+  },
+  { outlet: "Viva100", date: "Feb 2025", url: "https://www.viva100.com/article/20250216500401" },
+];
 
 type SheetRow = { title: string; subtitle: string; start: string; end: string };
 const SHEET_ROWS: SheetRow[] = [
@@ -577,6 +587,22 @@ export function IntegrationImpact() {
             The same logic was requested for the search tab and for Beauty Kurly, and{" "}
             <B>went live on Beauty Kurly in 2025</B>, after I left.
           </Body>
+          <div className="mt-4 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-2">
+            <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
+              In the press
+            </span>
+            {PRESS.map((p) => (
+              <a
+                key={p.url}
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={textLink}
+              >
+                {p.outlet} ({p.date}) ↗
+              </a>
+            ))}
+          </div>
         </Reveal>
 
         <div className="grid items-center gap-10 rounded-2xl bg-paper-2/60 p-6 md:grid-cols-[1fr_auto] md:gap-14 md:p-10">

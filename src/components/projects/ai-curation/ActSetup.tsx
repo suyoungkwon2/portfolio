@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, useAnimationFrame, useInView } from "framer-motion";
-import { Check, Pencil, RotateCw } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { Pencil, RotateCw } from "lucide-react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, Reveal, StickyScene, useFitScale, useStill } from "../story/motion";
 import { RolesChapter, type Role } from "../story/OrgChart";
@@ -16,7 +16,6 @@ import {
   MetricCounter,
   SectionHeader,
   StoryHero,
-  textLink,
   wrap,
   type CopyBeat,
   type Num,
@@ -707,6 +706,8 @@ export function Context() {
 /* 02 Impact                                                           */
 /* ------------------------------------------------------------------ */
 
+const IMPACT_IMG = "/images/ai-curation/impact";
+
 // Lands with the labels, one scroll counts the numbers up, a spare step holds.
 const IMPACT: { to: Num; extra?: string; label: string }[] = [
   { to: { value: 25, suffix: "%" }, label: "of Key Homepage Slots Fully Automated by AI" },
@@ -714,143 +715,123 @@ const IMPACT: { to: Num; extra?: string; label: string }[] = [
   { to: { value: 2 }, extra: "days / week", label: "of MD Time Saved" },
 ];
 
-export const PRESS = [
-  {
-    outlet: "Economist Korea",
-    date: "Feb 2025",
-    url: "https://economist.co.kr/article/view/ecn202502140048",
-  },
-  { outlet: "Viva100", date: "Feb 2025", url: "https://www.viva100.com/article/20250216500401" },
-];
-
-// From the homepage's campaigns, out to the two places that asked for the
-// same logic. Only Beauty Kurly has shipped (2025).
-function BeyondDiagram() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.5 });
+// The MD sits in place from the start, the AI tucked behind her; on scroll the
+// AI slides out to the right as it fades in, then the numbers rise between.
+function useSlideOut() {
+  const grid = useRef<HTMLDivElement>(null);
+  const left = useRef<HTMLDivElement>(null);
+  const right = useRef<HTMLDivElement>(null);
+  const [dx, setDx] = useState(0);
+  useLayoutEffect(() => {
+    const g = grid.current;
+    if (!g) return;
+    // offsetLeft ignores transforms, so this reads the resting spots.
+    const mid = (el: HTMLElement | null) => (el ? el.offsetLeft + el.offsetWidth / 2 : 0);
+    const measure = () => setDx(mid(left.current) - mid(right.current));
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(g);
+    return () => ro.disconnect();
+  }, []);
   const still = useStill();
-  const drawn = still || inView;
-  const draw = (delay: number) => ({
-    initial: still ? false : { pathLength: 0 },
-    animate: { pathLength: drawn ? 1 : 0 },
-    transition: { duration: 0.7, ease: EASE_OUT, delay },
+  const slide = (open: boolean) => ({
+    initial: still ? false : { opacity: 0, x: 0 },
+    animate: open ? { opacity: 1, x: 0 } : { opacity: 0, x: dx },
+    transition: open ? { duration: 1.2, ease: EASE_OUT } : { duration: 0 },
   });
-  return (
-    <div
-      ref={ref}
-      role="img"
-      aria-label="Arrows run from the homepage’s themed campaigns to two chips: Search tab, and Beauty Kurly, checked, 2025."
-      className="relative grid h-full min-h-[220px] w-full grid-cols-[auto_1fr_auto] items-center gap-4 px-6 py-8 md:px-10"
-    >
-      <div className="flex flex-col items-center gap-2">
-        <span className="grid size-16 grid-cols-2 gap-1 rounded-2xl bg-accent p-3">
-          {[0, 1, 2, 3].map((i) => (
-            <span key={i} className="rounded-[3px] bg-paper/85" />
-          ))}
-        </span>
-        <span className="text-center text-xs font-medium text-ink">
-          Homepage
-          <br />
-          campaigns
-        </span>
-      </div>
-      <svg aria-hidden viewBox="0 0 120 120" preserveAspectRatio="none" className="h-28 w-full">
-        <motion.path
-          d="M2 60 C50 60 60 20 120 20"
-          fill="none"
-          stroke="var(--color-ink-muted)"
-          strokeWidth={1.25}
-          vectorEffect="non-scaling-stroke"
-          {...draw(0.1)}
-        />
-        <motion.path
-          d="M2 60 C50 60 60 100 120 100"
-          fill="none"
-          stroke="var(--color-accent)"
-          strokeWidth={1.75}
-          vectorEffect="non-scaling-stroke"
-          {...draw(0.3)}
-        />
-      </svg>
-      <div className="flex flex-col gap-8">
-        <span className="rounded-full border border-line bg-paper px-4 py-2 text-sm text-ink-muted">
-          Search tab
-        </span>
-        <motion.span
-          initial={still ? false : { opacity: 0, scale: 0.9 }}
-          animate={drawn ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-          transition={{ duration: 0.4, ease: EASE_OUT, delay: 0.8 }}
-          className="flex items-center gap-1.5 rounded-full border border-accent bg-paper px-4 py-2 text-sm font-medium text-accent"
-        >
-          <Check aria-hidden className="size-4" strokeWidth={2.5} />
-          Beauty Kurly
-          <span className="font-normal text-ink-muted">2025</span>
-        </motion.span>
-      </div>
-    </div>
-  );
+  return { grid, left, right, slide };
 }
 
 function ImpactScene({ step, live }: { step: number; live: boolean }) {
-  // Once counted, the numbers stay, even when scrolling back up.
+  // Once opened, the figures and numbers stay, even when scrolling back up.
   const [counted, setCounted] = useState(false);
   if (live && step >= 1 && !counted) setCounted(true);
-  const play = live ? counted : undefined;
+  // Unpinned (phones), the spread runs when the figures scroll into view.
+  const still = useStill();
+  const { grid, left, right, slide } = useSlideOut();
+  const inView = useInView(grid, { once: true, amount: 0.4 });
+  const open = still || (live ? counted : inView);
   return (
     <div className={wrap}>
       <SectionHeader label="02 IMPACT" headline="From Hand-Picked to Self-Running" />
       <Reveal>
-        <Body className="mt-6">
-          Built an AI system that <B>curates as well as Kurly’s expert MDs</B>: in a{" "}
-          <span className="whitespace-nowrap">2-week</span> A/B test, its campaigns performed on par
-          with theirs.
+        {/* A line per sentence from md up, never wrapping once there is room (xl). */}
+        <Body className="mt-6 max-w-none [&>span]:md:block [&>span]:xl:whitespace-nowrap">
+          <span>
+            Implemented an AI system that <B>curates as well as Kurly’s expert MDs</B>.
+          </span>{" "}
+          <span>
+            In an A/B test, its campaigns matched their hand-picked ones on clicks and purchases.
+          </span>{" "}
+          <span>
+            With curation handed to the AI, MDs could{" "}
+            <B>focus on the work that needs their judgment most</B>.
+          </span>
         </Body>
       </Reveal>
 
-      <div className="mt-12 grid gap-10 border-t border-line pt-10 md:grid-cols-3 md:gap-8">
-        {IMPACT.map((m, i) => (
-          <Reveal key={m.label} delay={i * 0.1} className="flex flex-col items-center gap-2">
-            <MetricCounter
-              to={m.to}
-              extra={m.extra}
-              label={m.label}
-              countFrom={0}
-              play={play}
-              className={CENTERED}
-            />
-          </Reveal>
-        ))}
+      {/* The MD and the AI face each other, the results between them. */}
+      <div
+        ref={grid}
+        className="relative mt-12 grid grid-cols-2 items-center gap-x-6 gap-y-10 md:grid-cols-[1fr_auto_1fr] md:gap-4"
+      >
+        {/* One desk under both figures, its edge at their lowest fingertips (~80%
+            down each image), fading out at the ends. */}
+        <div
+          aria-hidden
+          className="pointer-events-none col-span-full row-start-1 h-[20.5%] self-end"
+          style={{
+            background:
+              "linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 5%, transparent), transparent)",
+            maskImage: "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
+          }}
+        />
+        <div ref={left} className="relative z-10 col-start-1 row-start-1 justify-self-end">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+          <img
+            src={`${IMPACT_IMG}/md.webp`}
+            alt="A Kurly MD, pen in hand"
+            width={560}
+            height={751}
+            className="block w-full max-w-[320px]"
+          />
+        </div>
+        <div className="col-span-2 row-start-2 flex flex-col gap-10 md:col-span-1 md:col-start-2 md:row-start-1 md:pb-16">
+          {IMPACT.map((m, i) => (
+            <motion.div
+              key={m.label}
+              initial={still ? false : { opacity: 0, y: 16 }}
+              animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+              transition={{ duration: 0.5, ease: EASE_OUT, delay: open ? 0.7 + i * 0.12 : 0 }}
+              className="flex flex-col items-center gap-2"
+            >
+              <MetricCounter
+                to={m.to}
+                extra={m.extra}
+                label={m.label}
+                countFrom={0}
+                play={open}
+                className={CENTERED}
+              />
+            </motion.div>
+          ))}
+        </div>
+        <motion.div
+          ref={right}
+          className="relative col-start-2 row-start-1 justify-self-start md:col-start-3"
+          {...slide(open)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+          <img
+            src={`${IMPACT_IMG}/ai.webp`}
+            alt="The AI, in the same pose"
+            width={560}
+            height={751}
+            className="block w-full max-w-[320px]"
+          />
+        </motion.div>
       </div>
-      <Reveal className="mt-16 grid items-center gap-8 md:grid-cols-[1.25fr_1fr] md:gap-12">
-        <div className="overflow-hidden rounded-xl border-[0.5px] border-line bg-paper-2">
-          <BeyondDiagram />
-        </div>
-        <div className="flex flex-col items-start gap-4">
-          <h3 className="font-display font-medium tracking-tight text-[1.4rem] leading-tight text-ink md:text-[1.75rem]">
-            Proven on the Homepage, Expanded Beyond It
-          </h3>
-          <p className="text-base leading-relaxed text-ink-muted md:text-lg">
-            Once it proved its value on the homepage, the same AI curation was rolled out to other
-            slots across Kurly, including <B>Beauty Kurly</B>.
-          </p>
-          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-            <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
-              In the press
-            </span>
-            {PRESS.map((p) => (
-              <a
-                key={p.url}
-                href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={textLink}
-              >
-                {p.outlet} ({p.date}) ↗
-              </a>
-            ))}
-          </div>
-        </div>
-      </Reveal>
     </div>
   );
 }
