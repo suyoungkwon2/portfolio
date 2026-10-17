@@ -206,8 +206,8 @@ export function RolesChapter({
           return (
             <div className={wrap}>
               <SectionHeader label="03 ROLE AND RESPONSIBILITY" headline={headline} />
-              <div className="mt-12 grid items-center gap-12 md:grid-cols-[1fr_1.05fr] md:gap-16">
-                <ol className="flex flex-col gap-7">
+              <div className="mt-10 grid items-center gap-12 md:grid-cols-[1.3fr_1fr] md:gap-14">
+                <ol className="flex flex-col gap-6">
                   {roles.map((role, i) => {
                     const shown = i < revealed;
                     return (
@@ -222,7 +222,9 @@ export function RolesChapter({
                         <h3 className="font-display text-lg font-medium text-ink md:text-xl">
                           {role.title}
                         </h3>
-                        <p className="text-base leading-relaxed text-ink-muted md:text-lg">
+                        {/* Short screens step the copy down so the pinned
+                            scene still fits, header included. */}
+                        <p className="text-base leading-relaxed text-ink-muted md:text-lg md:[@media(max-height:800px)]:text-base">
                           {role.body}
                         </p>
                       </motion.li>

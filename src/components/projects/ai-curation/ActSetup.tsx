@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useAnimationFrame, useInView } from "framer-motion";
-import { Check, Pencil } from "lucide-react";
+import { Check, Pencil, RotateCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, Reveal, StickyScene, useFitScale, useStill } from "../story/motion";
@@ -280,129 +280,252 @@ export function Hero() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 01 Context: HomepageStack                                           */
+/* 01 Context: KurlyHomepage                                           */
 /* ------------------------------------------------------------------ */
 
 const CONTEXT_BEATS: CopyBeat[] = [
   {
     headline: "Curation Is What Kurly Sells",
-    body: (
+    body: [
       <>
         Kurly built its brand on picks: customers trust that if Kurly shows a product, it’s worth
-        buying. On the homepage, those picks live in <B>themed campaigns</B>, collections that
-        merchandisers (MDs) build for a season, an event, or a mood, drawn from <B>40K+ products</B>
-        .
-      </>
-    ),
+        buying.
+      </>,
+      <>
+        On the homepage, <B>themed campaigns</B> bring a new theme and a fresh mix of products every
+        day. It’s where customers discover something new and enjoy shopping.
+      </>,
+    ],
   },
   {
-    headline: "But the People Picking Were Getting Fewer",
-    body: (
+    headline: "But the Curation Went Stale",
+    body: [
       <>
-        Every campaign was built and kept up by hand. As the MD team shrank, campaigns stopped being
-        refreshed, and <B>the homepage started showing the same products again and again</B>.
-      </>
-    ),
+        A space meant to show something new and good every day started showing{" "}
+        <B>the same campaigns and products, day after day</B>.
+      </>,
+      <>
+        With fewer merchandisers (MDs) on the curation team, keeping the campaigns fresh kept
+        getting pushed back.
+      </>,
+    ],
   },
 ];
 
-const SLOTS = ["Promotional Banners", "Limited-Time Offers", "Best Sellers", "Special Campaigns"];
-const CAROUSEL: Theme[] = [HOLIDAY, SNACK, CHINESE];
-const MDS = 4;
+// Kurly's homepage, rebuilt in Figma at 1440 wide and cut into bands: the
+// header, the banner, then five themed campaigns. Heights are in page px.
+const HOME = "/images/ai-curation/homepage";
+const PAGE_W = 1440;
+// The window crops the page's empty sides: it shows x 130…1310.
+const CROP_X = 130;
+const VIEW_W = 1180;
+const TOP_BANDS = [
+  { src: `${HOME}/header.webp`, h: 196 },
+  { src: `${HOME}/banner.webp`, h: 370 },
+];
+const CAMPAIGNS = [
+  { src: `${HOME}/fruit.webp`, h: 722, title: "This week’s fruit specials" },
+  { src: `${HOME}/gourmet.webp`, h: 698, title: "An autumn gourmet journey" },
+  { src: `${HOME}/hydration.webp`, h: 722, title: "Seasonal hydration" },
+  { src: `${HOME}/kitchenware.webp`, h: 696, title: "The hottest kitchenware right now" },
+  { src: `${HOME}/snacks.webp`, h: 702, title: "Snacks everyone loves" },
+];
+const CAMPAIGNS_Y = TOP_BANDS.reduce((y, b) => y + b.h, 0);
+const CAMPAIGN_TOPS = CAMPAIGNS.reduce<number[]>(
+  (tops, c, i) => [...tops, i === 0 ? CAMPAIGNS_Y : tops[i - 1] + CAMPAIGNS[i - 1].h],
+  [],
+);
+// The window shows this much of the page, in page px.
+const WINDOW_H = 1000;
+// Once nobody refreshes it, the page reloads day after day onto this same
+// lineup, its autumn campaign and all.
+const STUCK = 1;
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const DAY_S = 2.2;
+// The pop-out card shows the campaign from x 150 to 1290, then grows past
+// the window's edges.
+const CARD_X = 150;
+const CARD_W = 1140;
+const POP = 1.1;
+// The tour plays on its own: a short look at the top of the page, then a
+// stop per campaign.
+const TOP_S = 1.2;
+const STOP_S = 2.8;
+// Within a stop, in seconds: the page glides, the card pops, holds, settles.
+const POP_TIMES = [0, 0.8, 0.85, 1.25, 2.2, 2.55, 2.65].map((t) => t / STOP_S);
+const SHADOW_OFF = "0 0 0 0 rgba(0,0,0,0)";
+const SHADOW_ON = "0 24px 48px -12px rgba(0,0,0,0.35)";
 
-function ThemeCard({ theme, stale }: { theme: Theme; stale: boolean }) {
-  return (
-    <div
-      className={cn(
-        "flex flex-col gap-2 rounded-lg bg-paper p-2.5 transition-[filter,opacity] duration-700",
-        stale && "opacity-60 grayscale",
-      )}
-    >
-      <p className="truncate text-sm font-semibold text-ink">
-        {theme.emoji} {theme.title} ›
-      </p>
-      <div className="grid grid-cols-4 gap-1.5">
-        {theme.products.slice(0, 4).map((p) => (
-          <ProductImage key={p.id} product={p} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function HomepageStack({ stale, live }: { stale: boolean; live: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { amount: 0.4 });
-  const [card, setCard] = useState(0);
-  const turning = live && inView && !stale;
+function KurlyHomepage({ step, live }: { step: number; live: boolean }) {
+  const { ref, scale } = useFitScale(VIEW_W);
+  const inView = useInView(ref, { amount: 0.5 });
+  const stale = live && step >= 1;
+  const touring = live && !stale && inView;
+  // -1 is the top of the page; 0…4 stop on each campaign.
+  const [stop, setStop] = useState(-1);
   useEffect(() => {
-    if (!turning) return;
-    const timer = setInterval(() => setCard((c) => (c + 1) % CAROUSEL.length), 1800);
+    if (!touring) return;
+    const timer = setTimeout(
+      () => setStop((s) => (s + 1 >= CAMPAIGNS.length ? -1 : s + 1)),
+      (stop < 0 ? TOP_S : STOP_S) * 1000,
+    );
+    return () => clearTimeout(timer);
+  }, [touring, stop]);
+  // Leaving the tour starts it over from the top next time.
+  if (!touring && stop !== -1) setStop(-1);
+
+  // Stale, the days tick by and each reload brings back the same page.
+  const [day, setDay] = useState(0);
+  const reloading = stale && inView;
+  useEffect(() => {
+    if (!reloading) return;
+    const timer = setInterval(() => setDay((d) => d + 1), DAY_S * 1000);
     return () => clearInterval(timer);
-  }, [turning]);
-  // Once nobody's looking after it, the card stops on one campaign.
-  const shownCard = stale || !live ? 0 : card;
-  if (stale && card !== 0) setCard(0);
+  }, [reloading]);
+
+  const focus = touring ? stop : -1;
+  const centered = focus >= 0 ? focus : stale ? STUCK : -1;
+  const y =
+    centered >= 0 ? -(CAMPAIGN_TOPS[centered] + CAMPAIGNS[centered].h / 2 - WINDOW_H / 2) : 0;
+  const card = focus >= 0 ? CAMPAIGNS[focus] : null;
 
   return (
     <div
-      ref={ref}
       role="img"
       aria-label={
         stale
-          ? "Kurly’s homepage slots: Promotional Banners, Limited-Time Offers, Best Sellers, Special Campaigns and Themed Campaigns. The MDs beside Themed Campaigns fade away, and its campaign card stops on “Aesthetic Holiday Prep is On”, fading to grey."
-          : "Kurly’s homepage slots: Promotional Banners, Limited-Time Offers, Best Sellers, Special Campaigns and Themed Campaigns, highlighted. MDs beside it keep its campaign cards turning."
+          ? `Kurly’s homepage, greyed out, reloads day after day, Monday to Sunday, and shows the same “${CAMPAIGNS[STUCK].title}” campaign every time.`
+          : `Kurly’s homepage scrolls past its themed campaigns, each one lifting out of the page in turn: ${CAMPAIGNS.map((c) => `“${c.title}”`).join(", ")}.`
       }
-      className="mx-auto flex w-full max-w-[480px] flex-col gap-2 rounded-2xl border border-line bg-paper-2/50 p-4"
+      className="mx-auto w-full max-w-[640px] rounded-xl border border-line bg-paper shadow-[0_12px_40px_-16px_rgba(0,0,0,0.18)]"
     >
-      <p className="pb-1 text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
-        Kurly homepage
-      </p>
-      {SLOTS.map((slot, i) => (
-        <Reveal key={slot} delay={i * 0.06}>
-          <p className="rounded-lg border border-line bg-paper px-4 py-2.5 text-sm text-ink-muted">
-            {slot}
-          </p>
-        </Reveal>
-      ))}
-      <Reveal delay={SLOTS.length * 0.06}>
-        <div className="flex gap-3 rounded-xl border border-accent bg-accent/[0.06] p-3 ring-2 ring-accent/15">
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <p className="text-sm font-semibold text-accent">Themed Campaigns</p>
-            <div className="grid">
-              {CAROUSEL.map((theme, i) => (
-                <motion.div
-                  key={theme.title}
-                  aria-hidden={i !== shownCard || undefined}
-                  initial={false}
-                  animate={
-                    i === shownCard
-                      ? { opacity: 1, x: 0 }
-                      : { opacity: 0, x: i < shownCard ? -24 : 24 }
-                  }
-                  transition={{ duration: 0.45, ease: EASE_OUT }}
-                  className="[grid-area:1/1]"
-                >
-                  <ThemeCard theme={theme} stale={stale} />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-          {/* The MDs behind it, who leave one by one. */}
-          <ul aria-hidden className="flex flex-col items-center justify-center gap-1.5">
-            {Array.from({ length: MDS }, (_, i) => (
-              <motion.li
+      <div className="flex items-center gap-1.5 rounded-t-xl border-b border-line bg-paper-2 px-3 py-2">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="size-2 rounded-full bg-line" />
+        ))}
+        <span className="ml-3 truncate rounded-md bg-paper px-3 py-0.5 text-[11px] text-ink-muted">
+          kurly.com
+        </span>
+        {/* Reload: pressed and turned once with every new day. */}
+        <motion.span
+          key={`reload-${stale ? day : -1}`}
+          aria-hidden
+          className="ml-1.5 grid size-5 place-items-center rounded-full"
+          initial={false}
+          animate={
+            stale && day > 0
+              ? {
+                  rotate: [0, 360],
+                  scale: [1, 0.85, 1],
+                  backgroundColor: ["rgba(0,0,0,0.12)", "rgba(0,0,0,0)"],
+                }
+              : {}
+          }
+          transition={{ duration: 0.7, ease: "easeInOut" }}
+        >
+          <RotateCw className="size-3 text-ink-muted" strokeWidth={2.25} />
+        </motion.span>
+        {stale && (
+          <motion.span
+            key={`day-${day}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="ml-auto text-[11px] font-medium text-ink-muted"
+          >
+            {DAYS[day % DAYS.length]}
+          </motion.span>
+        )}
+      </div>
+      <div className="relative">
+        <div
+          ref={ref}
+          className="relative overflow-hidden rounded-b-xl"
+          style={{ height: WINDOW_H * scale }}
+        >
+          <motion.div
+            className={cn(
+              "absolute left-0 top-0 origin-top-left transition-[filter,opacity] duration-700",
+              stale && "opacity-70 grayscale",
+            )}
+            style={{ width: PAGE_W, scale, x: -CROP_X * scale }}
+            initial={false}
+            // The page is scaled about its top-left, so moves are in screen px.
+            animate={{ y: y * scale }}
+            transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.1 }}
+          >
+            {TOP_BANDS.map((b) => (
+              // eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP
+              <img key={b.src} src={b.src} alt="" width={PAGE_W} height={b.h} className="block" />
+            ))}
+            {CAMPAIGNS.map((c, i) => (
+              <motion.div
                 key={i}
                 initial={false}
-                animate={stale ? { opacity: 0.12, scale: 0.85 } : { opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: live && stale ? 0.2 + i * 0.35 : 0 }}
+                animate={{ opacity: focus < 0 || i === focus ? 1 : 0.4 }}
+                transition={{ duration: 0.5 }}
+                className="bg-paper"
               >
-                <MdAvatar tone={i} className="size-9" />
-              </motion.li>
+                {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+                <img src={c.src} alt="" width={PAGE_W} height={c.h} className="block" />
+              </motion.div>
             ))}
-          </ul>
+          </motion.div>
+          {/* Each reload blanks the page for a beat, then the same page returns. */}
+          {stale && (
+            <motion.div
+              key={day}
+              aria-hidden
+              className="absolute inset-0 bg-paper"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: day === 0 ? 0 : [0, 0.95, 0.95, 0] }}
+              transition={{ duration: 1.1, times: [0, 0.25, 0.45, 1], ease: "easeInOut" }}
+            />
+          )}
         </div>
-      </Reveal>
+
+        {/* The campaign in focus, lifted out of the page: a copy laid exactly
+            over it that grows past the window's edges, then settles back. */}
+        {card && (
+          <motion.div
+            key={focus}
+            aria-hidden
+            className="pointer-events-none absolute z-10 overflow-hidden bg-paper"
+            style={{
+              left: (CARD_X - CROP_X) * scale,
+              top: ((WINDOW_H - card.h) / 2) * scale,
+              width: CARD_W * scale,
+              height: card.h * scale,
+              borderRadius: 16,
+            }}
+            initial={{ scale: 1, opacity: 0, boxShadow: SHADOW_OFF }}
+            animate={{
+              scale: [1, 1, 1, POP, POP, 1, 1],
+              opacity: [0, 0, 1, 1, 1, 1, 0],
+              boxShadow: [
+                SHADOW_OFF,
+                SHADOW_OFF,
+                SHADOW_OFF,
+                SHADOW_ON,
+                SHADOW_ON,
+                SHADOW_OFF,
+                SHADOW_OFF,
+              ],
+            }}
+            transition={{ duration: STOP_S, times: POP_TIMES, ease: "easeInOut" }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+            <img
+              src={card.src}
+              alt=""
+              width={PAGE_W}
+              height={card.h}
+              className="block max-w-none"
+              style={{ width: PAGE_W * scale, marginLeft: -CARD_X * scale }}
+            />
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }
@@ -410,23 +533,24 @@ function HomepageStack({ stale, live }: { stale: boolean; live: boolean }) {
 export function Context() {
   return (
     <Chapter id="context" label="01 Context">
-      <StickyScene steps={3} label="Kurly’s homepage slots and the MDs behind them">
-        {({ step, live }) => {
-          const stale = !live || step >= 1;
-          return (
-            <div
-              className={cn(wrap, "grid grid-cols-1 items-center gap-10 md:grid-cols-[1fr_1.05fr]")}
-            >
-              <BeatCopy
-                label="01 CONTEXT"
-                beats={CONTEXT_BEATS}
-                active={stale ? 1 : 0}
-                live={live}
-              />
-              <HomepageStack stale={stale} live={live} />
-            </div>
-          );
-        }}
+      {/* Step 0 plays the homepage tour on its own; one scroll turns it stale. */}
+      <StickyScene
+        steps={3}
+        label="Kurly’s homepage, campaign by campaign, then the same campaign again and again"
+      >
+        {({ step, live }) => (
+          <div
+            className={cn(wrap, "grid grid-cols-1 items-center gap-10 md:grid-cols-[1fr_1.2fr]")}
+          >
+            <BeatCopy
+              label="01 CONTEXT"
+              beats={CONTEXT_BEATS}
+              active={live && step >= 1 ? 1 : 0}
+              live={live}
+            />
+            <KurlyHomepage step={step} live={live} />
+          </div>
+        )}
       </StickyScene>
     </Chapter>
   );
@@ -437,18 +561,10 @@ export function Context() {
 /* ------------------------------------------------------------------ */
 
 // Lands with the labels, one scroll counts the numbers up, a spare step holds.
-const IMPACT: { to: Num; extra?: string; label: string; note?: string }[] = [
-  {
-    to: { value: 25, suffix: "%" },
-    label: "of Key Homepage Campaign Slots Run Fully by AI",
-  },
-  { to: { value: 200, suffix: "+" }, label: "Campaigns Run by AI" },
-  {
-    to: { value: 2 },
-    extra: "days / week",
-    label: "of MD Time Saved",
-    note: "Estimated from employee interviews.",
-  },
+const IMPACT: { to: Num; extra?: string; label: string }[] = [
+  { to: { value: 25, suffix: "%" }, label: "of Key Homepage Slots Fully Automated by AI" },
+  { to: { value: 200, suffix: "+" }, label: "Themed Campaigns Run by AI" },
+  { to: { value: 2 }, extra: "days / week", label: "of MD Time Saved" },
 ];
 
 export const PRESS = [
@@ -536,8 +652,15 @@ function ImpactScene({ step, live }: { step: number; live: boolean }) {
   return (
     <div className={wrap}>
       <SectionHeader label="02 IMPACT" headline="From Hand-Picked to Self-Running" />
+      <Reveal>
+        <Body className="mt-6">
+          Built an AI system that <B>curates as well as Kurly’s expert MDs</B>: in a{" "}
+          <span className="whitespace-nowrap">2-week</span> A/B test, its campaigns performed on par
+          with theirs.
+        </Body>
+      </Reveal>
 
-      <div className="mt-14 grid gap-10 border-t border-line pt-10 md:grid-cols-3 md:gap-8">
+      <div className="mt-12 grid gap-10 border-t border-line pt-10 md:grid-cols-3 md:gap-8">
         {IMPACT.map((m, i) => (
           <Reveal key={m.label} delay={i * 0.1} className="flex flex-col items-center gap-2">
             <MetricCounter
@@ -548,29 +671,20 @@ function ImpactScene({ step, live }: { step: number; live: boolean }) {
               play={play}
               className={CENTERED}
             />
-            {m.note && <p className="text-xs text-ink-muted">{m.note}</p>}
           </Reveal>
         ))}
       </div>
-      <Reveal>
-        <Body className="mx-auto mt-10 max-w-none text-center">
-          In a 2-week A/B test, AI-curated campaigns performed{" "}
-          <B>on par with campaigns picked by Kurly’s MDs</B>.
-        </Body>
-      </Reveal>
-
       <Reveal className="mt-16 grid items-center gap-8 md:grid-cols-[1.25fr_1fr] md:gap-12">
         <div className="overflow-hidden rounded-xl border-[0.5px] border-line bg-paper-2">
           <BeyondDiagram />
         </div>
         <div className="flex flex-col items-start gap-4">
           <h3 className="font-display font-medium tracking-tight text-[1.4rem] leading-tight text-ink md:text-[1.75rem]">
-            Other Teams Asked for It Too
+            Proven on the Homepage, Expanded Beyond It
           </h3>
           <p className="text-base leading-relaxed text-ink-muted md:text-lg">
-            After seeing the results, other teams wanted the same logic for their own spaces, from
-            the search tab to <B>Beauty Kurly</B>. After I left Kurly, it launched on Beauty Kurly
-            in 2025.
+            Once it proved its value on the homepage, the same AI curation was rolled out to other
+            slots across Kurly, including <B>Beauty Kurly</B>.
           </p>
           <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
             <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">

@@ -84,7 +84,8 @@ export function SectionHeader({
   );
 }
 
-export type CopyBeat = { headline: React.ReactNode; body: React.ReactNode };
+// `body` may be a list of paragraphs.
+export type CopyBeat = { headline: React.ReactNode; body: React.ReactNode | React.ReactNode[] };
 
 // A chapter's “fact → But…” copy: two (or more) headline + body beats in one
 // grid cell, so nothing reflows when the scene swaps them. Phones and
@@ -120,7 +121,15 @@ export function BeatCopy({
               )}
             >
               <SectionHeader headline={beat.headline} as={i === 0 ? "h2" : "h3"} />
-              <Body>{beat.body}</Body>
+              {Array.isArray(beat.body) ? (
+                <div className="flex flex-col gap-4">
+                  {beat.body.map((p, j) => (
+                    <Body key={j}>{p}</Body>
+                  ))}
+                </div>
+              ) : (
+                <Body>{beat.body}</Body>
+              )}
             </motion.div>
           );
         })}
