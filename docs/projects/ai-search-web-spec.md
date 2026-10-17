@@ -33,14 +33,14 @@
 | Conflict | 04 User Problem · 05 Company's Problem | 고객도 회사도 막혔다 |
 | Turn | 06 Define · 07 PoC Approach | 다시 만들지 않고 "덧붙이기"로 방향 전환. **07B가 페이지 클라이맥스** |
 | Proof | 08 System Architecture · 09 A/B Test | 정말 안전하고, 정말 효과가 있다 |
-| Payoff | 10 Improvement · 11 Integration & Impact | 안전·비용·투명성, 출시와 매출 |
+| Payoff | 10 Improvement · 11 Integration & Impact · 12 Reflection | 안전·비용·투명성, 출시와 매출, 배운 점 |
 
 ---
 
 ## 2. 전역 디자인 · 모션 규칙
 
 ### 2.1 레이아웃 공통
-- **Chapter Nav**: 데스크톱에서 좌측 고정. 11개 섹션 이름(01 Context … 11 Integration & Impact) + 현재 위치 하이라이트 + 진행 바. 클릭 시 해당 섹션으로 스크롤. 모바일에서는 상단 얇은 진행 바만.
+- **Chapter Nav**: 데스크톱에서 좌측 고정. 12개 섹션 이름(01 Context … 12 Reflection) + 현재 위치 하이라이트 + 진행 바. 클릭 시 해당 섹션으로 바로 점프(부드러운 스크롤 없음: 고정 장면을 지나며 멈추는 문제 때문). 모바일에서는 상단 얇은 진행 바만.
 - **Section Header**: 작은 대문자 라벨(`01 CONTEXT`) + 헤드라인 1문장. 헤드라인만 훑어 내려도 이야기가 읽혀야 합니다.
 - **Body**: 1인칭, 한 문단 2~3문장, 굵게 표시된 구절만 강조.
 - **강조색**: 한 가지만. 성공·After·핵심 수치에만 사용. 실패/No Result는 채도를 뺀 회색 톤. 사이트에 이미 정의된 강조색이 있으면 그것을 우선 사용.
@@ -96,6 +96,7 @@ Hero
 09 A/B Test & Result
 10 Improvement  (A: Proxy server / B: Monitoring)
 11 Integration & Impact
+12 Reflection
 Outro
 ```
 
@@ -132,14 +133,14 @@ Outro
 
 ### 5.2 02 Impact
 - **목적**: 결과 스포일러 + 외부 검증(Google).
-- **Motion**: `▶ Scroll scene` (3단계). 섹션에 도착하면 화면이 고정되고, 이전 값(회색)과 설명만 보임. 스크롤 한 번에 새 수치(와 ₩5B 괄호)가 나타나며 0에서 최종 값까지 빠르게 count-up, 한 단계 더 머문 뒤 다음 섹션으로. 한 번 올라간 수치는 다시 스크롤해 올라가도 유지. 모바일·reduced motion은 최종 상태.
+- **Motion**: `▶ Scroll scene` (3단계). 섹션에 도착하면 화면이 고정되고, 이전 값(회색)과 설명만 보임. 스크롤 한 번에 새 수치가 나타나며 0에서 최종 값까지 빠르게 count-up, 한 단계 더 머문 뒤 다음 섹션으로. 한 번 올라간 수치는 다시 스크롤해 올라가도 유지. 모바일·reduced motion은 최종 상태.
 - **Copy**
   - Label: `02 IMPACT`
   - Headline: **From Dead Ends to Discoveries**
   - Metrics (`MetricCounter`, count-up, 수치와 설명 모두 칼럼 중앙 정렬; 이전 값은 절반 크기 회색으로 새 값과 baseline 정렬):
     1. **6.80% → 0.22%** · No-Result Search Rate
     2. **58.60% → 60.14%** · Search Click-Through Rate
-    3. **$3.6M (₩5B)** · New Monthly Revenue from Former Dead Ends
+    3. **$3.6M** · New Monthly Revenue from Former Dead Ends
   - Google (박스 없이 영상 + 텍스트 2열, 영상에만 0.5px 연회색 테두리):
     - Title: **Featured at / Google Cloud Summit Seoul 2024** (“Featured at” 뒤 줄바꿈)
     - Body: Google selected this project as a leading enterprise case of AI innovation on GCP. Kurly’s CEO presented it on stage, and I built the presentation.
@@ -322,13 +323,23 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 - **목적**: 출시(2개월, 검색엔진팀 핸드오프) → "그래서 회사에 무엇이 남았나".
 - **Copy**
   - Label: `11 INTEGRATION & IMPACT`
-  - Headline: **Live in Two Months, ₩5B a Month**
-  - Body: Two months after the PoC, AI Search was live for every Kurly customer. Then I handed it to the **Search Engine team**, and it became part of their roadmap. 옆에 **2 months** · From PoC to Full Production
-  - Motion: `▶ Scroll scene` — `cabage`가 장바구니에 담기고 ₩5B로 변신.
-  - Hero number: **₩5B (~$3.6M)** · New monthly revenue from searches that used to end in nothing
+  - Headline: **Live in Two Months, $3.6M a Month**
+  - Body: Two months after the PoC, AI Search was live for every Kurly customer. (줄바꿈) Then I handed it to the **Search Engine team**, and it became part of their roadmap. 첫 문장은 한 줄로. 별도 “2 months” 숫자 없음
+  - Motion: 한 화면에 고정되는 `▶ Scroll scene` 6비트(마지막은 hold). 0 헤더·본문 + 빈 장바구니(01 Context의 반투명 장바구니를 가로로 길게(최대 580px), 유리는 더 투명하게) → 1 Kurly 상품 21개(정방형, 큰 r값, 흰 테두리; `public/images/ai-search/impact/`)가 크기·기울기·낙하 위치·시점 모두 무작위로 와르르 쏟아져 4줄로 쌓임. 아래가 조금 좁은 사다리꼴로 덜 겹치게 흩어져 쌓이고, 윗줄은 테두리 위로 넘치고 앞줄은 유리 뒤 깊숙이(쏟아짐 2비트) → 3 장바구니가 사라지고 **+$3.6M** 카운트업, 설명 문구 크게 → 4 보조 지표 3개가 02 Impact와 같은 레이아웃(가운데 정렬 3열, 위 구분선)으로 카운트업 → 5 hold. 그래프 없음. 모바일·reduced motion은 최종 상태(+$3.6M + 지표).
+  - Hero number: **+$3.6M** · New monthly revenue from searches that used to end in nothing
   - Supporting metrics (3개): **6.80% → 0.22%** No-Result Rate · **58.60% → 60.14%** Search CTR · **35.52x** Return on AI cost (margin per product ÷ API fee per purchase)
-  - Closing band · **Google Cloud Summit Seoul 2024** (기존 그대로) — 버튼: Watch the talk
-- **TODO**: ₩5B 아래 측정 범위 주석 한 줄.
+  - Closing band 없음(Google Cloud Summit은 02 Impact에만). 보조 지표 세 번째 라벨은 “Return on AI Cost:” 뒤 줄바꿈.
+- **TODO**: $3.6M 아래 측정 범위 주석 한 줄.
+
+### 5.12 12 Reflection
+- **목적**: 이 프로젝트에서 배운 세 가지로 마무리.
+- **Copy**
+  - Label: `12 REFLECTION`
+  - Headline: **What This Project Taught Me**
+  - 01 **Deciding with Data, at Scale** · This was my first time making decisions on a **large-scale A/B test with 3.5M monthly active users**. I learned how to prove a hypothesis in numbers, use that evidence to align stakeholders, and keep improving the system on it.
+  - 02 **Starting from the Problem** · Instead of taking leadership’s existing belief for granted, I **defined the user and business problems from data** and led the direction of the fix. It was rewarding to see that turn into new revenue and a better experience for customers.
+  - 03 **Building AI That Lasts** · Bringing AI into a large, live service taught me that applying AI fast is not the goal. I learned to **define clearly where AI adds value**, and to build a **sustainable system** around it, with security, cost, and monitoring considered from the start.
+- **Motion**: `▶ Scroll scene` 4비트. 구분선 아래 3열, 스크롤마다 하나씩 나타남, 마지막 hold. 모바일·reduced motion은 세 개 모두 표시.
 
 ### 5.13 Outro
 - Reflection (선택, 2문장, **문구 TODO** — 작성자 확정 전까지 숨김)
@@ -347,7 +358,6 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 | id | 종류 | 사용 섹션 | 내용 | 상태 |
 | --- | --- | --- | --- | --- |
 | `summit-stage-clip` | video + poster | 02 | 발표 영상 클립 2개를 이은 약 8.8초 루프 (발표자: Kurly CEO, 발표 자료는 본인 제작) | 보유 |
-| `summit-stage-photo` | image | 12 | 무대 사진 | 보유(PDF) |
 | `beta-label-ui` | image | 03, 07B | Beta 안내 UI 스크린샷 | 확보 필요 |
 | `arch-thumb` | image | 03 | 아키텍처 썸네일 | PDF p.26 |
 | `dashboard-thumb` | image | 03 | 대시보드 썸네일 | PDF p.27 |
@@ -370,7 +380,7 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 | 3.83% → 26.50% | No-Result 검색 CTR | md |
 | 99.98% → 2.93% | No-Result 검색 내 NRR | md |
 | about 7x | 26.50 ÷ 3.83 ≈ 6.9 | 계산 |
-| ₩5B (~$3.6M) | 이전 No-Result 검색에서 나온 월 신규 매출 | suyoungkwon.com/work/ai-search 10s Summary (작성자 확정) |
+| $3.6M | 이전 No-Result 검색에서 나온 월 신규 매출 | suyoungkwon.com/work/ai-search 10s Summary (작성자 확정) |
 | −30% / up to 30% | 프록시 캐싱으로 줄인 AI 호출·운영비 (파일럿 대비) | md, CV |
 | 12 hours | 키워드별 캐시 유지 시간 | md |
 | 2 months | PoC → 전체 적용 | md |
@@ -398,5 +408,5 @@ Layout: 메인 경로 세로 1열(N1…N8), N3와 N7은 오른쪽 열
 
 1. `contextual` 데모 검색어 (PDF p.26 정성 검증 예시에서 선택 예정)
 2. Outro reflection 문구
-3. ₩5B 측정 범위 주석 문구
+3. $3.6M 측정 범위 주석 문구
 4. 모든 녹화 에셋 (§6)

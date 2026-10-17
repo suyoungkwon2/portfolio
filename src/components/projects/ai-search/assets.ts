@@ -20,10 +20,6 @@ export const ASSETS = {
     kind: "video",
     alt: "Kurly’s CEO presenting AI Search on stage at Google Cloud Summit Seoul 2024.",
   },
-  "summit-stage-photo": {
-    kind: "image",
-    alt: "Kurly’s CEO on stage at Google Cloud Summit Seoul 2024.",
-  },
   "beta-label-ui": {
     kind: "image",
     alt: "Search results screen with the Beta notice that marks results found by AI.",

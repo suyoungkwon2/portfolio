@@ -13,10 +13,9 @@ import {
 import { ShoppingCart } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { TALK_URL } from "./ActSetup";
+import { CENTERED } from "./ActSetup";
 import { EASE_OUT, Reveal, StickyScene, useStill } from "./motion";
 import {
-  AssetMedia,
   B,
   Body,
   Chapter,
@@ -25,16 +24,13 @@ import {
   SectionHeader,
   ThoughtBubble,
   wrap,
+  type Num,
 } from "./ui";
 
 // Act 5, Payoff: 10 Improvement (A: proxy server, B: monitoring) ·
-// 11 Integration & Impact (spec §5.10–5.11).
+// 11 Integration & Impact · 12 Reflection (spec §5.10–5.12).
 
-const linkClass =
-  "text-sm font-medium text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent-3 hover:decoration-accent-3";
-
-const smallMetric =
-  "[&>p:first-child]:text-[1.5rem] md:[&>p:first-child]:text-[1.75rem]";
+const smallMetric = "[&>p:first-child]:text-[1.5rem] md:[&>p:first-child]:text-[1.75rem]";
 
 /* ------------------------------------------------------------------ */
 /* 10 Improvement                                                      */
@@ -135,8 +131,7 @@ function Coin({
 }) {
   // Seconds since this query landed, as a share of the coin's life.
   const life = useTransform(time, (t) => {
-    const since =
-      (((cycle(t, dot.phase) - ARRIVE + 1) % 1) * PERIOD) / COIN_LIFE;
+    const since = (((cycle(t, dot.phase) - ARRIVE + 1) % 1) * PERIOD) / COIN_LIFE;
     return since < 1 ? since : -1;
   });
   const opacity = useTransform([life, mix], ([v, m]: number[]) => {
@@ -146,12 +141,8 @@ function Coin({
   });
   const drift = useTransform(life, (v) => r2(Math.max(0, v) * 34));
   const x = useTransform(drift, (d) => (dot.side === "right" ? d : 0));
-  const y = useTransform(drift, (d) =>
-    dot.side === "top" ? -d : dot.side === "bottom" ? d : 0,
-  );
-  const scale = useTransform(life, (v) =>
-    r2(0.6 + 0.4 * Math.min(1, Math.max(0, v) * 5)),
-  );
+  const y = useTransform(drift, (d) => (dot.side === "top" ? -d : dot.side === "bottom" ? d : 0));
+  const scale = useTransform(life, (v) => r2(0.6 + 0.4 * Math.min(1, Math.max(0, v) * 5)));
   const j = dot.jitter;
   const pos =
     dot.side === "right"
@@ -188,9 +179,7 @@ function Spark({
   const opacity = useTransform([v, mix], ([p, m]: number[]) =>
     p < 0 || p > 1 ? 0 : r2(Math.sin(Math.PI * p) * m),
   );
-  const scale = useTransform(v, (p) =>
-    r2(0.4 + Math.max(0, Math.min(1, p)) * 1.2),
-  );
+  const scale = useTransform(v, (p) => r2(0.4 + Math.max(0, Math.min(1, p)) * 1.2));
   return (
     <motion.span
       aria-hidden
@@ -222,8 +211,7 @@ const GUARDS = [
 const VERTEX_BLUE = "#4285F4"; // Vertex AI's blue, as in 07's triangle
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 // Card centres in the 4-column row (gap-3 = 12px), for the connector lines.
-const cardX = (i: number) =>
-  `calc((100% - 36px) * ${(2 * i + 1) / 8} + ${12 * i}px)`;
+const cardX = (i: number) => `calc((100% - 36px) * ${(2 * i + 1) / 8} + ${12 * i}px)`;
 
 // Proxy → four cards: a stem, then a rounded elbow out to each card. Each
 // elbow is a bordered box, revealed by clip-path: across first, then down.
@@ -242,9 +230,7 @@ function Elbow({
   const clipPath = useTransform([bar, drop], ([h, v]: number[]) => {
     const across = `${r2((1 - h) * 100)}%`;
     const down = `calc((100% - 1px) * ${r2(1 - v)})`;
-    return left
-      ? `inset(0 0 ${down} ${across})`
-      : `inset(0 ${across} ${down} 0)`;
+    return left ? `inset(0 0 ${down} ${across})` : `inset(0 ${across} ${down} 0)`;
   });
   return (
     <motion.span
@@ -289,30 +275,20 @@ function GuardCard({
   i: number;
   draw: MotionValue<number>;
 }) {
-  const shown = useTransform(draw, (d) =>
-    r2(clamp01((d - 0.65 - i * 0.08) / 0.11)),
-  );
+  const shown = useTransform(draw, (d) => r2(clamp01((d - 0.65 - i * 0.08) / 0.11)));
   const y = useTransform(shown, (v) => r2((1 - v) * 12));
   return (
     <motion.li
       style={{ opacity: shown, y }}
       className="flex flex-col gap-1 rounded-2xl border border-line bg-paper p-4"
     >
-      <p className="font-display text-base font-medium text-ink md:text-lg">
-        {g.name}
-      </p>
+      <p className="font-display text-base font-medium text-ink md:text-lg">{g.name}</p>
       <p className="text-sm leading-relaxed text-ink-muted">{g.text}</p>
     </motion.li>
   );
 }
 
-function ProxyScene({
-  progress,
-  live,
-}: {
-  progress: MotionValue<number>;
-  live: boolean;
-}) {
+function ProxyScene({ progress, live }: { progress: MotionValue<number>; live: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref);
   const time = useMotionValue(0);
@@ -422,9 +398,7 @@ function ProxyScene({
             className="text-[2.75rem] leading-none text-accent md:text-[3.5rem]"
           />
         </p>
-        <p className="text-sm font-medium text-ink-muted">
-          with no change to key KPIs.
-        </p>
+        <p className="text-sm font-medium text-ink-muted">with no change to key KPIs.</p>
       </motion.div>
     </div>
   );
@@ -494,24 +468,16 @@ function SlackMessage({ date, terms }: (typeof SLACK_DAYS)[number]) {
     <div className="relative h-[300px] overflow-hidden rounded-xl border border-white/15 bg-[#1a1d21] p-5 shadow-[0_24px_48px_-20px_rgba(21,21,21,0.55)]">
       <div className="flex gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
-        <img
-          src={`${MONITOR}/bot-owl.webp`}
-          alt=""
-          className="size-10 shrink-0 rounded-lg"
-        />
+        <img src={`${MONITOR}/bot-owl.webp`} alt="" className="size-10 shrink-0 rounded-lg" />
         <div className="min-w-0 text-[#d1d2d3]">
           <p className="flex items-center gap-1.5">
-            <span className="text-[15px] font-bold text-white">
-              AI Search Results Bot
-            </span>
+            <span className="text-[15px] font-bold text-white">AI Search Results Bot</span>
             <span className="rounded-[3px] bg-white/10 px-1 text-[10px] font-semibold text-[#a8a9ab]">
               APP
             </span>
             <span className="text-xs text-[#a8a9ab]">10:01 AM</span>
           </p>
-          <p className="text-[15px]">
-            {date} Market Google search terms · Top 30
-          </p>
+          <p className="text-[15px]">{date} Market Google search terms · Top 30</p>
           <p className="mt-3 text-sm">CTR, highest to lowest</p>
           <ol className="mt-1 border-l-4 border-[#1d9bd1] pl-3 text-sm leading-[1.65]">
             {terms.map((t, i) => (
@@ -559,11 +525,7 @@ function SlackStack({ shown, bubble }: { shown: number; bubble: boolean }) {
                   ? { opacity: 1, scale: grow(i), y: 0 }
                   : { opacity: 0, scale: grow(i) * 0.88, y: -24 }
               }
-              transition={
-                still
-                  ? { duration: 0 }
-                  : { type: "spring", stiffness: 380, damping: 22 }
-              }
+              transition={still ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 22 }}
               className="absolute inset-x-0"
               style={{
                 top: i * STACK_STEP,
@@ -582,11 +544,7 @@ function SlackStack({ shown, bubble }: { shown: number; bubble: boolean }) {
         animate={{ opacity: bubble ? 1 : 0, y: bubble ? 0 : 10 }}
         transition={{ duration: 0.4, ease: EASE_OUT }}
       >
-        <ThoughtBubble
-          emoji="🧐"
-          text="Why is everyone searching for this?"
-          tail="none"
-        />
+        <ThoughtBubble emoji="🧐" text="Why is everyone searching for this?" tail="none" />
       </motion.div>
     </div>
   );
@@ -642,9 +600,7 @@ function DashBeats({ step }: { step: number }) {
 function DashWindow({ step, live }: { step: number; live: boolean }) {
   const still = useStill();
   const beat = DASH_BEATS[step];
-  const spring = still
-    ? { duration: 0 }
-    : { type: "spring" as const, stiffness: 120, damping: 22 };
+  const spring = still ? { duration: 0 } : { type: "spring" as const, stiffness: 120, damping: 22 };
   return (
     <figure className="flex w-full max-w-[520px] flex-col gap-2">
       <div className="overflow-hidden rounded-xl border border-line bg-paper shadow-[0_20px_40px_-20px_rgba(21,21,21,0.35)]">
@@ -656,10 +612,7 @@ function DashWindow({ step, live }: { step: number; live: boolean }) {
         </div>
         {/* Phones and reduced motion: no pinned tour, the reader scrolls it. */}
         <div
-          className={cn(
-            "relative",
-            live ? "overflow-hidden" : "overflow-y-auto",
-          )}
+          className={cn("relative", live ? "overflow-hidden" : "overflow-y-auto")}
           style={{ aspectRatio: "1 / 1" }}
         >
           <motion.div
@@ -716,16 +669,12 @@ export function Improvement() {
       className="border-t border-line pt-24 md:pt-32"
     >
       <div className={cn(wrap, "flex flex-col gap-6")}>
-        <SectionHeader
-          label="10 IMPROVEMENT"
-          headline="Safe to Scale, Easy to Watch"
-        />
+        <SectionHeader label="10 IMPROVEMENT" headline="Safe to Scale, Easy to Watch" />
         <Body className="max-w-none">
-          The A/B test proved the idea, but going live for every customer asked
-          for more.
+          The A/B test proved the idea, but going live for every customer asked for more.
           <br />
-          Before the rollout I improved two things: <B>what reaches the AI</B>,
-          and <B>how everyone can watch it</B>.
+          Before the rollout I improved two things: <B>what reaches the AI</B>, and{" "}
+          <B>how everyone can watch it</B>.
         </Body>
       </div>
 
@@ -739,8 +688,8 @@ export function Improvement() {
               <Body className="max-w-none">
                 Live traffic brought two new needs: <B>production safety</B> and{" "}
                 <B>cost efficiency</B>.
-                <br />I led the build of a <B>proxy server</B> between Kurly and
-                Vertex AI that decides when the AI is worth calling.
+                <br />I led the build of a <B>proxy server</B> between Kurly and Vertex AI that
+                decides when the AI is worth calling.
               </Body>
             </div>
             <ProxyScene progress={progress} live={live} />
@@ -753,28 +702,17 @@ export function Improvement() {
         <SubHeading>2. Monitoring for Performance and Demand</SubHeading>
       </div>
 
-      <StickyScene
-        steps={SLACK_DAYS.length + 1}
-        vh={55}
-        label="The daily Slack bot"
-      >
+      <StickyScene steps={SLACK_DAYS.length + 1} vh={55} label="The daily Slack bot">
         {({ step, live }) => (
-          <div
-            className={cn(
-              wrap,
-              "grid items-start gap-10 md:grid-cols-[1fr_1.2fr]",
-            )}
-          >
+          <div className={cn(wrap, "grid items-start gap-10 md:grid-cols-[1fr_1.2fr]")}>
             <div className="flex flex-col gap-4">
               <SubSubHeading>Slack Bot</SubSubHeading>
               <Body>
-                Because failed searches are customers telling us what they want,
-                I built a <B>Slack bot</B> that brings them to the team every
-                morning.
+                Because failed searches are customers telling us what they want, I built a{" "}
+                <B>Slack bot</B> that brings them to the team every morning.
                 <br />
-                It sends merchandisers and marketers the search queries losing
-                the most clicks, so they can{" "}
-                <B>spot new trends and unmet demand</B> fast.
+                It sends merchandisers and marketers the search queries losing the most clicks, so
+                they can <B>spot new trends and unmet demand</B> fast.
               </Body>
             </div>
             <SlackStack
@@ -785,27 +723,16 @@ export function Improvement() {
         )}
       </StickyScene>
 
-      <StickyScene
-        steps={DASH_BEATS.length}
-        vh={60}
-        label="The Looker dashboard"
-      >
+      <StickyScene steps={DASH_BEATS.length} vh={60} label="The Looker dashboard">
         {({ step, live }) => (
-          <div
-            className={cn(
-              wrap,
-              "grid items-start gap-10 md:grid-cols-[1fr_1.2fr]",
-            )}
-          >
+          <div className={cn(wrap, "grid items-start gap-10 md:grid-cols-[1fr_1.2fr]")}>
             <div className="flex flex-col gap-4">
               <SubSubHeading>Dashboard</SubSubHeading>
               <Body>
-                Because the Slack bot showed only the top queries, I designed
-                and built a <B>Looker dashboard</B> for the full detail and
-                daily performance tracking.
+                Because the Slack bot showed only the top queries, I designed and built a{" "}
+                <B>Looker dashboard</B> for the full detail and daily performance tracking.
                 <br />
-                The CEO, engineers, and business teams all watched the same
-                numbers in real time.
+                The CEO, engineers, and business teams all watched the same numbers in real time.
               </Body>
               {live && <DashBeats step={step} />}
             </div>
@@ -824,81 +751,221 @@ export function Improvement() {
 /* 11 Integration & Impact                                             */
 /* ------------------------------------------------------------------ */
 
-// cabage's last appearance: into the cart, and the cart turns into revenue.
-function CartScene({ progress }: { progress: MotionValue<number> }) {
-  const chipY = useTransform(progress, [0.08, 0.4], [-150, 0]);
-  const chipScale = useTransform(progress, [0.3, 0.42], [1, 0.4]);
-  const chipOpacity = useTransform(
-    progress,
-    [0, 0.05, 0.38, 0.42],
-    [0, 1, 1, 0],
-  );
-  const cartScale = useTransform(
-    progress,
-    [0.4, 0.46, 0.52, 0.62, 0.7],
-    [1, 1.18, 1, 1, 0.3],
-  );
-  const cartOpacity = useTransform(progress, [0.62, 0.7], [1, 0]);
-  const moneyOpacity = useTransform(progress, [0.66, 0.78], [0, 1]);
-  const moneyScale = useTransform(progress, [0.66, 0.8], [0.6, 1]);
+// One pinned scene, six beats. The pour gets a spare beat so the swap to
+// +$3.6M doesn't flicker on a small scroll:
+// 0 launch and handoff over an empty cart, 1–2 the products pour in,
+// 3 the cart turns into +$3.6M, 4 the supporting metrics, 5 hold.
+const IMPACT_STEPS = 6;
+
+// The 01 Context cart again, longer this time. Kurly products (square,
+// well-rounded tiles) tumble in and settle deep behind the frosted front.
+const GOODS = [
+  "arugula",
+  "face-cream",
+  "banana",
+  "ciabatta",
+  "bell-pepper",
+  "night-serum",
+  "blueberry",
+  "croissant",
+  "cherry-tomato",
+  "lip-color",
+  "cucumber",
+  "white-bread",
+  "napa-cabbage",
+  "gel-cream",
+  "potato",
+  "ham-cheese-bun",
+  "shine-muscat",
+  "shampoo",
+  "sweet-potato",
+  "serum-cream",
+  "tangerine",
+];
+const GOODS_DIR = "/images/ai-search/impact";
+const CART_H = 330;
+const GLASS_TOP = 200;
+// Four rows, back to front, in a trapezoid: a little narrower at the bottom,
+// spilling over the rim at the top, the front row deep behind the glass.
+// Every tile gets its own size, tilt, nudge and landing time, so it lands
+// messy but loose: they overlap a bit, not into one clump.
+const ROWS = [
+  { top: 8, count: 6, from: 3, to: 97 },
+  { top: 56, count: 5, from: 6, to: 94 },
+  { top: 104, count: 5, from: 9, to: 91 },
+  { top: 150, count: 5, from: 12, to: 88 },
+];
+const GOOD_SLOTS = ROWS.flatMap((row, r) =>
+  Array.from({ length: row.count }, (_, c) => {
+    const i = ROWS.slice(0, r).reduce((n, x) => n + x.count, 0) + c;
+    const gap = (row.to - row.from) / row.count;
+    const tilt = (8 + rand(i, 3) * 26) * (rand(i, 5) < 0.5 ? -1 : 1);
+    return {
+      x: r2(row.from + (c + 0.5) * gap + (rand(i, 1) - 0.5) * gap * 0.5), // % of width
+      top: r2(row.top + (rand(i, 2) - 0.5) * 22),
+      size: Math.round(82 + rand(i, 6) * 20),
+      tilt: r2(tilt),
+      spin: r2(-tilt * 2.5), // turns as it falls
+      drift: r2((rand(i, 7) - 0.5) * 80), // px sideways during the fall
+      delay: r2(rand(i, 4) * 1.1), // a heap, not a queue
+      z: r * 10 + Math.floor(rand(i, 8) * 10),
+    };
+  }),
+);
+
+function PouringCart({ full }: { full: boolean }) {
+  const still = useStill();
   return (
-    <div
-      role="img"
-      aria-label="“cabage” drops into a cart, and the cart turns into ₩5B in monthly revenue."
-      className="relative mx-auto grid h-[340px] w-full max-w-[420px] place-items-center"
-    >
-      <motion.span
-        style={{ y: chipY, scale: chipScale, opacity: chipOpacity }}
-        className="absolute top-[42%] rounded-full bg-ink px-4 py-1.5 font-mono text-sm text-paper"
-      >
-        cabage
-      </motion.span>
-      <motion.span
-        style={{ scale: cartScale, opacity: cartOpacity }}
-        className="absolute top-[58%] grid size-20 place-items-center rounded-full bg-accent text-paper"
+    <div aria-hidden className="relative mx-auto w-full max-w-[580px]" style={{ height: CART_H }}>
+      {/* Back panel */}
+      <div className="absolute inset-x-[6%] top-[86px] h-[200px] rounded-[32px] bg-paper-2" />
+      {GOODS.map((name, i) => {
+        const s = GOOD_SLOTS[i];
+        return (
+          <motion.img
+            key={name}
+            src={`${GOODS_DIR}/${name}.webp`}
+            alt=""
+            initial={false}
+            animate={
+              full
+                ? { x: 0, y: 0, opacity: 1, rotate: s.tilt }
+                : { x: s.drift, y: -(s.top + s.size + 120), opacity: 0, rotate: s.spin }
+            }
+            transition={
+              still
+                ? { duration: 0 }
+                : full
+                  ? {
+                      y: { type: "spring", stiffness: 240, damping: 13, delay: s.delay },
+                      x: { duration: 0.55, ease: EASE_OUT, delay: s.delay },
+                      rotate: { type: "spring", stiffness: 160, damping: 11, delay: s.delay },
+                      opacity: { duration: 0.12, delay: s.delay },
+                    }
+                  : { duration: 0.25 }
+            }
+            className="absolute rounded-[26px] border-[5px] border-white object-cover shadow-[0_10px_24px_-10px_rgba(21,21,21,0.35)]"
+            style={{
+              left: `calc(${s.x}% - ${s.size / 2}px)`,
+              top: s.top,
+              width: s.size,
+              height: s.size,
+              zIndex: s.z + 1,
+            }}
+          />
+        );
+      })}
+      {/* Frosted front, clearer than in 01 so the heap shows through. */}
+      <div
+        className="absolute inset-x-[2%] z-50 grid h-[130px] place-items-center rounded-[32px] border border-white/70 bg-white/20 shadow-[0_24px_48px_-24px_rgba(21,21,21,0.3),inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-[6px]"
+        style={{ top: GLASS_TOP }}
       >
         <ShoppingCart
-          aria-hidden
-          className="size-8"
           strokeWidth={1}
           absoluteStrokeWidth
+          className="size-14 text-ink/25 [filter:drop-shadow(0_1px_0_rgba(255,255,255,0.9))]"
         />
-      </motion.span>
-      <motion.span
-        style={{ opacity: moneyOpacity, scale: moneyScale }}
-        className="font-display font-medium tracking-tight absolute top-[50%] text-[4.5rem] leading-none text-accent md:text-[6rem]"
-      >
-        ₩5B
-      </motion.span>
+      </div>
     </div>
   );
 }
 
-function RisingCurve() {
-  const ref = useRef<HTMLDivElement>(null);
+// Laid out like 02 Impact: three centred metrics over a rule.
+const SUPPORT_METRICS: { from?: Num; to: Num; label: string }[] = [
+  {
+    from: { value: 6.8, decimals: 2, suffix: "%" },
+    to: { value: 0.22, decimals: 2, suffix: "%" },
+    label: "No-Result Search Rate",
+  },
+  {
+    from: { value: 58.6, decimals: 2, suffix: "%" },
+    to: { value: 60.14, decimals: 2, suffix: "%" },
+    label: "Search Click-Through Rate",
+  },
+  {
+    to: { value: 35.52, decimals: 2, suffix: "x" },
+    label: "Return on AI Cost:\nMargin per Product vs. API Fee per Purchase",
+  },
+];
+
+function ImpactPayoff({ step, live }: { step: number; live: boolean }) {
   const still = useStill();
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const pathLength = useTransform(scrollYProgress, [0.1, 0.55], [0, 1]);
+  const revenue = !live || step >= 3;
+  const metrics = !live || step >= 4;
+  const fade = still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT };
   return (
-    <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0">
-      <svg
-        viewBox="0 0 1000 400"
-        preserveAspectRatio="none"
-        className="h-full w-full"
-      >
-        <motion.path
-          d="M0 380 C 220 370, 380 340, 520 270 S 820 90, 1000 30"
-          fill="none"
-          stroke="var(--color-accent)"
-          strokeOpacity={0.14}
-          strokeWidth={1}
-          vectorEffect="non-scaling-stroke"
-          style={{ pathLength: still ? 1 : pathLength }}
+    <div className={cn(wrap, "flex flex-col gap-8 md:gap-10")}>
+      <div className="flex flex-col gap-6">
+        <SectionHeader
+          label="11 INTEGRATION & IMPACT"
+          headline="Live in Two Months, $3.6M a Month"
         />
-      </svg>
+        <Body className="max-w-none">
+          Two months after the PoC, AI Search was live for every Kurly customer.
+          <br />
+          Then I handed it to the <B>Search Engine team</B>, and it became part of their roadmap.
+        </Body>
+      </div>
+
+      <div
+        role="img"
+        aria-label="Kurly products pour into a shopping cart, and the cart turns into +$3.6M in new monthly revenue."
+        className="relative grid place-items-center"
+        style={{ minHeight: live ? CART_H : undefined }}
+      >
+        {live && (
+          <motion.div
+            initial={false}
+            animate={revenue ? { opacity: 0, scale: 0.92, y: 16 } : { opacity: 1, scale: 1, y: 0 }}
+            transition={fade}
+            className="absolute inset-0"
+          >
+            <PouringCart full={step >= 1} />
+          </motion.div>
+        )}
+        <motion.div
+          initial={false}
+          animate={revenue ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+          transition={still ? { duration: 0 } : { ...fade, delay: live ? 0.2 : 0 }}
+          className="relative"
+        >
+          <MetricCounter
+            size="xl"
+            to={{ value: 3.6, decimals: 1, prefix: "+$", suffix: "M" }}
+            countFrom={0}
+            play={revenue}
+            label="New monthly revenue from searches that used to end in nothing"
+            className={cn(
+              CENTERED,
+              "gap-4 [&>p:first-child]:md:text-[7rem] [&>p:last-child]:text-base [&>p:last-child]:md:text-xl",
+            )}
+          />
+          {/* TODO(spec §9.3): one-line note on how the $3.6M was measured. */}
+        </motion.div>
+      </div>
+
+      <div
+        className={cn(
+          "grid gap-10 border-t pt-10 transition-colors duration-500 md:grid-cols-3 md:gap-8",
+          metrics ? "border-line" : "border-transparent",
+        )}
+      >
+        {SUPPORT_METRICS.map((m, i) => (
+          <motion.div
+            key={m.label}
+            initial={false}
+            animate={metrics ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+            transition={still ? { duration: 0 } : { ...fade, delay: i * 0.1 }}
+          >
+            <MetricCounter
+              {...m}
+              countFrom={0}
+              play={metrics}
+              className={cn(CENTERED, "[&>p:last-child]:whitespace-pre-line")}
+            />
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -910,100 +977,87 @@ export function IntegrationImpact() {
       label="11 Integration & Impact"
       className="border-t border-line pt-24 md:pt-32"
     >
-      <div className={cn(wrap, "flex flex-col gap-10")}>
-        <SectionHeader
-          label="11 INTEGRATION & IMPACT"
-          headline="Live in Two Months, ₩5B a Month"
-        />
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr] md:items-end">
-          <Body>
-            Two months after the PoC, AI Search was live for every Kurly
-            customer. Then I handed it to the <B>Search Engine team</B>, and it
-            became part of their roadmap.
-          </Body>
-          <MetricCounter
-            size="lg"
-            to={{ value: 2, suffix: " months" }}
-            label="From PoC to Full Production"
-          />
-        </div>
-      </div>
+      <StickyScene steps={IMPACT_STEPS} vh={60} label="From launch to revenue">
+        {({ step, live }) => <ImpactPayoff step={step} live={live} />}
+      </StickyScene>
 
-      <StickyScene steps={3} vh={60} label="cabage becomes revenue">
-        {({ progress }) => (
-          <div className={wrap}>
-            <CartScene progress={progress} />
+      <div className="pb-16 md:pb-24" />
+    </Chapter>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* 12 Reflection                                                       */
+/* ------------------------------------------------------------------ */
+
+// Three takeaways, one more per scroll, then a hold.
+const LESSONS = [
+  {
+    title: "Deciding with Data, at Scale",
+    body: (
+      <>
+        This was my first time making decisions on a{" "}
+        <B>large-scale A/B test with 3.5M monthly active users</B>. I learned how to prove a
+        hypothesis in numbers, use that evidence to align stakeholders, and keep improving the
+        system on it.
+      </>
+    ),
+  },
+  {
+    title: "Starting from the Problem",
+    body: (
+      <>
+        Instead of taking leadership’s existing belief for granted, I{" "}
+        <B>defined the user and business problems from data</B> and led the direction of the fix. It
+        was rewarding to see that turn into new revenue and a better experience for customers.
+      </>
+    ),
+  },
+  {
+    title: "Building AI That Lasts",
+    body: (
+      <>
+        Bringing AI into a large, live service taught me that applying AI fast is not the goal. I
+        learned to <B>define clearly where AI adds value</B>, and to build a{" "}
+        <B>sustainable system</B> around it, with security, cost, and monitoring considered from the
+        start.
+      </>
+    ),
+  },
+];
+
+export function Reflection() {
+  const still = useStill();
+  return (
+    <Chapter id="reflection" label="12 Reflection" className="border-t border-line pt-24 md:pt-32">
+      <StickyScene steps={LESSONS.length + 1} vh={50} label="Three takeaways">
+        {({ step, live }) => (
+          <div className={cn(wrap, "flex flex-col gap-12")}>
+            <SectionHeader label="12 REFLECTION" headline="What This Project Taught Me" />
+            <ol className="grid gap-10 border-t border-line pt-10 md:grid-cols-3 md:gap-8">
+              {LESSONS.map((l, i) => {
+                const on = !live || step >= i;
+                return (
+                  <motion.li
+                    key={l.title}
+                    initial={false}
+                    animate={on ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                    transition={still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT }}
+                    className="flex flex-col gap-3"
+                  >
+                    <span className="font-display text-sm font-medium text-accent">0{i + 1}</span>
+                    <h3 className="font-display text-xl font-medium tracking-tight text-ink md:text-2xl">
+                      {l.title}
+                    </h3>
+                    <Body>{l.body}</Body>
+                  </motion.li>
+                );
+              })}
+            </ol>
           </div>
         )}
       </StickyScene>
-
-      <div
-        className={cn(
-          wrap,
-          "relative flex flex-col gap-14 pb-24 pt-10 md:pb-32",
-        )}
-      >
-        <RisingCurve />
-        <div className="relative">
-          <MetricCounter
-            size="xl"
-            to={{ value: 5, prefix: "₩", suffix: "B" }}
-            extra="(~$3.6M)"
-            label="New monthly revenue from searches that used to end in nothing"
-          />
-          {/* TODO(spec §9.3): one-line note on how the ₩5B was measured. */}
-        </div>
-        <div className="relative grid gap-x-6 gap-y-10 border-t border-line pt-10 sm:grid-cols-3">
-          <MetricCounter
-            from={{ value: 6.8, decimals: 2, suffix: "%" }}
-            to={{ value: 0.22, decimals: 2, suffix: "%" }}
-            label="No-Result Rate"
-            className={smallMetric}
-          />
-          <MetricCounter
-            from={{ value: 58.6, decimals: 2, suffix: "%" }}
-            to={{ value: 60.14, decimals: 2, suffix: "%" }}
-            label="Search Click-Through Rate"
-            className={smallMetric}
-          />
-          <MetricCounter
-            to={{ value: 35.52, decimals: 2, suffix: "x" }}
-            label="Return on AI cost: margin per product vs. API fee per purchase"
-            className={smallMetric}
-          />
-        </div>
-      </div>
-
-      <div className="mx-auto w-full max-w-[1400px] px-0 md:px-6">
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-paper-2 md:aspect-[21/8] md:rounded-2xl">
-          <AssetMedia id="summit-stage-photo" />
-        </div>
-      </div>
-      <div
-        className={cn(
-          wrap,
-          "flex flex-col gap-4 pb-28 pt-8 md:flex-row md:items-end md:justify-between md:pb-36",
-        )}
-      >
-        <div className="flex max-w-[40rem] flex-col gap-3">
-          <h3 className="font-display font-medium tracking-tight text-[1.4rem] leading-tight text-ink md:text-[1.75rem]">
-            Google Cloud Summit Seoul 2024
-          </h3>
-          <p className="text-base leading-relaxed text-ink-muted md:text-lg">
-            Google featured this project as a leading enterprise case of AI on
-            GCP. Kurly’s CEO told the story on stage, and I built the
-            presentation.
-          </p>
-        </div>
-        <a
-          href={TALK_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(linkClass, "shrink-0")}
-        >
-          Watch the talk ↗
-        </a>
-      </div>
+      <div className="pb-16 md:pb-24" />
     </Chapter>
   );
 }

@@ -1,6 +1,6 @@
 import { AbTest, Architecture } from "./ActProof";
 import { CompanyProblem, UserProblem } from "./ActConflict";
-import { Improvement, IntegrationImpact } from "./ActPayoff";
+import { Improvement, IntegrationImpact, Reflection } from "./ActPayoff";
 import { Context, Hero, Impact, Roles } from "./ActSetup";
 import { Define, PocApproach } from "./ActTurn";
 import { resolveAssets } from "./assets.server";
@@ -31,6 +31,7 @@ export function AiSearchCaseStudy() {
       <AbTest />
       <Improvement />
       <IntegrationImpact />
+      <Reflection />
     </AssetProvider>
   );
 }

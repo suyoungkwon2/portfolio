@@ -128,7 +128,7 @@ export const projects: Record<string, ProjectMeta> = {
       },
     ],
     summary: {
-      what: "Cut \"no results\" searches from 6.8% to 0.22%, unlocking ₩5B (~$3.6M) in new monthly revenue.",
+      what: "Cut \"no results\" searches from 6.8% to 0.22%, unlocking $3.6M in new monthly revenue.",
       why: "The search engine couldn't handle typos, spacing, or synonyms, so 7% of searches on Kurly's biggest revenue channel hit a dead end.",
       how: "When the old search came up empty, we fell back to semantic search with Vertex AI, so \"cabage\" still finds cabbage.",
     },

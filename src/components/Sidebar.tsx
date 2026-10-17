@@ -169,6 +169,16 @@ function TreeItem({
                 <a
                   href={`#${id}`}
                   aria-current={active ? "location" : undefined}
+                  // Jump, don't glide: a long smooth scroll through pinned
+                  // scenes gets cancelled when framer re-measures a scene
+                  // on the way (it restores scrollY), stranding it midway.
+                  onClick={(e) => {
+                    const target = document.getElementById(id);
+                    if (!target) return;
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: "instant", block: "start" });
+                    history.replaceState(null, "", `#${id}`);
+                  }}
                   className={cn(
                     "flex min-h-6 items-center rounded-md px-2 text-[12px] leading-snug transition-colors",
                     active ? "text-ink" : "text-ink-muted/80 hover:text-ink",

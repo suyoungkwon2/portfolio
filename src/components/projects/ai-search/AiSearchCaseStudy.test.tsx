@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { AiSearchCaseStudy } from "./AiSearchCaseStudy";
 
 describe("AiSearchCaseStudy", () => {
-  it("lists the eleven chapters, in order, for the sidebar's chapter nav", () => {
+  it("lists the twelve chapters, in order, for the sidebar's chapter nav", () => {
     const { container } = render(<AiSearchCaseStudy />);
 
     const chapters = [...container.querySelectorAll<HTMLElement>("[data-chapter][id]")].map(
@@ -21,6 +21,7 @@ describe("AiSearchCaseStudy", () => {
       "09 A/B Test",
       "10 Improvement",
       "11 Integration & Impact",
+      "12 Reflection",
     ]);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "AI Search: Recovering Lost Revenue",
