@@ -2,7 +2,7 @@
 
 import { motion, useAnimationFrame, useInView } from "framer-motion";
 import { Check, Pencil, RotateCw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, Reveal, StickyScene, useFitScale, useStill } from "../story/motion";
 import { RolesChapter, type Role } from "../story/OrgChart";
@@ -12,7 +12,6 @@ import {
   Body,
   CENTERED,
   Chapter,
-  FlipLabel,
   HookLines,
   MetricCounter,
   SectionHeader,
@@ -22,46 +21,54 @@ import {
   type CopyBeat,
   type Num,
 } from "../story/ui";
-import { CHINESE, HERO_THEMES, HOLIDAY, SNACK, type Theme } from "./data";
-import { CampaignScreen, MdAvatar, MiniPhone, ProductImage } from "./ui";
+import { HERO_THEMES, type Theme } from "./data";
+import { ProductImage } from "./ui";
 
 // Act 1, Setup: Hero · 01 Context · 02 Impact · 03 R&R, and the hook into
 // 04 (spec §5.0–5.4). The reader learns what was achieved before learning how.
 
 const META = [
-  ["Period", ["Jun 2024", "– Dec 2024"]],
+  ["Period", ["June 2024", "– December 2024"]],
   ["Role", ["AI Product Manager", "UX Research", "A/B Test Design", "CEO Communication", "QA"]],
   ["Team", ["AI PM (Me)", "1 ML Engineer", "1 Backend Engineer"]],
   ["Org", ["Kurly"]],
 ] as const;
 
+// Kurly's homepage, rebuilt in Figma at 1440 wide and cut into bands: the
+// header, the banner, then five themed campaigns. Heights are in page px.
+const HOME = "/images/ai-curation/homepage";
+const PAGE_W = 1440;
+// The window crops the page's empty sides: it shows x 130…1310.
+const CROP_X = 130;
+const VIEW_W = 1180;
+
 /* ------------------------------------------------------------------ */
 /* Hero: ThemeToCampaigns                                              */
 /* ------------------------------------------------------------------ */
 
-// One loop, in seconds: the four titles type out, the AI node lights, four
-// dashed lines run to four phones, and the phones fill with products.
-const KEY_S = 0.04;
-const LINE_GAP_S = 0.25;
-const TITLE_START = 0.4;
-const LINE_STARTS = HERO_THEMES.reduce<number[]>((starts, theme, i) => {
-  const prev = i === 0 ? TITLE_START : starts[i - 1] + HERO_THEMES[i - 1].title.length * KEY_S;
-  return [...starts, i === 0 ? prev : prev + LINE_GAP_S];
-}, []);
-const TYPED_S =
-  LINE_STARTS[LINE_STARTS.length - 1] + HERO_THEMES[HERO_THEMES.length - 1].title.length * KEY_S;
-const AI_AT = TYPED_S + 0.5;
-const LINES_AT = AI_AT + 0.35;
-const LINES_S = 0.7;
-const FILL_AT = LINES_AT + LINES_S;
-const FILL_KEY_S = 0.09;
-const SHOWN = 4; // products on each little screen
-const LOOP_S = FILL_AT + 0.25 * 3 + SHOWN * FILL_KEY_S + 3.4;
+// One loop, in seconds: the four titles type out, overlapping, the AI node
+// lights, and Kurly's homepage fills with a campaign for each title, one
+// after another.
+const KEY_S = 0.035;
+const LINE_STARTS = [0.4, 0.65, 0.9, 1.15];
+const TYPED_S = Math.max(...HERO_THEMES.map((t, i) => LINE_STARTS[i] + t.title.length * KEY_S));
+// The dashes run from the note into AI, AI lights, then they run on into the page.
+const LINE_S = 0.18;
+const LINE_IN_AT = TYPED_S + 0.2;
+const AI_AT = LINE_IN_AT + LINE_S;
+const LINE_OUT_AT = AI_AT + 0.3;
+const FILL_AT = LINE_OUT_AT + LINE_S;
+const SECTION_GAP_S = 0.35;
+const FILL_KEY_S = 0.07;
+const SHOWN = 4; // products in each campaign row
+const LOOP_S = FILL_AT + SECTION_GAP_S * 3 + SHOWN * FILL_KEY_S + 3;
 
 type HeroFrame = {
   typed: number[];
+  lineIn: boolean;
   ai: boolean;
-  lines: boolean;
+  lineOut: boolean;
+  // Products shown in each campaign; -1 while the campaign isn't on the page.
   filled: number[];
   // The last moments of the loop fade everything back to an empty title card.
   out: boolean;
@@ -72,45 +79,60 @@ function heroFrame(t: number): HeroFrame {
     typed: HERO_THEMES.map((theme, i) =>
       Math.max(0, Math.min(theme.title.length, Math.floor((t - LINE_STARTS[i]) / KEY_S))),
     ),
+    lineIn: t >= LINE_IN_AT,
     ai: t >= AI_AT,
-    lines: t >= LINES_AT,
-    filled: HERO_THEMES.map((_, i) =>
-      Math.max(0, Math.min(SHOWN, Math.floor((t - FILL_AT - i * 0.25) / FILL_KEY_S) + 1)),
-    ),
+    lineOut: t >= LINE_OUT_AT,
+    filled: HERO_THEMES.map((_, i) => {
+      const at = FILL_AT + i * SECTION_GAP_S;
+      return t < at ? -1 : Math.min(SHOWN, Math.floor((t - at) / FILL_KEY_S));
+    }),
     out: t >= LOOP_S - 0.5,
   };
 }
 
 const sameHero = (a: HeroFrame, b: HeroFrame) =>
+  a.lineIn === b.lineIn &&
   a.ai === b.ai &&
-  a.lines === b.lines &&
+  a.lineOut === b.lineOut &&
   a.out === b.out &&
   a.typed.every((n, i) => n === b.typed[i]) &&
   a.filled.every((n, i) => n === b.filled[i]);
 
-// Scene geometry (px, inside a 460 × 540 box that scales to its column).
-const SCENE_W = 460;
-const SCENE_H = 540;
-const PHONE_W = 100;
-const PHONE_GAP = 20;
-const PHONE_TOP = 326;
-const phoneX = (i: number) =>
-  (SCENE_W - (PHONE_W * 4 + PHONE_GAP * 3)) / 2 + i * (PHONE_W + PHONE_GAP);
-const AI_Y = 214;
-const LINE_Y = 268;
-const TAG_Y = 290;
+// Scene geometry (px, inside a 300 × 630 box that scales to its column).
+const SCENE_W = 300;
+const SCENE_H = 630;
+const CARD_H = 172;
+const AI_W = 92;
+const AI_H = 64;
+const AI_Y = 198;
+const WEB_TOP = 298;
+const WEB_H = SCENE_H - WEB_TOP;
+const WEB_BAR_H = 22;
+// Kurly's header, from the 01 Context bands, cropped like the window there.
+const HEADER_H = Math.round((196 * SCENE_W) / VIEW_W);
+// A campaign row: its title, then a row of product cards (about 111px).
+const SECTION_H = 120;
+
+// A lavender from Kurly's purple family, for the dashes.
+const LAVENDER = "#b9a2f2";
+// The AI Search hero's glow: violet into sky blue, blurred, under a card.
+const GLOW =
+  "pointer-events-none absolute rounded-[1.5rem] bg-[linear-gradient(90deg,rgba(176,114,255,0.75),rgba(91,225,255,0.75))] blur-xl";
 
 function TitleCard({ typed, caret }: { typed: number[]; caret: number }) {
   return (
-    <div className="absolute left-1/2 top-0 w-[300px] -translate-x-1/2 rounded-xl border border-line bg-paper px-4 pb-2 pt-3 shadow-[0_20px_40px_-24px_rgba(21,21,21,0.35)]">
+    <div
+      className="absolute inset-x-0 top-0 rounded-xl border border-line bg-paper px-3.5 pb-1.5 pt-2.5"
+      style={{ height: CARD_H }}
+    >
       <p className="flex items-center gap-1.5 border-b border-line pb-2 text-xs font-medium text-ink-muted">
-        Title <Pencil aria-hidden className="size-3" strokeWidth={1.75} />
+        Curation Theme Title <Pencil aria-hidden className="size-3" strokeWidth={1.75} />
       </p>
-      <ul className="text-[15px] text-ink">
+      <ul className="text-sm text-ink">
         {HERO_THEMES.map((theme, i) => (
           <li
             key={theme.title}
-            className="flex h-9 items-center gap-2 border-b border-dashed border-line last:border-b-0"
+            className="flex h-8 items-center gap-2 border-b border-dashed border-line last:border-b-0"
           >
             <span aria-hidden className={cn("transition-opacity", typed[i] === 0 && "opacity-0")}>
               {theme.emoji}
@@ -126,31 +148,91 @@ function TitleCard({ typed, caret }: { typed: number[]; caret: number }) {
   );
 }
 
+// A soft, blurred orb (violet core, warm top, cyan bottom) with “AI” on it,
+// in light tints that sit well on white. It swells a little as it works.
 function AiNode({ on }: { on: boolean }) {
+  const id = useId();
   return (
-    <div className="absolute left-1/2 -translate-x-1/2" style={{ top: AI_Y }}>
-      <motion.span
-        aria-hidden
-        initial={false}
-        animate={{ opacity: on ? 1 : 0, scale: on ? 1 : 0.6 }}
-        transition={{ duration: 0.5, ease: EASE_OUT }}
-        className="absolute -inset-5 rounded-full bg-accent/35 blur-xl"
-      />
-      <span
-        className={cn(
-          "relative grid h-10 w-16 place-items-center rounded-full font-display text-base font-semibold transition-colors duration-500",
-          on ? "bg-accent text-paper" : "border border-line bg-paper text-ink-muted",
-        )}
-      >
-        AI
-      </span>
-    </div>
+    <motion.div
+      className="absolute left-1/2 -ml-[46px] grid place-items-center"
+      style={{ top: AI_Y, width: AI_W, height: AI_H }}
+      initial={false}
+      animate={{ scale: on ? 1.08 : 1 }}
+      transition={on ? { duration: 0.4, ease: EASE_OUT } : { duration: 0 }}
+    >
+      <svg aria-hidden viewBox="0 0 62 43" className="absolute inset-0 size-full">
+        <defs>
+          <filter id={`${id}-blur`} x="0" y="0" width="62" height="43" filterUnits="userSpaceOnUse">
+            <feGaussianBlur stdDeviation="2" />
+          </filter>
+          <radialGradient
+            id={`${id}-core`}
+            cx="0"
+            cy="0"
+            r="1"
+            gradientTransform="matrix(5.11243 22.0562 -34.0296 3.31361 25.8876 16.9438)"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#FDE6FF" />
+            <stop offset="0.697" stopColor="#9B5CF6" />
+          </radialGradient>
+          <linearGradient
+            id={`${id}-cool`}
+            x1="30.26"
+            y1="16.78"
+            x2="30.57"
+            y2="39.01"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#FF8A8A" stopOpacity="0" />
+            <stop offset="1" stopColor="#7FF0FF" />
+          </linearGradient>
+          <linearGradient
+            id={`${id}-warm`}
+            x1="28.87"
+            y1="6.54"
+            x2="28.49"
+            y2="18.91"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#FFF6A8" />
+            <stop offset="1" stopColor="#FF8A8A" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <g filter={`url(#${id}-blur)`}>
+          <ellipse cx="31" cy="21.5" rx="27" ry="17.5" fill={`url(#${id}-core)`} />
+          <ellipse
+            cx="31"
+            cy="21.5"
+            rx="27"
+            ry="17.5"
+            fill={`url(#${id}-cool)`}
+            fillOpacity="0.6"
+          />
+          <ellipse
+            cx="31"
+            cy="21.5"
+            rx="27"
+            ry="17.5"
+            fill={`url(#${id}-warm)`}
+            fillOpacity="0.4"
+          />
+        </g>
+      </svg>
+      <span className="relative font-display text-xl font-bold tracking-tight text-white">AI</span>
+    </motion.div>
   );
 }
 
-function Connectors({ on, still }: { on: boolean; still: boolean }) {
-  const cx = SCENE_W / 2;
-  const top = AI_Y + 40;
+// Kurly-purple dashes: from the note down into AI, and from AI on into the
+// page. Each is revealed along its length by a solid mask.
+const LINES = [
+  { d: `M${SCENE_W / 2} ${CARD_H + 4} V${AI_Y + 6}`, key: "in" },
+  { d: `M${SCENE_W / 2} ${AI_Y + AI_H - 6} V${WEB_TOP - 4}`, key: "out" },
+] as const;
+
+function Connectors({ on, still }: { on: [boolean, boolean]; still: boolean }) {
+  const id = useId();
   return (
     <svg
       aria-hidden
@@ -158,43 +240,116 @@ function Connectors({ on, still }: { on: boolean; still: boolean }) {
       height={SCENE_H}
       className="pointer-events-none absolute inset-0"
     >
-      {/* Dashed lines, revealed along their length by a solid mask. */}
-      {HERO_THEMES.map((_, i) => {
-        const x = phoneX(i) + PHONE_W / 2;
-        const d = `M${cx} ${top} V${LINE_Y} H${x} V${TAG_Y - 4}`;
-        return (
-          <g key={i}>
-            <mask
-              id={`hero-line-${i}`}
-              maskUnits="userSpaceOnUse"
-              x="0"
-              y="0"
-              width={SCENE_W}
-              height={SCENE_H}
-            >
-              <motion.path
-                d={d}
-                fill="none"
-                stroke="#fff"
-                strokeWidth={4}
-                initial={false}
-                animate={{ pathLength: on ? 1 : 0 }}
-                transition={still ? { duration: 0 } : { duration: LINES_S, ease: "easeInOut" }}
-              />
-            </mask>
-            <path
+      {LINES.map(({ d, key }, i) => (
+        <g key={key}>
+          <mask
+            id={`${id}-${key}`}
+            maskUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width={SCENE_W}
+            height={SCENE_H}
+          >
+            <motion.path
               d={d}
-              mask={`url(#hero-line-${i})`}
               fill="none"
-              stroke="var(--color-accent)"
-              strokeOpacity={0.6}
-              strokeWidth={1.25}
-              strokeDasharray="3 4"
+              stroke="#fff"
+              strokeWidth={6}
+              initial={false}
+              animate={{ pathLength: on[i] ? 1 : 0 }}
+              // Drawn quickly; wiped at once when the loop starts over.
+              transition={
+                still || !on[i] ? { duration: 0 } : { duration: LINE_S, ease: "easeInOut" }
+              }
             />
-          </g>
-        );
-      })}
+          </mask>
+          <path
+            d={d}
+            mask={`url(#${id}-${key})`}
+            fill="none"
+            stroke={LAVENDER}
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeDasharray="3 6"
+          />
+        </g>
+      ))}
     </svg>
+  );
+}
+
+// A campaign row on Kurly's web homepage: its title, then products with
+// placeholder name and price lines.
+function WebCampaign({ theme, shown }: { theme: Theme; shown: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: EASE_OUT }}
+      className="flex flex-col gap-1.5 px-3 pt-2.5"
+      style={{ height: SECTION_H }}
+    >
+      <p className="truncate text-center text-[10px] font-semibold text-ink">
+        {theme.emoji} {theme.title} ›
+      </p>
+      <div className="grid grid-cols-4 gap-1.5">
+        {theme.products.slice(0, SHOWN).map((product, j) => (
+          <motion.div
+            key={product.id}
+            initial={false}
+            animate={{ opacity: j < shown ? 1 : 0, scale: j < shown ? 1 : 0.85 }}
+            transition={{ duration: 0.25, ease: EASE_OUT }}
+            className="flex flex-col gap-1"
+          >
+            <ProductImage product={product} />
+            <span className="h-1 w-full rounded-full bg-line" />
+            <span className="h-1 w-2/3 rounded-full bg-line" />
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function KurlyWeb({ filled }: { filled: number[] }) {
+  const sections = filled.filter((n) => n >= 0).length;
+  // As campaigns pile up, the page scrolls to keep the newest one in view.
+  const y = Math.min(0, WEB_H - WEB_BAR_H - HEADER_H - sections * SECTION_H);
+  return (
+    <div
+      className="absolute inset-x-0 overflow-hidden rounded-xl border border-line bg-paper"
+      style={{ top: WEB_TOP, height: WEB_H }}
+    >
+      <div
+        className="relative z-10 flex items-center gap-1 border-b border-line bg-paper-2 px-2.5"
+        style={{ height: WEB_BAR_H }}
+      >
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="size-1.5 rounded-full bg-line" />
+        ))}
+        <span className="ml-2 rounded bg-paper px-2 text-[8px] leading-[14px] text-ink-muted">
+          kurly.com
+        </span>
+      </div>
+      <motion.div initial={false} animate={{ y }} transition={{ duration: 0.45, ease: EASE_OUT }}>
+        <div className="overflow-hidden" style={{ height: HEADER_H }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+          <img
+            src={`${HOME}/header.webp`}
+            alt=""
+            className="block max-w-none"
+            style={{
+              width: (PAGE_W * SCENE_W) / VIEW_W,
+              marginLeft: -(CROP_X * SCENE_W) / VIEW_W,
+            }}
+          />
+        </div>
+        {HERO_THEMES.map(
+          (theme, i) =>
+            filled[i] >= 0 && <WebCampaign key={theme.title} theme={theme} shown={filled[i]} />,
+        )}
+      </motion.div>
+    </div>
   );
 }
 
@@ -212,45 +367,44 @@ function ThemeToCampaigns() {
   });
   // Reduced motion: the finished state, held.
   const shown = still ? heroFrame(LOOP_S - 1) : frame;
-  const caret = shown.typed.findIndex((n, i) => n < HERO_THEMES[i].title.length);
-  const fade = { duration: 0.45 };
+  // The caret sits on the last line still being typed.
+  const typing = shown.typed.map((n, i) => n > 0 && n < HERO_THEMES[i].title.length);
+  const caret = typing.lastIndexOf(true);
   return (
-    <div className="flex w-full flex-col items-center gap-5 md:w-[400px] lg:w-[460px]">
-      <FlipLabel text={shown.filled[0] > 0 ? "Campaign" : "Theme"} on={shown.filled[0] > 0} />
-      <div
-        ref={ref}
-        role="img"
-        aria-label="Four campaign titles are typed into a title list: The Ultimate Snack Drop, Spicy Chinese Takeout Vibe, The Sweetest Year-End Vibe and Matcha Core: Trending Now. An AI node lights up, and four phones fill with a campaign of matching products for each title."
-        className="relative w-full max-w-[460px]"
-        style={{ aspectRatio: `${SCENE_W} / ${SCENE_H}` }}
+    <div
+      ref={ref}
+      role="img"
+      aria-label="Four curation theme titles are typed into a note: The Ultimate Snack Drop, Spicy Chinese Takeout Vibe, The Sweetest Year-End Vibe and Matcha Core: Trending Now. An AI node lights up, and Kurly’s homepage fills with a campaign of matching products for each title, one after another."
+      className="relative w-[300px] max-w-full"
+      style={{ aspectRatio: `${SCENE_W} / ${SCENE_H}` }}
+    >
+      <motion.div
+        initial={false}
+        animate={{ opacity: shown.out ? 0 : 1 }}
+        transition={{ duration: 0.45 }}
+        className="absolute left-0 top-0 origin-top-left"
+        style={{ width: SCENE_W, height: SCENE_H, scale }}
       >
+        {/* Colorful glows under the note and, once its campaigns arrive,
+            under the page. */}
+        <div
+          aria-hidden
+          className={cn(GLOW, "inset-x-2 top-4 opacity-50")}
+          style={{ height: CARD_H - 8 }}
+        />
         <motion.div
+          aria-hidden
+          className={cn(GLOW, "inset-x-2")}
+          style={{ top: WEB_TOP + 16, height: SCENE_H - WEB_TOP - 24 }}
           initial={false}
-          animate={{ opacity: shown.out ? 0 : 1 }}
-          transition={fade}
-          className="absolute left-1/2 top-0 origin-top"
-          style={{ width: SCENE_W, height: SCENE_H, transform: `translateX(-50%) scale(${scale})` }}
-        >
-          <TitleCard typed={shown.typed} caret={caret === -1 ? HERO_THEMES.length - 1 : caret} />
-          <AiNode on={shown.ai} />
-          <Connectors on={shown.lines} still={still} />
-          {HERO_THEMES.map((theme, i) => (
-            <div key={theme.title} className="absolute" style={{ left: phoneX(i), top: TAG_Y }}>
-              <motion.p
-                initial={false}
-                animate={{ opacity: shown.lines ? 1 : 0, y: shown.lines ? 0 : 4 }}
-                transition={{ duration: 0.3, delay: still ? 0 : LINES_S * 0.8 }}
-                className="mb-2 w-[100px] truncate rounded-full bg-accent px-2 py-1 text-center text-[9px] font-semibold text-paper"
-              >
-                {theme.emoji} {theme.title}
-              </motion.p>
-              <MiniPhone className="w-[100px]">
-                <CampaignScreen theme={theme} shown={shown.filled[i]} />
-              </MiniPhone>
-            </div>
-          ))}
-        </motion.div>
-      </div>
+          animate={{ opacity: shown.filled[0] >= 0 ? 0.7 : 0 }}
+          transition={shown.filled[0] >= 0 ? { duration: 0.8 } : { duration: 0 }}
+        />
+        <TitleCard typed={shown.typed} caret={caret} />
+        <Connectors on={[shown.lineIn, shown.lineOut]} still={still} />
+        <AiNode on={shown.ai} />
+        <KurlyWeb filled={shown.filled} />
+      </motion.div>
     </div>
   );
 }
@@ -312,13 +466,6 @@ const CONTEXT_BEATS: CopyBeat[] = [
   },
 ];
 
-// Kurly's homepage, rebuilt in Figma at 1440 wide and cut into bands: the
-// header, the banner, then five themed campaigns. Heights are in page px.
-const HOME = "/images/ai-curation/homepage";
-const PAGE_W = 1440;
-// The window crops the page's empty sides: it shows x 130…1310.
-const CROP_X = 130;
-const VIEW_W = 1180;
 const TOP_BANDS = [
   { src: `${HOME}/header.webp`, h: 196 },
   { src: `${HOME}/banner.webp`, h: 370 },
