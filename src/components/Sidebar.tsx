@@ -72,6 +72,47 @@ function useChapters(pathname: string) {
 // Children hang off a hairline, indented under their folder's label.
 const branchClass = "ml-2 flex flex-col gap-px border-l border-line pl-1.5";
 
+// Chapter links: skip to a screen and a bit short of the chapter, then glide
+// the rest, so the reader still sees which way the page moved. Not the
+// browser's smooth scroll: across pinned scenes it gets cancelled midway
+// when framer re-measures a scene (it restores scrollY). A wheel or touch
+// takes back control.
+let stopGlide: (() => void) | null = null;
+function glideTo(target: HTMLElement) {
+  stopGlide?.();
+  const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+  const end = target.getBoundingClientRect().top + window.scrollY - margin;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    window.scrollTo({ top: end, behavior: "instant" });
+    return;
+  }
+  const reach = window.innerHeight * 1.2;
+  const distance = end - window.scrollY;
+  const start = Math.abs(distance) > reach ? end - Math.sign(distance) * reach : window.scrollY;
+  window.scrollTo({ top: start, behavior: "instant" });
+
+  const duration = 700;
+  const t0 = performance.now();
+  let frame = 0;
+  const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+  const stop = () => {
+    cancelAnimationFrame(frame);
+    window.removeEventListener("wheel", stop);
+    window.removeEventListener("touchstart", stop);
+    stopGlide = null;
+  };
+  const step = (now: number) => {
+    const t = Math.min(1, (now - t0) / duration);
+    window.scrollTo({ top: start + (end - start) * ease(t), behavior: "instant" });
+    if (t < 1) frame = requestAnimationFrame(step);
+    else stop();
+  };
+  window.addEventListener("wheel", stop, { passive: true });
+  window.addEventListener("touchstart", stop, { passive: true });
+  stopGlide = stop;
+  frame = requestAnimationFrame(step);
+}
+
 function TreeItem({
   node,
   depth,
@@ -169,14 +210,11 @@ function TreeItem({
                 <a
                   href={`#${id}`}
                   aria-current={active ? "location" : undefined}
-                  // Jump, don't glide: a long smooth scroll through pinned
-                  // scenes gets cancelled when framer re-measures a scene
-                  // on the way (it restores scrollY), stranding it midway.
                   onClick={(e) => {
                     const target = document.getElementById(id);
                     if (!target) return;
                     e.preventDefault();
-                    target.scrollIntoView({ behavior: "instant", block: "start" });
+                    glideTo(target);
                     history.replaceState(null, "", `#${id}`);
                   }}
                   className={cn(

@@ -17,7 +17,7 @@ import { useStill, useTypewriter } from "./motion";
 // to the case-study footer.
 
 const QUERY = "granma padano";
-const TYPE_SPEED = 85;
+const TYPE_SPEED = 55;
 const TYPE_START = 400;
 
 type Phase = "idle" | "typing" | "click" | "before" | "arrow" | "after" | "reset";
