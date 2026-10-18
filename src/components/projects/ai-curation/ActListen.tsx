@@ -1,7 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion, type MotionValue } from "framer-motion";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useInView, type MotionValue } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { DashedBorder } from "@/components/Dashed";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, Reveal, StickyScene, useStill } from "../story/motion";
 import { ProcessFlow } from "../story/ProcessFlow";
@@ -29,7 +30,7 @@ import { MdAvatar, ProductImage, RoadmapGrid9, STRATEGY } from "./ui";
 /* ------------------------------------------------------------------ */
 
 const WORKFLOW: { step: string; pain?: string }[] = [
-  { step: "Trend Search" },
+  { step: "Trend Search", pain: "Researching trends took a long time" },
   { step: "Concept Definition" },
   { step: "Product Discovery", pain: "Matching products to a concept by hand" },
   { step: "Product Selection", pain: "Checking sales data one by one" },
@@ -45,96 +46,91 @@ const WORKFLOW: { step: string; pain?: string }[] = [
     pain: "Watching for sold-out and low-stock items",
   },
 ];
-const LOOP_FROM = 4; // Enough SKUs?
-const LOOP_TO = 1; // Concept Definition
 // The time-consuming stretch: steps 1–5.
 const SLOW_UNTIL = 5;
-const automatable = (i: number) => WORKFLOW[i].pain !== undefined;
+const slow = (i: number) => i < SLOW_UNTIL;
+// Steps 3, 4, 5, 8 and 9.
+const AUTOMATABLE = [2, 3, 4, 7, 8];
+const automatable = (i: number) => AUTOMATABLE.includes(i);
+// Their outline: 1px dashes, 3px apart.
+const AUTOMATION_DASH = "1 3";
 
 // One scroll step per workflow step, then the summary, then a spare.
 const TRACK_STEPS = WORKFLOW.length + 2;
 const col = (i: number) => `${((i + 0.5) / WORKFLOW.length) * 100}%`;
+// In view, the MD also walks on their own, a step every 0.8s.
+const AUTO_S = 0.8;
+// In the summary, the slow stretch shows first, then what could be automated.
+const AUTOMATION_DELAY = 0.4;
 
-// Where the MD stands. On “Enough SKUs?” they're dragged back to Concept
-// Definition, then walk forward again.
-function useWalker(at: number, live: boolean) {
-  // 0 arrived · 1 dragged back · 2 walking forward again · 3 done
-  const [phase, setPhase] = useState(0);
-  const [seenAt, setSeenAt] = useState(at);
-  if (seenAt !== at) {
-    setSeenAt(at);
-    setPhase(0);
-  }
+// The step to show: wherever scroll has got to, or the autoplay if it's ahead.
+function useAutoStep(step: number, live: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.5 });
+  const playing = live && inView;
+  const [auto, setAuto] = useState(0);
   useEffect(() => {
-    if (!live || at !== LOOP_FROM) return;
-    const timers = [
-      setTimeout(() => setPhase(1), 900),
-      setTimeout(() => setPhase(2), 1900),
-      setTimeout(() => setPhase(3), 2700),
-    ];
-    return () => timers.forEach(clearTimeout);
-  }, [at, live]);
-  const onLoop = live && at === LOOP_FROM;
-  return {
-    pos: onLoop && phase === 1 ? LOOP_TO : at,
-    looping: onLoop && phase < 3,
-  };
+    if (!playing || auto >= WORKFLOW.length) return;
+    const timer = setTimeout(() => setAuto((a) => a + 1), AUTO_S * 1000);
+    return () => clearTimeout(timer);
+  }, [playing, auto]);
+  // Leaving starts it over next time.
+  if (!playing && auto !== 0) setAuto(0);
+  return { ref, shown: Math.max(step, auto) };
 }
 
 function WorkflowTrack({ step, live }: { step: number; live: boolean }) {
   const still = useStill();
+  const { ref, shown } = useAutoStep(step, live);
   // Step i (0–8) puts the MD on workflow step i; the next one is the summary.
-  const at = Math.min(step, WORKFLOW.length - 1);
-  const summary = !live || step >= WORKFLOW.length;
-  const { pos, looping } = useWalker(at, live && !summary);
+  const at = Math.min(shown, WORKFLOW.length - 1);
+  const summary = !live || shown >= WORKFLOW.length;
   const reached = (i: number) => !live || i <= at;
   return (
     <div
+      ref={ref}
       role="img"
-      aria-label="The campaign workflow in nine steps: Trend Search, Concept Definition, Product Discovery, Product Selection, Enough SKUs?, Campaign Proposal, Campaign Approval, System Registration, Campaign Operation. An MD walks the steps; pain points drop at Product Discovery (matching products to a concept by hand), Product Selection (checking sales data one by one), Enough SKUs? (not enough products sends them back to Concept Definition), System Registration (ordering every product slot by hand) and Campaign Operation (watching for sold-out and low-stock items). Steps 1 to 5 are the most time-consuming; steps 3, 4, 5, 8 and 9 could be automated."
+      aria-label="The campaign workflow in nine steps: Trend Search, Concept Definition, Product Discovery, Product Selection, Enough SKUs?, Campaign Proposal, Campaign Approval, System Registration, Campaign Operation. An MD walks the steps; pain points drop at Trend Search (researching trends took a long time), Product Discovery (matching products to a concept by hand), Product Selection (checking sales data one by one), Enough SKUs? (not enough products sends them back to Concept Definition), System Registration (ordering every product slot by hand) and Campaign Operation (watching for sold-out and low-stock items). Steps 1 to 5 are the most time-consuming; steps 3, 4, 5, 8 and 9 could be automated."
       className="relative w-full"
     >
-      {/* ⏳ Most time-consuming, over steps 1–5 */}
-      <motion.div
-        aria-hidden
-        initial={false}
-        animate={{ opacity: summary ? 1 : 0, y: summary ? 0 : 6 }}
-        transition={{ duration: 0.4, ease: EASE_OUT }}
-        className="relative h-9"
-        style={{ width: `${(SLOW_UNTIL / WORKFLOW.length) * 100}%` }}
-      >
-        <span className="absolute inset-x-2 bottom-1 h-2.5 rounded-t-md border-x border-t border-ink-muted/60" />
-        <span className="absolute left-1/2 top-0 -translate-x-1/2 whitespace-nowrap bg-paper px-2 text-sm font-medium text-ink">
-          ⏳ Most time-consuming
-        </span>
-      </motion.div>
-
-      {/* The MD, and the loop back from Enough SKUs? to Concept Definition */}
       <div aria-hidden className="relative h-14">
-        <svg
-          viewBox="0 0 900 56"
-          preserveAspectRatio="none"
-          className="absolute inset-0 h-full w-full overflow-visible"
+        {/* ⏳ Most time-consuming, its legs on circles 1 and 5 */}
+        <motion.div
+          initial={false}
+          animate={{ opacity: summary ? 1 : 0, y: summary ? 0 : 6 }}
+          transition={{ duration: 0.4, ease: EASE_OUT }}
+          className="absolute inset-y-0"
+          style={{
+            left: col(0),
+            width: `${((SLOW_UNTIL - 1) / WORKFLOW.length) * 100}%`,
+          }}
         >
-          <motion.path
-            d={`M${(LOOP_FROM + 0.5) * 100} 50 C${(LOOP_FROM + 0.5) * 100} 6 ${(LOOP_TO + 0.5) * 100} 6 ${(LOOP_TO + 0.5) * 100} 46`}
-            fill="none"
-            stroke="var(--color-alert)"
-            strokeWidth={1.5}
-            strokeDasharray="4 4"
-            vectorEffect="non-scaling-stroke"
-            initial={false}
-            animate={{
-              pathLength: looping || summary ? 1 : 0,
-              opacity: looping ? 1 : summary ? 0.35 : 0,
-            }}
-            transition={still ? { duration: 0 } : { duration: 0.8, ease: "easeInOut" }}
-          />
-        </svg>
+          <span className="absolute inset-x-0 bottom-0 top-3 rounded-t-md border-x border-t border-slow/60" />
+          <span className="absolute left-1/2 top-0 -translate-x-1/2 whitespace-nowrap bg-paper px-2 text-sm font-medium text-slow">
+            ⏳ Most time-consuming
+          </span>
+        </motion.div>
+
+        <motion.p
+          initial={false}
+          animate={{ opacity: summary ? 1 : 0 }}
+          transition={{
+            duration: 0.4,
+            delay: summary && live ? AUTOMATION_DELAY : 0,
+          }}
+          className="absolute right-0 top-0 flex items-center gap-2 text-sm text-ink-muted"
+        >
+          <span className="relative size-3">
+            <DashedBorder radius={4} dash={AUTOMATION_DASH} className="text-automatable" />
+          </span>
+          Automation available
+        </motion.p>
+
+        {/* The MD */}
         {live && !summary && (
           <motion.span
             initial={false}
-            animate={{ left: col(pos) }}
+            animate={{ left: col(at) }}
             transition={{ type: "spring", stiffness: 160, damping: 20 }}
             className="absolute bottom-1 -ml-[18px]"
           >
@@ -145,7 +141,7 @@ function WorkflowTrack({ step, live }: { step: number; live: boolean }) {
 
       {/* The rail */}
       <ol className="relative grid grid-cols-9">
-        <span aria-hidden className="absolute inset-x-[5.5%] top-4 h-px bg-line" />
+        <span aria-hidden className="absolute inset-x-[5.5%] top-4 z-[1] h-px bg-line" />
         {WORKFLOW.map((w, i) => (
           <li key={w.step} className="relative flex flex-col items-center gap-2 px-1 text-center">
             <motion.span
@@ -154,21 +150,27 @@ function WorkflowTrack({ step, live }: { step: number; live: boolean }) {
               animate={{ opacity: summary && automatable(i) ? 1 : 0 }}
               transition={{
                 duration: 0.4,
-                delay: summary && live ? 0.1 * i : 0,
+                delay: summary && live ? AUTOMATION_DELAY + 0.06 * i : 0,
               }}
-              className="absolute -inset-y-2 inset-x-0.5 rounded-xl bg-accent/[0.08]"
-            />
+              className="absolute -inset-y-2 inset-x-0.5"
+            >
+              <DashedBorder radius={12} dash={AUTOMATION_DASH} className="text-automatable" />
+            </motion.span>
             <span
               className={cn(
-                "relative grid size-8 place-items-center rounded-full border text-xs font-semibold transition-colors duration-300",
-                reached(i) ? "border-ink bg-ink text-paper" : "border-line bg-paper text-ink-muted",
+                "relative z-[2] grid size-8 place-items-center rounded-full border text-xs font-semibold transition-colors duration-300",
+                summary && slow(i)
+                  ? "border-slow bg-slow text-paper"
+                  : reached(i)
+                    ? "border-ink bg-ink text-paper"
+                    : "border-line bg-paper text-ink-muted",
               )}
             >
               {i + 1}
             </span>
             <span
               className={cn(
-                "relative text-[13px] font-medium leading-tight transition-colors duration-300",
+                "relative z-[2] text-[13px] font-medium leading-tight transition-colors duration-300",
                 reached(i) ? "text-ink" : "text-ink-muted/60",
               )}
             >
@@ -198,24 +200,15 @@ function WorkflowTrack({ step, live }: { step: number; live: boolean }) {
                 }
                 className="rounded-lg border border-alert/25 bg-alert/[0.06] p-2 text-[12px] leading-snug text-ink"
               >
-                <span aria-hidden>😩 </span>
+                <span aria-hidden className="block">
+                  😩
+                </span>
                 {w.pain}
               </motion.p>
             )}
           </li>
         ))}
       </ol>
-
-      <motion.p
-        aria-hidden
-        initial={false}
-        animate={{ opacity: summary ? 1 : 0 }}
-        transition={{ duration: 0.4, delay: summary && live ? 0.9 : 0 }}
-        className="mt-4 flex items-center justify-end gap-2 text-sm text-ink-muted"
-      >
-        <span className="size-3 rounded-[4px] bg-accent/[0.16]" />
-        Automation available
-      </motion.p>
     </div>
   );
 }
@@ -228,29 +221,43 @@ function WorkflowList() {
         <li
           key={w.step}
           className={cn(
-            "flex flex-col gap-1.5 rounded-xl border p-3",
-            automatable(i) ? "border-accent/20 bg-accent/[0.06]" : "border-line",
+            "relative flex flex-col gap-1.5 rounded-xl border p-3",
+            automatable(i) ? "border-transparent" : "border-line",
           )}
         >
+          {automatable(i) && (
+            <DashedBorder radius={12} dash={AUTOMATION_DASH} className="text-automatable" />
+          )}
           <p className="flex items-center gap-2 text-sm font-medium text-ink">
-            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ink text-[11px] font-semibold text-paper">
+            <span
+              className={cn(
+                "grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold text-paper",
+                slow(i) ? "bg-slow" : "bg-ink",
+              )}
+            >
               {i + 1}
             </span>
             {w.step}
-            {i < SLOW_UNTIL && <span className="ml-auto text-xs text-ink-muted">⏳</span>}
           </p>
           {w.pain && (
             <p className="text-sm text-ink">
-              <span aria-hidden>😩 </span>
+              <span aria-hidden className="block">
+                😩
+              </span>
               {w.pain}
             </p>
           )}
         </li>
       ))}
       <li className="flex gap-4 pt-1 text-xs text-ink-muted">
-        <span>⏳ Most time-consuming</span>
         <span className="flex items-center gap-1.5">
-          <span className="size-3 rounded-[4px] bg-accent/[0.16]" />
+          <span className="size-3 rounded-full bg-slow" />
+          Most time-consuming
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="relative size-3">
+            <DashedBorder radius={4} dash={AUTOMATION_DASH} className="text-automatable" />
+          </span>
           Automation available
         </span>
       </li>
@@ -331,8 +338,10 @@ function WorkflowHeader() {
     <div className="flex flex-col gap-3">
       <SubHeading>1 · Steps AI could take over</SubHeading>
       <Body className="max-w-[48rem]">
-        Building one campaign took nine steps. The first five took the most time, and{" "}
-        <B>five of the nine could be automated</B>.
+        <span className="block">Building one campaign took nine steps.</span>
+        <span className="block">
+          The first five took the most time, and <B>five of the nine could be automated</B>.
+        </span>
       </Body>
     </div>
   );

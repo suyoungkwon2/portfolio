@@ -2,6 +2,7 @@
 
 import { useInView } from "framer-motion";
 import { createContext, useContext, useEffect, useRef } from "react";
+import { DashedBorder } from "@/components/Dashed";
 import { cn } from "@/lib/utils";
 import { useStill } from "../story/motion";
 import { ASSETS, type AssetId, type ResolvedAssets } from "./assets";
@@ -36,10 +37,11 @@ export function AssetPlaceholder({ id, className }: { id: AssetId; className?: s
       role="img"
       aria-label={ASSETS[id].alt}
       className={cn(
-        "flex h-full w-full flex-col items-center justify-center gap-2 border border-dashed border-ink/15 bg-paper-2 p-4 text-center",
+        "relative flex h-full w-full flex-col items-center justify-center gap-2 bg-paper-2 p-4 text-center",
         className,
       )}
     >
+      <DashedBorder className="text-ink/15" />
       <span className="font-mono text-[11px] font-medium text-ink">{id}</span>
       <span className="max-w-[28ch] text-[11px] leading-snug text-ink-muted">{ASSETS[id].alt}</span>
     </div>

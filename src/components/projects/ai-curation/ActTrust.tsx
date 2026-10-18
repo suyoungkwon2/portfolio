@@ -378,6 +378,7 @@ function PipelineDots() {
           stroke="var(--color-accent)"
           strokeOpacity={0.4}
           strokeDasharray="3 4"
+          strokeLinecap="round"
         />
         <text
           x={nodeCx(LOOP_NODE) + LOOP_RX + 8}
@@ -752,6 +753,7 @@ function ScoreDots() {
             stroke="var(--color-ink)"
             strokeWidth={1.25}
             strokeDasharray="4 3"
+            strokeLinecap="round"
           />
           <text
             x={unitX(MEAN) - 8}

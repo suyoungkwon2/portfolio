@@ -118,6 +118,7 @@ export function OrgChart({
             strokeWidth={1}
             vectorEffect="non-scaling-stroke"
             strokeDasharray={`${DASH / 2} ${DASH / 2}`}
+            strokeLinecap="round"
             markerEnd="url(#org-arrow)"
             initial={{ strokeDashoffset: 0 }}
             animate={cue === "links" ? { strokeDashoffset: -DASH * 6 } : { strokeDashoffset: 0 }}

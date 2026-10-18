@@ -1,3 +1,4 @@
+import { DashedBorder } from "@/components/Dashed";
 import { cn } from "@/lib/utils";
 
 // Labeled placeholder for real screenshots/diagrams to be dropped in
@@ -16,11 +17,12 @@ export function ImagePlaceholder({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-lg border border-dashed border-line bg-paper-2 px-6 text-center",
+        "relative flex items-center justify-center rounded-lg bg-paper-2 px-6 text-center",
         aspect,
         className,
       )}
     >
+      <DashedBorder radius={8} className="text-line" />
       <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
         {label}
       </span>

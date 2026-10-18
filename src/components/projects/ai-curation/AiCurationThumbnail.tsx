@@ -3,6 +3,7 @@
 import { motion, useAnimationFrame, useInView } from "framer-motion";
 import { ShoppingCart } from "lucide-react";
 import { useRef, useState } from "react";
+import { DashedBorder } from "@/components/Dashed";
 import { EASE_OUT, useFitScale, useStill } from "../story/motion";
 import {
   AI_H,
@@ -219,9 +220,9 @@ function Campaign({
         initial={false}
         animate={on ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
         transition={on ? { duration: 0.3, ease: EASE_OUT } : { duration: 0 }}
-        className="rounded-lg bg-paper px-3 pb-3 pt-2.5 shadow-[-10px_10px_24px_-8px_rgba(0,0,0,0.5)]"
-        style={{ outline: `1.25px dashed ${LAVENDER}`, outlineOffset: 5 }}
+        className="relative rounded-lg bg-paper px-3 pb-3 pt-2.5 shadow-[-10px_10px_24px_-8px_rgba(0,0,0,0.5)]"
       >
+        <DashedBorder radius={13} width={1.25} dash="3 4" offset={5} color={LAVENDER} />
         <p className="h-4 whitespace-nowrap text-[12px] font-medium leading-4 text-[#333]">
           {chars(theme).slice(0, Math.max(0, titled)).join("")}
           {done && <span className="ml-1 text-[#999]">›</span>}

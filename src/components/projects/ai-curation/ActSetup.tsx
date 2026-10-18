@@ -3,6 +3,7 @@
 import { motion, useAnimationFrame, useInView } from "framer-motion";
 import { Pencil, RotateCw } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { DashedRule } from "@/components/Dashed";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, Reveal, StickyScene, useFitScale, useStill } from "../story/motion";
 import { RolesChapter, type Role } from "../story/OrgChart";
@@ -148,13 +149,10 @@ export function TitleCard({
       </p>
       <ul className={cn("text-sm", glass ? "text-white" : "text-ink")}>
         {HERO_THEMES.map((theme, i) => (
-          <li
-            key={theme.title}
-            className={cn(
-              "flex h-8 items-center gap-2 border-b border-dashed last:border-b-0",
-              rule,
+          <li key={theme.title} className="relative flex h-8 items-center gap-2">
+            {i < HERO_THEMES.length - 1 && (
+              <DashedRule className={glass ? "text-white/25" : "text-line"} />
             )}
-          >
             <span aria-hidden className={cn("transition-opacity", typed[i] === 0 && "opacity-0")}>
               {theme.emoji}
             </span>
