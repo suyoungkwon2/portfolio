@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 import { EASE_OUT, StickyScene, scrollToStep, useStill } from "../story/motion";
 import {
   B,
+  Em,
   Body,
   Chapter,
-  Kicker,
   PhoneFrame,
   PhoneSplit,
   SectionHeader,
@@ -333,6 +333,16 @@ export function UserProblem() {
 /* 05 Company's Problem                                                */
 /* ------------------------------------------------------------------ */
 
+// A seeded random (mulberry32), so server and client draw the same thing.
+function seeded(seed: number) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 // A: the campaign nobody can look after. On a loop it shrinks, fades and
 // drifts off to the top right, asking not to be forgotten.
 // Shrink progress p (0 to 1) → where the card is. The bubble sits outside
@@ -448,16 +458,9 @@ const WALL = [
   { cols: 20, rows: 13, avatar: 0.5, hold: 2400 },
 ];
 const ALL_PRODUCTS = Object.values(PRODUCTS).flat();
-// Tiles in a shuffled order, so the full wall doesn't show a pattern. Seeded
-// (mulberry32) so server and client agree.
+// Tiles in a shuffled order, so the full wall doesn't show a pattern.
 const TILES = (() => {
-  let seed = 7;
-  const rand = () => {
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+  const rand = seeded(7);
   const { cols, rows } = WALL[WALL.length - 1];
   return Array.from(
     { length: cols * rows },
@@ -615,6 +618,126 @@ function PartBeat({ part }: { part: number }) {
   );
 }
 
+// The closing question, in a comic "focus lines" bubble: short strokes
+// radiating out from a wide ellipse, uneven in length and weight, some gaps.
+const BURST_W = 680;
+const BURST_H = 300;
+const BURST = (() => {
+  const rand = seeded(11);
+  const [cx, cy, rx, ry] = [BURST_W / 2, BURST_H / 2, 290, 118];
+  const lines = [];
+  const n = 200;
+  for (let i = 0; i < n; i++) {
+    if (rand() < 0.08) continue;
+    const a = ((i + rand() * 0.6) / n) * Math.PI * 2;
+    const [cos, sin] = [Math.cos(a), Math.sin(a)];
+    const len = 8 + rand() * 22;
+    const r0 = 1 + rand() * 0.04;
+    // Rounded so server and client print the same attribute strings.
+    const r = (v: number) => Math.round(v * 10) / 10;
+    lines.push({
+      x1: r(cx + rx * r0 * cos),
+      y1: r(cy + ry * r0 * sin),
+      x2: r(cx + (rx * r0 + len) * cos),
+      y2: r(cy + (ry * r0 + len * 0.6) * sin),
+      w: r(1.2 + rand() * 1.6),
+    });
+  }
+  return lines;
+})();
+
+function FocusBubble({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative mx-auto aspect-[680/300] w-full max-w-[32rem]">
+      <svg
+        aria-hidden
+        viewBox={`0 0 ${BURST_W} ${BURST_H}`}
+        className="absolute inset-0 size-full text-ink"
+      >
+        {BURST.map((l, i) => (
+          <line
+            key={i}
+            x1={l.x1}
+            y1={l.y1}
+            x2={l.x2}
+            y2={l.y2}
+            stroke="currentColor"
+            strokeWidth={l.w}
+            strokeLinecap="round"
+          />
+        ))}
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center px-[13%] text-center">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// One scroll per beat: the value, then the worry, then the question in its
+// bubble, then the way forward. The first line stays put; each beat after it
+// waits for its own scroll, so a fast scroll can't skip the bubble. Without
+// scrolling, the beats also play on their own, one every TRUST_AUTO_MS, once
+// the scene is on screen; whichever is further along wins.
+const TRUST_STEPS = 4;
+const TRUST_AUTO_MS = 1600;
+
+function TrustQuestion({ step: scrolled }: { step: number }) {
+  const still = useStill();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.5 });
+  const [auto, setAuto] = useState(0);
+  const step = Math.max(scrolled, auto);
+  useEffect(() => {
+    if (still || !inView || step >= TRUST_STEPS - 1) return;
+    const id = setTimeout(() => setAuto(step + 1), TRUST_AUTO_MS);
+    return () => clearTimeout(id);
+  }, [still, inView, step]);
+  const reveal = (at: number) => ({
+    initial: still ? (false as const) : { opacity: 0, y: 16 },
+    animate: step >= at ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 },
+    transition: still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT },
+  });
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        wrap,
+        "flex w-full flex-col items-center text-center font-display font-medium tracking-tight text-ink",
+      )}
+    >
+      <p className="text-[1.4rem] leading-snug md:text-[1.75rem]">
+        But <Em>thoughtful human curation</Em> was Kurly’s core value.
+      </p>
+      <motion.p {...reveal(1)} className="pt-3 text-[1.4rem] leading-snug md:text-[1.75rem]">
+        So everyone was nervous about automating curation:
+      </motion.p>
+      {/* The bubble pops: a spring up from smaller. */}
+      <motion.div
+        initial={still ? false : { opacity: 0, scale: 0.8 }}
+        animate={step >= 2 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+        transition={still ? { duration: 0 } : { type: "spring", stiffness: 320, damping: 18 }}
+        className="w-full pt-4"
+      >
+        <FocusBubble>
+          <p className="instrument-serif-regular text-[1.05rem] leading-snug md:text-[1.6rem]">
+            Could AI pick like a Kurly MD,
+            <br />
+            without costing customers’ trust?
+          </p>
+        </FocusBubble>
+      </motion.div>
+      <motion.p
+        {...reveal(3)}
+        className="pt-12 text-[1.4rem] leading-snug md:pt-16 md:text-[1.75rem]"
+      >
+        So to learn how the experts curate,
+        <br />I sat down with the MDs who do it every day. ↓
+      </motion.p>
+    </div>
+  );
+}
+
 function CompanyHeader() {
   return (
     <SectionHeader label="05 COMPANY’S PROBLEM" headline="Fewer Hands, the Same 40K+ Products" />
@@ -677,15 +800,20 @@ export function CompanyProblem() {
         </StickyScene>
       </div>
 
-      <div className={cn(wrap, "pt-16")}>
-        <p className="mx-auto max-w-[44rem] text-center font-display text-[1.4rem] font-medium leading-snug tracking-tight text-ink text-balance md:text-[1.75rem]">
-          But curation was Kurly’s core value. Handing homepage picks to a machine raised a real
-          question: <B>could AI pick like a Kurly MD</B>, without costing customers’ trust?
-        </p>
+      {/* Pulled up into the blank tail of 05's pinned scene above. */}
+      <div className="md:motion-safe:-mt-[15vh]">
+        <StickyScene
+          steps={TRUST_STEPS}
+          vh={70}
+          label="Curation was Kurly’s core value, so everyone was nervous about automating it"
+          // Anchored from the top, not centred, so the first line sits where
+          // a hook line would (about a fifth down) and never moves.
+          className="md:motion-safe:items-start md:motion-safe:pt-[22vh]"
+          still={() => <TrustQuestion step={TRUST_STEPS} />}
+        >
+          {({ step }) => <TrustQuestion step={step} />}
+        </StickyScene>
       </div>
-      <Kicker>
-        So before building anything, I sat down with the people who do this every day. ↓
-      </Kicker>
     </Chapter>
   );
 }
