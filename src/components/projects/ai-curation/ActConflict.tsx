@@ -1,6 +1,14 @@
 "use client";
 
-import { AnimatePresence, motion, useInView } from "framer-motion";
+import {
+  AnimatePresence,
+  animate,
+  cubicBezier,
+  motion,
+  useInView,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, StickyScene, useStill } from "../story/motion";
@@ -345,21 +353,47 @@ const drift = (p: number) => {
     bubbleY: y + (CARD_H / 2) * scale,
   };
 };
-// Fade in, a short hold, a 3.5s shrink, then gone; the bubble shows up once
-// the shrink is 70% done. In seconds, then as fractions of the loop.
-const [FADE_IN_S, HOLD_S, SHRINK_S, OUT_S] = [0.3, 0.4, 3.5, 0.45];
+// Fade in, a short hold, the shrink, then gone. The shrink eases back-in-out:
+// a little swell first, then a snap down that overshoots and settles.
+const [FADE_IN_S, HOLD_S, SHRINK_S, OUT_S] = [0.3, 0.4, 2.2, 0.45];
 const DRIFT_S = FADE_IN_S + HOLD_S + SHRINK_S + OUT_S;
-const FADE_END = FADE_IN_S / DRIFT_S;
-const HOLD_END = (FADE_IN_S + HOLD_S) / DRIFT_S;
-const SHRINK_END = (FADE_IN_S + HOLD_S + SHRINK_S) / DRIFT_S;
-const atP = (p: number) => HOLD_END + p * (SHRINK_END - HOLD_END);
-const START = drift(0);
-const SPEAK = drift(0.7);
-const END = drift(1);
+const SQUISH = cubicBezier(0.68, -0.55, 0.27, 1.55);
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+// Loop time t (0 to 1) → shrink progress, plus how far in and out it is.
+const phase = (t: number) => {
+  const s = t * DRIFT_S;
+  const raw = clamp01((s - FADE_IN_S - HOLD_S) / SHRINK_S);
+  return {
+    p: raw === 0 || raw === 1 ? raw : SQUISH(raw),
+    shown: clamp01(s / FADE_IN_S) * (1 - clamp01((s - FADE_IN_S - HOLD_S - SHRINK_S) / OUT_S)),
+  };
+};
+const card = (t: number) => drift(phase(t).p);
 
 function DriftingCampaign() {
   const still = useStill();
-  const loop = { duration: DRIFT_S, repeat: Infinity, repeatDelay: 0.6, ease: "linear" } as const;
+  const t = useMotionValue(0);
+  useEffect(() => {
+    if (still) return;
+    const run = animate(t, [0, 1], {
+      duration: DRIFT_S,
+      ease: "linear",
+      repeat: Infinity,
+      repeatDelay: 0.6,
+    });
+    return () => run.stop();
+  }, [still, t]);
+  const scale = useTransform(t, (v) => card(v).scale);
+  const x = useTransform(t, (v) => card(v).x);
+  const y = useTransform(t, (v) => card(v).y);
+  const opacity = useTransform(t, (v) => card(v).opacity * phase(v).shown);
+  const bubbleX = useTransform(t, (v) => card(v).bubbleX);
+  const bubbleY = useTransform(t, (v) => card(v).bubbleY);
+  // The bubble shows up once the shrink is 70% done.
+  const bubbleOpacity = useTransform(t, (v) => {
+    const { p, shown } = phase(v);
+    return clamp01((p - 0.7) / 0.05) * shown;
+  });
   return (
     <div
       role="img"
@@ -368,12 +402,7 @@ function DriftingCampaign() {
     >
       {!still && (
         <motion.div
-          animate={{
-            opacity: [0, 0, 1, 1, 0],
-            x: [SPEAK.bubbleX, SPEAK.bubbleX, SPEAK.bubbleX, END.bubbleX, END.bubbleX],
-            y: [SPEAK.bubbleY, SPEAK.bubbleY, SPEAK.bubbleY, END.bubbleY, END.bubbleY],
-          }}
-          transition={{ ...loop, times: [0, atP(0.7), atP(0.74), SHRINK_END, 1] }}
+          style={{ x: bubbleX, y: bubbleY, opacity: bubbleOpacity }}
           className="absolute left-1/2 top-1/2 z-10"
         >
           <div className="absolute -left-4 top-2.5">
@@ -391,23 +420,7 @@ function DriftingCampaign() {
           <ThoughtBubble emoji="🥺" text="Don’t forget me!" tail="top" />
         </div>
       )}
-      <motion.div
-        animate={
-          still
-            ? undefined
-            : {
-                opacity: [0, 1, START.opacity, SPEAK.opacity, END.opacity, 0],
-                scale: [1, 1, START.scale, SPEAK.scale, END.scale, END.scale],
-                x: [0, 0, START.x, SPEAK.x, END.x, END.x],
-                y: [0, 0, START.y, SPEAK.y, END.y, END.y],
-              }
-        }
-        transition={
-          still
-            ? { duration: 0 }
-            : { ...loop, times: [0, FADE_END, HOLD_END, atP(0.7), SHRINK_END, 1] }
-        }
-      >
+      <motion.div style={still ? undefined : { scale, x, y, opacity }}>
         <div className="rounded-2xl border border-line bg-paper p-4 shadow-[0_20px_40px_-24px_rgba(21,21,21,0.3)]">
           <p className="pb-3 text-base font-semibold text-ink">
             {HOLIDAY.emoji} {HOLIDAY.title} ›
@@ -467,7 +480,7 @@ function ProductWall() {
   const lost = level === WALL.length - 1;
   return (
     <div className="flex w-full max-w-[440px] flex-col gap-3">
-      <p className="font-display text-lg font-semibold text-ink">40K+ Products</p>
+      <p className="text-center font-display text-lg font-semibold text-ink">40K+ Products</p>
       <div
         role="img"
         aria-label="A wall of product tiles that keeps growing, with one new MD in the middle, looking smaller and smaller until they say “I’m lost.”"
