@@ -608,11 +608,15 @@ export function RoadmapGrid9({ spread = false }: { spread?: boolean }) {
 // The plan from 07 Define.
 export const STRATEGY: ProcessStep[] = [
   {
-    name: "AI PoC",
-    text: "An internal copilot for MDs, to reach expert-level curation.",
+    name: "Internal Copilot",
+    text: "An AI PoC for MDs, to reach expert-level curation.",
   },
   {
-    name: "Validation",
+    name: "Internal Evaluation",
+    text: "Experts and MDs score the AI’s campaigns, to earn their trust.",
+  },
+  {
+    name: "A/B Test",
     text: "A large A/B test on the homepage, to match hand-picked campaigns.",
   },
   {
@@ -620,7 +624,10 @@ export const STRATEGY: ProcessStep[] = [
     text: "Bring the evidence to the CEO and get the go-ahead.",
     gate: true,
   },
-  { name: "Integration", text: "Let AI run the core homepage slots." },
+  {
+    name: "Integration",
+    text: "Let AI run the core homepage slots, from registration to hourly refresh.",
+  },
 ];
 
 // Where the plan stands at the end of a chapter: it lands on `from` steps
@@ -638,7 +645,7 @@ export function ProgressBeat({
   label: string;
 }) {
   return (
-    <StickyScene steps={3} vh={60} label={label}>
+    <StickyScene steps={3} vh={100} label={label}>
       {({ step, live }) => {
         const done = !live || step >= 1;
         return (

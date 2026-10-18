@@ -4,23 +4,21 @@ import { AnimatePresence, motion, useInView, type MotionValue } from "framer-mot
 import { useEffect, useRef, useState } from "react";
 import { DashedBorder } from "@/components/Dashed";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, Reveal, StickyScene, useStill } from "../story/motion";
+import { EASE_OUT, StickyScene, useStill } from "../story/motion";
 import { ProcessFlow } from "../story/ProcessFlow";
 import {
   B,
   Body,
   Chapter,
   DataNote,
-  Fold,
   Question,
   SectionHeader,
   SectionLabel,
   Subhead,
   SubHeading,
-  TermList,
   wrap,
 } from "../story/ui";
-import { MdAvatar, RoadmapGrid9, STRATEGY, WebProductCard, type WebProduct } from "./ui";
+import { MdAvatar, STRATEGY, WebProductCard, type WebProduct } from "./ui";
 
 // Act 3, Listen: 06 Employee Interview · 07 Define (spec §5.7–5.8).
 
@@ -447,22 +445,17 @@ function Hmw({ progress, live }: { progress?: MotionValue<number>; live: boolean
   );
 }
 
+// Each goal's text is [before, key phrase, after]; the key phrase is bold.
 const GOALS = [
-  ["Internal efficiency", "Automate the manual workflow so MDs get their time back."],
+  ["Internal efficiency", ["", "Automate the manual workflow", " so MDs get their time back."]],
   [
     "Customer experience",
-    // A non-breaking hyphen, so the circle never splits “high-quality”.
-    "Offer more diverse, high‑quality campaigns that bring back the joy of discovery.",
+    ["Offer more diverse, fresh campaigns that ", "bring back the joy of discovery", "."],
   ],
-] as const;
-const FEATURES = [
-  ["Find products by theme", "Type a theme, get a ranked product list."],
-  ["See product data in one view", "Brand, recent sales, stock and price next to every product."],
-  ["Refresh every hour", "Sold-out or stale items are swapped out automatically."],
 ] as const;
 
 function GoalCircle({
-  goal: [term, text],
+  goal: [term, [before, key, after]],
   shown,
   delay,
 }: {
@@ -478,8 +471,10 @@ function GoalCircle({
       className="flex size-64 shrink-0 flex-col items-center justify-center gap-3 rounded-full border border-ink/20 px-9 text-center md:size-72"
     >
       <p className="text-sm font-medium text-ink-muted">{term}</p>
-      <p className="font-display text-lg font-medium leading-snug tracking-tight text-ink md:text-xl">
-        {text}
+      <p className="font-display text-lg leading-snug tracking-tight text-ink md:text-xl">
+        {before}
+        <strong className="font-semibold">{key}</strong>
+        {after}
       </p>
     </motion.div>
   );
@@ -492,7 +487,10 @@ function Goals({ animate }: { animate: boolean }) {
   const shown = !animate || still;
   return (
     <div className="flex flex-col gap-8">
-      <Subhead>Goals</Subhead>
+      <div className="flex flex-col gap-4">
+        <Subhead>Goals</Subhead>
+        <Body>I set two goals: one for the team, and one for customers.</Body>
+      </div>
       <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center md:gap-8">
         <GoalCircle goal={GOALS[0]} shown={shown} delay={0.2} />
         <svg
@@ -518,18 +516,111 @@ function Goals({ animate }: { animate: boolean }) {
   );
 }
 
-function KeyFeatures() {
+// What AI took over, on the workflow from 06: picking the products, then
+// registering the campaign and keeping it fresh. The rest stays with MDs.
+const SCOPE = [
+  {
+    term: "Curation",
+    text: "Find and pick the products for a theme.",
+    from: 2,
+    to: 4,
+  },
+  {
+    term: "Operation",
+    text: "Register the campaign, then keep it fresh as products sell out.",
+    from: 7,
+    to: 8,
+  },
+] as const;
+const inScope = (i: number) => SCOPE.some((s) => i >= s.from && i <= s.to);
+
+function ScopeNumber({ n }: { n: number }) {
+  return (
+    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ink text-[11px] font-semibold text-paper">
+      {n}
+    </span>
+  );
+}
+
+function Scope({ animate }: { animate: boolean }) {
+  const still = useStill();
+  const shown = !animate || still;
   return (
     <div className="flex flex-col gap-8">
-      <Subhead>Key Features</Subhead>
-      <ol className="grid gap-8 md:grid-cols-3 md:gap-10">
-        {FEATURES.map(([term, text], i) => (
-          <li key={term} className="flex flex-col gap-3 border-t border-line pt-5">
-            <span className="grid size-8 place-items-center rounded-full bg-ink text-xs font-semibold text-paper">
-              {i + 1}
+      <div className="flex flex-col gap-4">
+        <Subhead>Scope</Subhead>
+        <Body>I defined the scope: the AI system would take over two of the jobs.</Body>
+      </div>
+
+      {/* Desktop: the 06 workflow, with the two jobs bracketed under it. */}
+      <div className="relative hidden md:block">
+        <ol className="grid grid-cols-9">
+          {WORKFLOW.map(({ step }, i) => (
+            <li key={step} className="flex flex-col items-center gap-3 px-1 text-center">
+              <span
+                className={cn(
+                  "grid size-8 place-items-center rounded-full border text-xs font-semibold",
+                  inScope(i) ? "border-ink bg-ink text-paper" : "border-line text-ink-muted",
+                )}
+              >
+                {i + 1}
+              </span>
+              <span
+                className={cn(
+                  "text-[13px] leading-snug",
+                  inScope(i) ? "font-medium text-ink" : "text-ink-muted",
+                )}
+              >
+                {step}
+              </span>
+            </li>
+          ))}
+        </ol>
+        <div className="relative mt-6 h-36">
+          {SCOPE.map((job, n) => (
+            <motion.div
+              key={job.term}
+              initial={shown ? false : { opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: EASE_OUT, delay: 0.2 + n * 0.5 }}
+              className="absolute top-0 px-2"
+              style={{
+                left: `${(job.from / WORKFLOW.length) * 100}%`,
+                width: `${((job.to - job.from + 1) / WORKFLOW.length) * 100}%`,
+              }}
+            >
+              <span
+                aria-hidden
+                className="block h-3 rounded-b-md border-x border-b border-ink/40"
+              />
+              <div className="mt-4 flex flex-col items-center gap-2 text-center">
+                <span className="flex items-center gap-2">
+                  <ScopeNumber n={n + 1} />
+                  <span className="text-lg font-medium text-ink">{job.term}</span>
+                </span>
+                <span className="text-sm leading-relaxed text-ink-muted text-balance">
+                  {job.text}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile: the two jobs and the steps they cover. */}
+      <ol className="flex flex-col gap-6 md:hidden">
+        {SCOPE.map((job, n) => (
+          <li key={job.term} className="flex flex-col gap-2 border-t border-line pt-4">
+            <span className="flex items-center gap-2">
+              <ScopeNumber n={n + 1} />
+              <span className="text-lg font-medium text-ink">{job.term}</span>
             </span>
-            <p className="text-lg font-medium text-ink">{term}</p>
-            <p className="text-base leading-relaxed text-ink-muted">{text}</p>
+            <span className="text-base leading-relaxed text-ink-muted">{job.text}</span>
+            <span className="text-sm text-ink-muted">
+              {WORKFLOW.slice(job.from, job.to + 1)
+                .map((w) => w.step)
+                .join(" · ")}
+            </span>
           </li>
         ))}
       </ol>
@@ -537,48 +628,80 @@ function KeyFeatures() {
   );
 }
 
-function TheBar() {
-  return (
-    <p className="max-w-[52rem] font-display text-[1.75rem] font-medium leading-[1.2] tracking-tight text-ink text-balance md:text-[2.6rem]">
-      AI didn’t have to beat our MDs. It had to be <B>as good as them</B>, so customers couldn’t
-      tell the difference.
-    </p>
-  );
-}
-
 function Strategy({ animate }: { animate: boolean }) {
   return (
     <div className="flex flex-col gap-8">
-      <Subhead>Strategic Process</Subhead>
+      <div className="flex flex-col gap-4">
+        <Subhead>Strategic Process</Subhead>
+        <Body>
+          I planned the rollout in five steps, from an internal tool to the homepage, to improve the
+          AI system and earn the MDs’ trust along the way.
+        </Body>
+      </div>
       <ProcessFlow steps={STRATEGY} animate={animate} />
     </div>
   );
 }
 
-function BiggerPicture() {
+// Key features per phase: the copilot (step 1 of the plan) takes curation,
+// the integration (step 5) takes operation.
+const FEATURES = [
+  {
+    stage: "Phase 1",
+    name: "Internal Copilot",
+    items: [
+      ["Find products by theme", "Type a theme, get a ranked product list."],
+      [
+        "See product data in one view",
+        "Brand, recent sales, stock and price next to every product.",
+      ],
+      ["Export to a sheet", "Download the list as a CSV, ready for system registration."],
+      ["Rate the results", "Score each result and leave feedback, so the AI keeps improving."],
+    ],
+  },
+  {
+    stage: "Phase 2",
+    name: "Operation Automation",
+    items: [
+      ["Start from a sheet", "Add a theme to a sheet, and AI builds and registers the campaign."],
+      ["Order the slots", "AI ranks the products, so no slot is ordered by hand."],
+      ["New picks every week", "Each campaign gets a fresh product list once a week."],
+      ["Refresh every hour", "Sold-out or stale items are swapped out automatically."],
+    ],
+  },
+] as const;
+
+function KeyFeatures() {
   return (
-    <Fold label="Bigger picture">
-      <div className="grid gap-10 rounded-2xl border border-line p-6 md:grid-cols-[1fr_auto] md:gap-14 md:p-8">
-        <div className="flex flex-col gap-6">
-          <p className="font-display text-xl font-medium tracking-tight text-ink md:text-2xl">
-            Project 1 of 9
-          </p>
-          <Body>
-            This was the first project on a roadmap I designed toward{" "}
-            <B>a fully personalized homepage</B>.
-          </Body>
-          <TermList
-            className="[&>div]:md:grid-cols-[7rem_1fr]"
-            rows={[
-              ["Mission", "A fully personalized homepage"],
-              ["Goal", "Get the most out of every slot"],
-              ["Strategy", "Show products by each customer’s taste"],
-            ]}
-          />
-        </div>
-        <RoadmapGrid9 />
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4">
+        <Subhead>Key Features</Subhead>
+        <Body>For each phase, I chose the features that mattered most.</Body>
       </div>
-    </Fold>
+      <div className="grid gap-12 md:grid-cols-2 md:gap-14">
+        {FEATURES.map(({ stage, name, items }) => (
+          <div key={name} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1 border-b border-ink pb-4">
+              <p className="text-sm text-ink-muted">{stage}</p>
+              <p className="font-display text-xl font-medium tracking-tight text-ink md:text-2xl">
+                {name}
+              </p>
+            </div>
+            <ol className="flex flex-col gap-5">
+              {items.map(([term, text], i) => (
+                <li key={term} className="flex gap-3">
+                  <ScopeNumber n={i + 1} />
+                  <div className="flex flex-col gap-1">
+                    <p className="text-base font-medium text-ink">{term}</p>
+                    <p className="text-base leading-relaxed text-ink-muted text-pretty">{text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -596,9 +719,9 @@ export function Define() {
             <SectionLabel>07 DEFINE</SectionLabel>
             <Hmw live={false} />
             <Goals animate={false} />
-            <KeyFeatures />
-            <TheBar />
+            <Scope animate={false} />
             <Strategy animate={false} />
+            <KeyFeatures />
           </div>
         )}
       >
@@ -611,9 +734,9 @@ export function Define() {
               {[
                 <Hmw key="q" live={false} />,
                 <Goals key="g" animate={false} />,
-                <KeyFeatures key="f" />,
-                <TheBar key="b" />,
+                <Scope key="c" animate={false} />,
                 <Strategy key="s" animate={false} />,
+                <KeyFeatures key="f" />,
               ].map((beat) => (
                 <div key={beat.key} aria-hidden className="invisible col-start-1 row-start-1">
                   {beat}
@@ -630,9 +753,9 @@ export function Define() {
                 >
                   {step === 0 && <Hmw progress={progress} live />}
                   {step === 1 && <Goals animate />}
-                  {step === 2 && <KeyFeatures />}
-                  {step === 3 && <TheBar />}
-                  {step === 4 && <Strategy animate />}
+                  {step === 2 && <Scope animate />}
+                  {step === 3 && <Strategy animate />}
+                  {step === 4 && <KeyFeatures />}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -640,13 +763,7 @@ export function Define() {
         )}
       </StickyScene>
 
-      <div className={cn(wrap, "flex flex-col gap-24 pb-24 pt-8 md:pb-32")}>
-        <BiggerPicture />
-        {/* The question again, now that the plan is set. */}
-        <Reveal>
-          <Hmw live={false} />
-        </Reveal>
-      </div>
+      <div className="pb-24 md:pb-32" />
     </Chapter>
   );
 }

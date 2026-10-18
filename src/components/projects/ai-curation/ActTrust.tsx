@@ -875,7 +875,12 @@ export function Evaluation() {
       </div>
 
       <Kicker tight>The experts trusted it. Now the question was whether customers would. ↓</Kicker>
-      <ProgressBeat from={0} lit={1} current={1} label="The AI PoC is done; validation is next" />
+      <ProgressBeat
+        from={0}
+        lit={2}
+        current={2}
+        label="The copilot passed internal evaluation; the A/B test is next"
+      />
       <div className="pb-16 md:pb-24" />
     </Chapter>
   );
@@ -1200,10 +1205,10 @@ export function AbTest() {
         A tie was the win. I took the results to the CEO and got approval to let AI run the slots.
       </Kicker>
       <ProgressBeat
-        from={1}
-        lit={3}
-        current={3}
-        label="Validation passed and the CEO approved; integration is next"
+        from={2}
+        lit={4}
+        current={4}
+        label="The A/B test passed and the CEO approved; integration is next"
       />
       <div className="pb-16 md:pb-24" />
     </Chapter>

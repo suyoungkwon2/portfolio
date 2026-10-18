@@ -550,6 +550,12 @@ export function IntegrationImpact() {
                 </Reveal>
               ))}
             </ol>
+            <Reveal delay={0.3}>
+              <p className="text-base leading-relaxed text-ink-muted">
+                There’s no proposal or approval step. The tests had shown the AI curated as well as
+                MDs, so theme campaigns <B>no longer needed a manager’s sign-off</B>.
+              </p>
+            </Reveal>
           </div>
           <div className="flex flex-col gap-5">
             <SubHeading>System flow</SubHeading>
@@ -558,7 +564,7 @@ export function IntegrationImpact() {
         </div>
       </div>
 
-      <ProgressBeat from={3} lit={4} label="AI now runs the core homepage slots" />
+      <ProgressBeat from={4} lit={5} label="AI now runs the core homepage slots" />
 
       <div className={cn(wrap, "flex flex-col gap-20 pb-8")}>
         <div className="grid gap-10 border-t border-line pt-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
