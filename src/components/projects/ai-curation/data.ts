@@ -112,3 +112,107 @@ export const COPILOT_RESULTS: Product[] = [
     category: "Ice Cream",
   },
 ];
+
+// The homepage feed (04 and 12), after Kurly's app: each campaign is a
+// titled row of product cards.
+export type HomeItem = {
+  id: string;
+  src?: string;
+  emoji?: string;
+  name: string;
+  price: string;
+  // Struck-through list price and the discount, when on sale.
+  was?: string;
+  off?: string;
+  coupon?: string;
+};
+export type HomeSection = { title: string; sub: string; items: HomeItem[] };
+
+const APP = "/images/ai-curation/app";
+
+// 04's homepage, as it stood for weeks: the same three campaigns.
+export const STALE_SECTIONS: HomeSection[] = [
+  {
+    title: "Enjoy lightly with low sugar",
+    sub: "From bread to sauce without feeling heavy",
+    items: [
+      {
+        id: "lowsugar-1",
+        name: "[Vivid Kitchen] Low Sugar Chicken Breast Burrito 9 Types, 2 Pack (Choose 1)",
+        price: "₩10,900",
+      },
+      {
+        id: "lowsugar-2",
+        name: "[Cafe Amoje] Low Sugar Poke Salad 5 Types (Choose 1)",
+        price: "₩14,900",
+        was: "₩16,900",
+        off: "11%",
+        coupon: "11% OFF Coupon",
+      },
+      {
+        id: "lowsugar-3",
+        name: "[Sempio] Sunjak Low Sugar Adlay Tea",
+        price: "₩7,480",
+        was: "₩9,980",
+        off: "25%",
+        coupon: "25% OFF Coupon",
+      },
+    ],
+  },
+  {
+    title: "Autumn gourmet travel",
+    sub: "7 additional coupon benefits",
+    items: [
+      {
+        id: "gourmet-1",
+        name: "[Hanpot] Daejeon-style Spicy Squid and Tofu Stir-fry for 2",
+        price: "₩7,800",
+      },
+      {
+        id: "gourmet-2",
+        name: "[Doryang] Iron Delivery Box Chef Lim Tae-hoon’s Seafood Jjamppong",
+        price: "₩7,100",
+        was: "₩7,900",
+        off: "10%",
+        coupon: "10% OFF Coupon",
+      },
+      {
+        id: "gourmet-3",
+        name: "[Kurly Hotel] Stay + Breakfast",
+        price: "₩24,500",
+        was: "₩28,800",
+        off: "15%",
+      },
+    ],
+  },
+  {
+    title: "This week’s special fruit deals",
+    sub: "From Shinano Gold to Cherry Tomatoes",
+    items: [
+      { id: "fruit-1", name: "Highland Fresh Apples 1.3kg", price: "₩20,900" },
+      {
+        id: "fruit-2",
+        name: "[KF365] Sweet and Sour Jeju Tangerine 1.5kg",
+        price: "₩11,900",
+        was: "₩15,900",
+        off: "25%",
+        coupon: "25% OFF Coupon",
+      },
+      {
+        id: "fruit-3",
+        name: "[Weekend Special] Golden Apple",
+        price: "₩12,900",
+        was: "₩19,900",
+        off: "35%",
+        coupon: "35% OFF Coupon",
+      },
+    ],
+  },
+].map((s) => ({ ...s, items: s.items.map((it) => ({ ...it, src: `${APP}/${it.id}.webp` })) }));
+
+// One of the AI's campaigns as a homepage row.
+export const toSection = (theme: Theme, sub: string, products = theme.products): HomeSection => ({
+  title: theme.title,
+  sub,
+  items: products,
+});

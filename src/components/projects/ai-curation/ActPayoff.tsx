@@ -30,7 +30,7 @@ import {
   type Lesson,
   type Num,
 } from "../story/ui";
-import { AFTER, BEFORE, DayBubble, DayTabs, HomePhone } from "./ActConflict";
+import { AFTER, BEFORE, DayBubble, DayTabs, HomePhone, LabelNote } from "./ActConflict";
 import { CHINESE, MATCHA, SNACK } from "./data";
 import { ProgressBeat, RoadmapGrid9 } from "./ui";
 
@@ -445,6 +445,7 @@ function SheetScene({
             <DayTabs day={sent ? day : -1} onPick={live ? (i) => goTo(i + 1) : undefined} />
           </motion.div>
           <DayBubble bubble={AFTER.bubbles[day]} shown={sent && (!live || step >= 3)} />
+          {!sent && <LabelNote />}
         </>
       }
     />

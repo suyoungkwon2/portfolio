@@ -1,12 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronDown, ChevronLeft, Home, Search, ShoppingCart, User } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Home, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, StickyScene, useStill } from "../story/motion";
 import { ProcessFlow, type ProcessStep } from "../story/ProcessFlow";
 import { wrap } from "../story/ui";
-import type { Product, Theme } from "./data";
+import type { HomeItem, HomeSection, Product, Theme } from "./data";
 
 // Pieces only the AI Curation story uses: the rebuilt Kurly screens, MD
 // avatars, quotes and the roadmap grid.
@@ -158,185 +158,236 @@ export function CampaignScreen({
   );
 }
 
-// The homepage in 04 and 12, laid out on fixed coordinates (in cqw, the
-// screen being 100 wide) so the line between two copies of one product can
-// be drawn exactly. Top to bottom: the day's themed campaign (6 products),
-// a second campaign (3) and Best Sellers (3).
-const TILE = 29;
-const COL_X = [4, 35.5, 67];
-const S1_TITLE = 34;
-const S1_ROWS = [43, 89];
-const S2_TITLE = 137;
-const S2_ROW = 146;
-const S3_TITLE = 197;
-const S3_ROW = 206;
-const TAB_BAR = 205;
+// The homepage in 04 and 12, rebuilt from Kurly's app (Figma, 375 wide).
+// Everything is sized in design pixels and converted to cqw, so the screen
+// scales with the phone. The app bar and tab bar are exports; the campaign
+// rows are live, so products can sell out.
+const APP = "/images/ai-curation/app";
+const px = (n: number) => `${(n / 3.75).toFixed(3)}cqw`;
+// Where the rows start (right under the app bar), and the step from one to
+// the next.
+const ROW_TOP = 132;
+const ROW_STEP = 457;
+// How far the feed scrolls to reach the end of its three rows, in cqw.
+export const FEED_END = (ROW_TOP + 2 * ROW_STEP + 425 + 64 - 821) / 3.75;
 
 export type HomeDay = {
-  main: Theme;
-  second: { theme: Theme; products: Product[] };
-  // Product ids showing a Sold out badge.
+  sections: HomeSection[];
+  // Product ids showing a Sold Out or No Longer Sold cover.
   soldOut?: string[];
-  // Draw the line between the first tile of each campaign (same product).
-  same?: boolean;
+  gone?: string[];
 };
+type CardState = "soldOut" | "gone" | undefined;
 
-function HomeTile({
-  product,
-  x,
-  y,
-  soldOut,
-  ring,
-}: {
-  product: Product;
-  x: number;
-  y: number;
-  soldOut: boolean;
-  ring: boolean;
-}) {
+// The three buttons Kurly rotates through a row.
+function CardButton({ kind }: { kind: number }) {
   return (
-    <div
-      className="absolute flex flex-col gap-[0.8cqw] text-[2.8cqw] leading-tight text-[#333]"
-      style={{ left: `${x}cqw`, top: `${y}cqw`, width: `${TILE}cqw` }}
+    <span
+      className="flex items-center justify-center border border-[#dfe4eb] bg-white font-medium text-[#222]"
+      style={{ height: px(32), borderRadius: px(4), gap: px(4), fontSize: px(13) }}
     >
-      <ProductImage
-        product={product}
-        soldOut={soldOut}
-        className={cn(
-          "text-[3cqw] ring-offset-1 transition-shadow duration-300",
-          ring && "ring-2 ring-accent",
+      {kind === 0 && (
+        // eslint-disable-next-line @next/next/no-img-element -- static export
+        <img src={`${APP}/icon-cart.svg`} alt="" style={{ width: px(14.8), height: px(13.2) }} />
+      )}
+      {kind === 1 && (
+        <span
+          className="relative border border-[#333]"
+          style={{ width: px(14.5), height: px(11.5), borderRadius: px(1.5) }}
+        >
+          <span className="absolute inset-x-0 border-t border-[#333]" style={{ top: px(2.5) }} />
+          <span
+            className="absolute border-t border-[#333]"
+            style={{ left: px(2), top: px(7.5), width: px(3) }}
+          />
+        </span>
+      )}
+      {["Add to Cart", "Buy Now", "Details"][kind]}
+    </span>
+  );
+}
+
+function HomeCard({ item, kind, state }: { item: HomeItem; kind: number; state: CardState }) {
+  return (
+    <div className="flex shrink-0 flex-col" style={{ width: px(150) }}>
+      <span
+        className="relative block overflow-hidden bg-[#f4f1ea]"
+        style={{ height: px(195), borderRadius: px(4) }}
+      >
+        {item.src ? (
+          // eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP
+          <img
+            src={item.src}
+            alt=""
+            loading="lazy"
+            className={cn(
+              "size-full object-cover transition-[filter] duration-500",
+              state && "grayscale",
+            )}
+          />
+        ) : (
+          <span className="grid size-full place-items-center" style={{ fontSize: px(40) }}>
+            {item.emoji}
+          </span>
         )}
-      />
-      <span className="line-clamp-2">{product.name}</span>
-      <span className="text-[3cqw] font-semibold text-ink">{product.price}</span>
+        {item.coupon && (
+          <span
+            className="absolute bg-[#bd76ff] font-bold leading-none text-white"
+            style={{
+              left: px(8),
+              top: px(8),
+              padding: `${px(6)} ${px(6)}`,
+              borderRadius: px(4),
+              fontSize: px(12),
+            }}
+          >
+            {item.coupon}
+          </span>
+        )}
+        <AnimatePresence>
+          {state && (
+            <motion.span
+              key={state}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 grid place-items-center bg-[#222]/55 font-semibold text-white"
+              style={{ fontSize: px(15) }}
+            >
+              {state === "soldOut" ? "Sold Out" : "No Longer Sold"}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </span>
+      <span style={{ marginTop: px(6) }}>
+        <CardButton kind={kind} />
+      </span>
+      <span
+        className="line-clamp-2 text-[#222]"
+        style={{ marginTop: px(8), fontSize: px(14), lineHeight: px(20), height: px(40) }}
+      >
+        {item.name}
+      </span>
+      {item.was && (
+        <span
+          className="text-[#bcc4cc] line-through"
+          style={{ marginTop: px(2), fontSize: px(12), lineHeight: px(15) }}
+        >
+          {item.was}
+        </span>
+      )}
+      <span
+        className="flex font-bold tracking-[-0.03em]"
+        style={{
+          marginTop: item.was ? 0 : px(2),
+          gap: px(2),
+          fontSize: px(14),
+          lineHeight: px(19),
+        }}
+      >
+        {item.off && <span className="text-[#fa622f]">{item.off}</span>}
+        <span className="text-[#222]">{item.price}</span>
+      </span>
+      <span
+        className="flex items-center text-[#a7b2bc]"
+        style={{ marginTop: px(8), gap: px(2), fontSize: px(12), lineHeight: px(15) }}
+      >
+        <span className="grid place-items-center" style={{ width: px(14), height: px(14) }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export */}
+          <img src={`${APP}/icon-review.svg`} alt="" style={{ width: px(11.5), height: px(11) }} />
+        </span>
+        9,999+
+      </span>
     </div>
   );
 }
 
-function HomeTitle({ theme, y, label }: { theme?: Theme; y: number; label?: string }) {
+function HomeRow({ section, top, day }: { section: HomeSection; top: number; day: HomeDay }) {
+  const state = (id: string): CardState =>
+    day.gone?.includes(id) ? "gone" : day.soldOut?.includes(id) ? "soldOut" : undefined;
   return (
-    <p
-      className="absolute inset-x-[4cqw] flex items-center justify-between text-[4cqw] font-semibold text-ink"
-      style={{ top: `${y}cqw` }}
-    >
-      <span className="truncate">{theme ? `${theme.emoji} ${theme.title}` : label}</span>
-      <span className="text-[#999]">›</span>
-    </p>
+    <div className="absolute inset-x-0" style={{ top: px(top) }}>
+      <div style={{ padding: `${px(16)} ${px(10)} 0 ${px(16)}` }}>
+        <p
+          className="flex items-center justify-between font-semibold text-[#222]"
+          style={{ fontSize: px(18), lineHeight: px(22) }}
+        >
+          <span className="truncate">{section.title}</span>
+          <span
+            className="flex shrink-0 items-center font-normal text-[#672091]"
+            style={{ fontSize: px(14) }}
+          >
+            Shop
+            <ChevronRight style={{ width: px(18), height: px(18) }} strokeWidth={1.5} />
+          </span>
+        </p>
+        <p
+          className="truncate text-[#848f9a]"
+          style={{ marginTop: px(4), fontSize: px(14), lineHeight: px(18) }}
+        >
+          {section.sub}
+        </p>
+      </div>
+      <div className="flex" style={{ marginTop: px(27), paddingLeft: px(16), gap: px(8) }}>
+        {section.items.slice(0, 3).map((item, i) => (
+          <HomeCard key={item.id} item={item} kind={i} state={state(item.id)} />
+        ))}
+      </div>
+    </div>
   );
 }
 
 export function HomeScreen({
   day,
-  best,
   scroll = 0,
+  glide = 0.45,
 }: {
   day: HomeDay;
-  best: Product[];
-  // How far the feed has been flicked up, in cqw.
+  // How far the feed has been scrolled up, in cqw, and how long it takes.
   scroll?: number;
+  glide?: number;
 }) {
   const still = useStill();
-  const sold = (p: Product) => day.soldOut?.includes(p.id) ?? false;
   return (
-    <div aria-hidden className="@container relative size-full overflow-hidden bg-white">
+    <div aria-hidden className="@container relative size-full overflow-hidden bg-white font-sans">
       <motion.div
         initial={false}
         animate={{ y: `${-scroll}cqw` }}
-        transition={still ? { duration: 0 } : { duration: 0.45, ease: [0.3, 0.9, 0.3, 1] }}
+        transition={still ? { duration: 0 } : { duration: glide, ease: [0.45, 0, 0.35, 1] }}
         className="absolute inset-0"
       >
         <AnimatePresence initial={false}>
           <motion.div
-            key={day.main.title}
+            key={day.sections[0].title}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={still ? { duration: 0 } : { duration: 0.4 }}
             className="absolute inset-0"
           >
-            <HomeTitle theme={day.main} y={S1_TITLE} />
-            {day.main.products.slice(0, 6).map((p, i) => (
-              <HomeTile
-                key={p.id}
-                product={p}
-                x={COL_X[i % 3]}
-                y={S1_ROWS[Math.floor(i / 3)]}
-                soldOut={sold(p)}
-                ring={!!day.same && i === 0}
-              />
-            ))}
-            <HomeTitle theme={day.second.theme} y={S2_TITLE} />
-            {day.second.products.map((p, i) => (
-              <HomeTile
-                key={p.id}
-                product={p}
-                x={COL_X[i]}
-                y={S2_ROW}
-                soldOut={sold(p)}
-                ring={!!day.same && i === 0}
-              />
+            {day.sections.map((s, i) => (
+              <HomeRow key={s.title} section={s} top={ROW_TOP + i * ROW_STEP} day={day} />
             ))}
           </motion.div>
         </AnimatePresence>
-
-        {/* The same product in both campaigns: a thin line down the margin. */}
-        <svg
-          viewBox="0 0 100 300"
-          preserveAspectRatio="none"
-          className="pointer-events-none absolute left-0 top-0 h-[300cqw] w-[100cqw]"
-        >
-          <motion.path
-            d={`M4 ${S1_ROWS[0] + TILE / 2} C0.6 ${S1_ROWS[0] + TILE / 2} 0.6 ${S2_ROW + TILE / 2} 4 ${S2_ROW + TILE / 2}`}
-            fill="none"
-            stroke="var(--color-accent)"
-            strokeWidth={1.25}
-            vectorEffect="non-scaling-stroke"
-            initial={false}
-            animate={{ pathLength: day.same ? 1 : 0, opacity: day.same ? 1 : 0 }}
-            transition={still ? { duration: 0 } : { duration: 0.6, ease: EASE_OUT, delay: 0.3 }}
-          />
-        </svg>
-
-        <HomeTitle label="🏆 Best Sellers" y={S3_TITLE} />
-        {best.map((p, i) => (
-          <HomeTile key={p.id} product={p} x={COL_X[i]} y={S3_ROW} soldOut={sold(p)} ring={false} />
-        ))}
       </motion.div>
 
-      {/* The app's header and tab bar stay put while the feed moves. */}
-      <div className="absolute inset-x-0 top-0 z-10 h-[31cqw] bg-white">
-        <StatusBar />
-        <div className="absolute inset-x-[4cqw] top-[11cqw] flex h-[9cqw] items-center gap-[2.5cqw]">
-          <span className="text-[5.2cqw] font-bold tracking-tight" style={{ color: KURLY }}>
-            Kurly
-          </span>
-          <span className="flex h-[7cqw] flex-1 items-center gap-[1.5cqw] rounded-full bg-[#f3f5f7] px-[3cqw] text-[3cqw] text-[#999]">
-            <Search className="size-[3.4cqw]" />
-            Search
-          </span>
-          <ShoppingCart className="size-[5cqw] text-[#333]" strokeWidth={1.75} />
-        </div>
-        <div className="absolute inset-x-[4cqw] top-[22cqw] flex gap-[5cqw] border-b border-[#eee] text-[3.4cqw] text-[#666]">
-          {["Home", "New", "Best", "Deals"].map((tab, i) => (
-            <span
-              key={tab}
-              className={cn("pb-[1.5cqw]", i === 0 && "border-b-2 font-semibold")}
-              style={i === 0 ? { color: KURLY, borderColor: KURLY } : undefined}
-            >
-              {tab}
-            </span>
-          ))}
-        </div>
-      </div>
-      <div
-        className="absolute inset-x-0 bottom-0 flex justify-around border-t border-[#eee] bg-white pb-[4cqw] pt-[2.5cqw] text-[#999]"
-        style={{ top: `${TAB_BAR}cqw` }}
-      >
-        <Home className="size-[5.5cqw]" style={{ color: KURLY }} />
-        <Search className="size-[5.5cqw]" />
-        <ShoppingCart className="size-[5.5cqw]" />
-        <User className="size-[5.5cqw]" />
-      </div>
+      {/* The app bar and tab bar stay put while the feed moves. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- static export */}
+      <img
+        src={`${APP}/top-bar.svg`}
+        alt=""
+        className="absolute inset-x-0 top-0 z-10 w-full"
+        style={{ height: px(132) }}
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element -- static export */}
+      <img
+        src={`${APP}/tab-bar.svg`}
+        alt=""
+        className="absolute inset-x-0 bottom-0 z-10 w-full bg-white"
+        style={{ height: px(48) }}
+      />
     </div>
   );
 }

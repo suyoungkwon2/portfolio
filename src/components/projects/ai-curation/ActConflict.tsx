@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, StickyScene, scrollToStep, useStill } from "../story/motion";
+import { EASE_OUT, StickyScene, useStill } from "../story/motion";
 import {
   B,
   Body,
@@ -15,8 +15,25 @@ import {
   ThoughtBubble,
   wrap,
 } from "../story/ui";
-import { CHINESE, HOLIDAY, MATCHA, PRODUCTS, SNACK, YEAR_END, type Product } from "./data";
-import { HomeScreen, MdAvatar, MessageCard, ProductImage, QuoteCard, type HomeDay } from "./ui";
+import {
+  CHINESE,
+  HOLIDAY,
+  MATCHA,
+  PRODUCTS,
+  SNACK,
+  STALE_SECTIONS,
+  YEAR_END,
+  toSection,
+} from "./data";
+import {
+  FEED_END,
+  HomeScreen,
+  MdAvatar,
+  MessageCard,
+  ProductImage,
+  QuoteCard,
+  type HomeDay,
+} from "./ui";
 
 // Act 2, Conflict: 04 User Problem · 05 Company's Problem (spec §5.5–5.6).
 
@@ -24,27 +41,22 @@ import { HomeScreen, MdAvatar, MessageCard, ProductImage, QuoteCard, type HomeDa
 /* StaleHomeScene (04, and 12's After)                                 */
 /* ------------------------------------------------------------------ */
 
-const { yearend, snack, chinese } = PRODUCTS;
-const BEST: Product[] = [chinese[1], snack[4], snack[5]];
+const { yearend, snack } = PRODUCTS;
 
 type Bubble = { emoji: string; text: string } | null;
-export type HomeVariant = {
-  days: HomeDay[];
-  bubbles: Bubble[];
-  // How grey the screen gets, day by day (CSS saturate).
-  saturate: number[];
-};
+export type HomeVariant = { days: HomeDay[]; bubbles: Bubble[] };
 
-const SAME_SECOND = { theme: SNACK, products: [yearend[0], snack[0], snack[1]] };
+// The same three campaigns all week, only reshuffled, with more of their
+// products sold out or gone each day.
+const [LOW_SUGAR, GOURMET, FRUIT] = STALE_SECTIONS;
 export const BEFORE: HomeVariant = {
   days: [
-    { main: HOLIDAY, second: SAME_SECOND },
-    { main: HOLIDAY, second: SAME_SECOND, soldOut: [yearend[3].id] },
+    { sections: [LOW_SUGAR, GOURMET, FRUIT] },
+    { sections: [FRUIT, LOW_SUGAR, GOURMET], soldOut: ["lowsugar-2", "fruit-2"] },
     {
-      main: HOLIDAY,
-      second: SAME_SECOND,
-      soldOut: [yearend[1].id, yearend[3].id, yearend[5].id],
-      same: true,
+      sections: [GOURMET, FRUIT, LOW_SUGAR],
+      soldOut: ["lowsugar-2", "gourmet-1", "fruit-2"],
+      gone: ["lowsugar-3", "gourmet-2", "fruit-1"],
     },
   ],
   bubbles: [
@@ -52,22 +64,26 @@ export const BEFORE: HomeVariant = {
     { emoji: "😐", text: "Didn’t I see this already?" },
     { emoji: "🥱", text: "Same old." },
   ],
-  saturate: [1, 0.75, 0.45],
 };
+
+const MATCHA_ROW = toSection(MATCHA, "Creamy, earthy and everywhere right now");
+const SNACK_ROW = toSection(SNACK, "Sweet and salty picks for any break", snack.slice(0, 3));
+const CHINESE_ROW = toSection(CHINESE, "Takeout favorites, ready at home");
+const yearEndRow = (products = yearend) =>
+  toSection(YEAR_END, "Stollen, tarts and treats for the holidays", products);
 
 export const AFTER: HomeVariant = {
   days: [
-    { main: MATCHA, second: { theme: YEAR_END, products: [yearend[0], yearend[2], yearend[4]] } },
-    { main: CHINESE, second: { theme: SNACK, products: snack.slice(0, 3) } },
-    { main: SNACK, second: { theme: YEAR_END, products: [yearend[1], yearend[3], yearend[5]] } },
+    { sections: [MATCHA_ROW, yearEndRow([yearend[0], yearend[2], yearend[4]]), CHINESE_ROW] },
+    { sections: [CHINESE_ROW, SNACK_ROW, MATCHA_ROW] },
+    { sections: [SNACK_ROW, yearEndRow([yearend[1], yearend[3], yearend[5]]), CHINESE_ROW] },
   ],
   bubbles: [null, null, { emoji: "😍", text: "Oh, I didn’t know they had this." }],
-  saturate: [1, 1, 1],
 };
 
 export const DAYS = ["Mon", "Wed", "Fri"];
-// How far the stale feed is flicked past, in cqw.
-const FLICK = 64;
+// How long the Before feed takes to scroll through its three rows, in s.
+const SCROLL_S = 2.8;
 
 // Mon / Wed / Fri, like 04's tabs. Clicking one scrolls to it.
 export function DayTabs({ day, onPick }: { day: number; onPick?: (i: number) => void }) {
@@ -94,44 +110,52 @@ export function DayTabs({ day, onPick }: { day: number; onPick?: (i: number) => 
   );
 }
 
-// The phone on the homepage, one day per beat. In the Before, Friday ends
-// with a finger flicking straight past the campaign.
+// The phone on the homepage, one day per beat. In the Before, each day a
+// finger scrolls the feed from the top to the bottom.
 export function HomePhone({
   variant,
   day,
-  flicked = false,
+  scrolled = false,
   children,
 }: {
   variant: HomeVariant;
   day: number;
-  flicked?: boolean;
+  scrolled?: boolean;
   // Drawn over the screen (12's arriving campaign).
   children?: React.ReactNode;
 }) {
   const still = useStill();
   return (
-    <div className="flex flex-col items-center gap-3">
-      <PhoneFrame muted={variant === BEFORE && day === 2}>
-        <div
-          className="@container absolute inset-0 transition-[filter] duration-700"
-          style={{ filter: `saturate(${variant.saturate[day]})` }}
-        >
-          <HomeScreen day={variant.days[day]} best={BEST} scroll={flicked ? FLICK : 0} />
-          {/* The finger: a soft dot that sweeps up the screen once. */}
-          {flicked && !still && (
-            <motion.span
-              aria-hidden
-              initial={{ top: "92%", opacity: 0 }}
-              animate={{ top: ["92%", "88%", "30%"], opacity: [0, 0.9, 0] }}
-              transition={{ duration: 0.55, times: [0, 0.2, 1], ease: "easeOut" }}
-              className="absolute left-[58%] z-20 size-[12cqw] -translate-x-1/2 rounded-full border-2 border-white bg-ink/25 shadow-lg"
-            />
-          )}
-          {children}
-        </div>
-      </PhoneFrame>
-      <p className="text-xs text-ink-muted">Illustrative scene.</p>
-    </div>
+    <PhoneFrame>
+      <div className="@container absolute inset-0">
+        <HomeScreen
+          day={variant.days[day]}
+          scroll={scrolled ? FEED_END : 0}
+          glide={scrolled ? SCROLL_S : 0.45}
+        />
+        {/* The finger: a soft dot that drags up the screen with the feed. */}
+        {scrolled && !still && (
+          <motion.span
+            key={day}
+            aria-hidden
+            initial={{ top: "85%", opacity: 0 }}
+            animate={{ top: ["85%", "82%", "30%", "28%"], opacity: [0, 0.9, 0.9, 0] }}
+            transition={{ duration: SCROLL_S, times: [0, 0.08, 0.92, 1], ease: "easeInOut" }}
+            className="absolute left-[58%] z-20 size-[12cqw] -translate-x-1/2 rounded-full border-2 border-white bg-ink/25 shadow-lg"
+          />
+        )}
+        {children}
+      </div>
+    </PhoneFrame>
+  );
+}
+
+// Beside the stale phone, level with its bottom.
+export function LabelNote() {
+  return (
+    <p className="mt-auto text-xs leading-relaxed text-ink-muted">
+      The Sold Out and No Longer Sold labels are added to explain; the app doesn’t show them.
+    </p>
   );
 }
 
@@ -173,55 +197,76 @@ function UserProblemBody() {
         is one of the company’s goals.
       </Body>
       <Body>
-        But as campaigns went untouched, the homepage lost its variety: the same products stayed for
-        weeks, sold-out items lingered, and <B>one campaign started to look a lot like the next</B>.
+        But as campaigns went untouched, the homepage lost its variety:{" "}
+        <B>the same campaigns ran for weeks on end</B>, and with no one managing the products, more
+        and more of them were sold out or no longer sold.
+      </Body>
+      <Body>
+        As a result, customers were losing <B>the joy of finding new products</B>.
       </Body>
     </div>
   );
 }
 
-// Friday's flick, then its bubble. Restarts each time Friday is landed on.
-function useFriday(active: boolean) {
-  const [phase, setPhase] = useState(0);
-  if (!active && phase !== 0) setPhase(0);
+// Each day: a beat on the top of the feed, then the scroll down. Restarts
+// whenever a day is landed on.
+function useScrollThrough(day: number, active: boolean) {
+  const [started, setStarted] = useState<number | null>(null);
+  if (started !== null && (started !== day || !active)) setStarted(null);
   useEffect(() => {
     if (!active) return;
-    const a = setTimeout(() => setPhase(1), 1300);
-    const b = setTimeout(() => setPhase(2), 1800);
-    return () => {
-      clearTimeout(a);
-      clearTimeout(b);
-    };
-  }, [active]);
-  return phase;
+    const t = setTimeout(() => setStarted(day), 700);
+    return () => clearTimeout(t);
+  }, [day, active]);
+  return started === day;
 }
 
-function StaleScene({
-  step,
-  live,
-  goTo,
-}: {
-  step: number;
-  live: boolean;
-  goTo: (i: number) => void;
-}) {
-  const day = Math.min(step, 2);
-  const friday = useFriday(live && day === 2);
-  const flicked = live && friday >= 1;
-  // Friday's bubble waits for the flick; the other days speak on arrival.
-  const bubbleShown = !live || day < 2 || friday >= 2;
+// How long each day stays up before the next one plays on its own, in ms:
+// the beat on top, the scroll down, then a moment to read the thought.
+const DAY_MS = 700 + SCROLL_S * 1000 + 1500;
+
+// The day on screen. It plays on by itself while the scene is in view, and
+// each scroll step moves it one day on (or back), so scrolling never waits
+// for the timer. Out of view, it falls back to the scroll position.
+function useDay(step: number, active: boolean) {
+  const clamp = (d: number) => Math.min(2, Math.max(0, d));
+  const [day, setDay] = useState(clamp(step));
+  const [lastStep, setLastStep] = useState(step);
+  if (step !== lastStep) {
+    setLastStep(step);
+    setDay(clamp(day + step - lastStep));
+  } else if (!active && day !== clamp(step)) {
+    setDay(clamp(step));
+  }
+  useEffect(() => {
+    if (!active || day >= 2) return;
+    const t = setTimeout(() => setDay(day + 1), DAY_MS);
+    return () => clearTimeout(t);
+  }, [day, active]);
+  return [day, setDay] as const;
+}
+
+function StaleScene({ step, live }: { step: number; live: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.5 });
+  const active = live && inView;
+  const [day, setDay] = useDay(step, active);
+  const scrolled = useScrollThrough(day, active);
   return (
-    <PhoneSplit
-      header={<UserProblemHeader />}
-      copy={<UserProblemBody />}
-      phone={<HomePhone variant={BEFORE} day={day} flicked={flicked} />}
-      side={
-        <>
-          <DayTabs day={day} onPick={live ? goTo : undefined} />
-          <DayBubble bubble={BEFORE.bubbles[day]} shown={bubbleShown} />
-        </>
-      }
-    />
+    <div ref={ref} className="w-full">
+      <PhoneSplit
+        header={<UserProblemHeader />}
+        copy={<UserProblemBody />}
+        phone={<HomePhone variant={BEFORE} day={day} scrolled={live && scrolled} />}
+        side={
+          <>
+            <DayTabs day={day} onPick={live ? setDay : undefined} />
+            <DayBubble bubble={BEFORE.bubbles[day]} shown />
+            <LabelNote />
+          </>
+        }
+      />
+    </div>
   );
 }
 
@@ -233,43 +278,38 @@ function StaleStill() {
       copy={<UserProblemBody />}
       phone={<HomePhone variant={BEFORE} day={2} />}
       side={
-        <ol className="flex flex-col gap-4">
-          {BEFORE.bubbles.map((b, i) => (
-            <li key={DAYS[i]} className="flex flex-col gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">
-                {DAYS[i]}
-              </span>
-              {b && <ThoughtBubble emoji={b.emoji} text={b.text} tail="none" />}
-            </li>
-          ))}
-        </ol>
+        <>
+          <ol className="flex flex-col gap-4">
+            {BEFORE.bubbles.map((b, i) => (
+              <li key={DAYS[i]} className="flex flex-col gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">
+                  {DAYS[i]}
+                </span>
+                {b && <ThoughtBubble emoji={b.emoji} text={b.text} tail="none" />}
+              </li>
+            ))}
+          </ol>
+          <LabelNote />
+        </>
       }
     />
   );
 }
 
-// One scroll step per day, plus a spare so Friday's flick can't be skipped.
+// One scroll step per day, plus a spare so Friday has room to play.
 const STALE_STEPS = 4;
 
 export function UserProblem() {
-  const stage = useRef<HTMLDivElement>(null);
-  const goTo = (i: number) => {
-    const scene = stage.current?.firstElementChild;
-    if (scene instanceof HTMLElement) scrollToStep(scene, i, STALE_STEPS);
-  };
   return (
     <Chapter id="user-problem" label="04 User Problem" className="border-t border-line">
-      <div ref={stage}>
-        <StickyScene
-          steps={STALE_STEPS}
-          vh={100}
-          label="The same homepage on Monday, Wednesday and Friday"
-          still={() => <StaleStill />}
-        >
-          {({ step, live }) => <StaleScene step={step} live={live} goTo={goTo} />}
-        </StickyScene>
-      </div>
-      <Kicker>Kurly promised discovery. The homepage was delivering repetition.</Kicker>
+      <StickyScene
+        steps={STALE_STEPS}
+        vh={100}
+        label="The same homepage on Monday, Wednesday and Friday"
+        still={() => <StaleStill />}
+      >
+        {({ step, live }) => <StaleScene step={step} live={live} />}
+      </StickyScene>
     </Chapter>
   );
 }

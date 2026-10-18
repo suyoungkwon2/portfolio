@@ -538,7 +538,7 @@ export function PhoneSplit({
         <div className="flex flex-col gap-8">{copy}</div>
         <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:justify-center lg:gap-10">
           {phone}
-          <div className="flex w-[18.5rem] flex-col items-start gap-6">{side}</div>
+          <div className="flex w-[18.5rem] flex-col items-start gap-6 md:self-stretch">{side}</div>
         </div>
       </div>
     </div>

@@ -75,7 +75,11 @@ describe("AiCurationCaseStudy", () => {
     expect(
       screen.getAllByText("Paraphrased from interviews with the MD team.").length,
     ).toBeGreaterThan(0);
-    expect(screen.getAllByText("Illustrative scene.").length).toBeGreaterThanOrEqual(2);
+    expect(
+      screen.getAllByText(
+        "The Sold Out and No Longer Sold labels are added to explain; the app doesn’t show them.",
+      ).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Illustrative distribution. Average is actual.")).toBeInTheDocument();
   });
 });
