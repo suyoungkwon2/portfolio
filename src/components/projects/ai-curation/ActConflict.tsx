@@ -11,7 +11,7 @@ import {
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, StickyScene, useStill } from "../story/motion";
+import { EASE_OUT, StickyScene, scrollToStep, useStill } from "../story/motion";
 import {
   B,
   Body,
@@ -20,6 +20,7 @@ import {
   PhoneFrame,
   PhoneSplit,
   SectionHeader,
+  StepIndex,
   ThoughtBubble,
   wrap,
 } from "../story/ui";
@@ -353,11 +354,11 @@ const drift = (p: number) => {
     bubbleY: y + (CARD_H / 2) * scale,
   };
 };
-// Fade in, a short hold, the shrink, then gone. The shrink eases back-in-out:
-// a little swell first, then a snap down that overshoots and settles.
-const [FADE_IN_S, HOLD_S, SHRINK_S, OUT_S] = [0.3, 0.4, 2.2, 0.45];
+// Fade in, a short hold, the shrink, then gone. The shrink eases in and out
+// hard: it lingers, snaps, then settles, with no swell or overshoot.
+const [FADE_IN_S, HOLD_S, SHRINK_S, OUT_S] = [0.3, 0.4, 3.2, 0.45];
 const DRIFT_S = FADE_IN_S + HOLD_S + SHRINK_S + OUT_S;
-const SQUISH = cubicBezier(0.68, -0.55, 0.27, 1.55);
+const SQUISH = cubicBezier(0.8, 0, 0.2, 1);
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 // Loop time t (0 to 1) → shrink progress, plus how far in and out it is.
 const phase = (t: number) => {
@@ -621,60 +622,60 @@ function CompanyHeader() {
 }
 
 export function CompanyProblem() {
+  const stage = useRef<HTMLDivElement>(null);
+  // The StickyScene is the stage's only child. Jump to the part's first step.
+  const goTo = (part: number) => {
+    const scene = stage.current?.firstElementChild;
+    if (scene instanceof HTMLElement)
+      scrollToStep(scene, COMPANY_STEPS.indexOf(part), COMPANY_STEPS.length);
+  };
   return (
     <Chapter id="company-problem" label="05 Company’s Problem" className="border-t border-line">
-      <StickyScene
-        steps={COMPANY_STEPS.length}
-        vh={70}
-        label="Campaigns left on hold, too many products to learn, and the MD team’s ask"
-        still={() => (
-          <div className={cn(wrap, "flex flex-col gap-16 py-10")}>
-            <CompanyHeader />
-            {PARTS.map((p, i) => (
-              <PartBeat key={p.name} part={i} />
-            ))}
-          </div>
-        )}
-      >
-        {({ step }) => {
-          const part = COMPANY_STEPS[step];
-          return (
-            <div className={cn(wrap, "flex w-full flex-col gap-8 md:gap-10")}>
+      <div ref={stage}>
+        <StickyScene
+          steps={COMPANY_STEPS.length}
+          vh={70}
+          label="Campaigns left on hold, too many products to learn, and the MD team’s ask"
+          still={() => (
+            <div className={cn(wrap, "flex flex-col gap-16 py-10")}>
               <CompanyHeader />
-              <div className="grid w-full gap-10 md:grid-cols-[11rem_1fr] md:gap-12">
-                <ol aria-label="Three problems" className="flex flex-col gap-1 self-start pt-1">
-                  {PARTS.map((p, i) => (
-                    <li
-                      key={p.name}
-                      aria-current={i === part ? "step" : undefined}
-                      className={cn(
-                        "flex items-baseline gap-3 border-l-2 py-2 pl-4 transition-colors duration-500",
-                        i === part ? "border-accent text-ink" : "border-line text-ink-muted/60",
-                      )}
-                    >
-                      <span className="text-xs font-semibold">{i + 1}</span>
-                      <span className="font-display text-base font-medium">{p.name}</span>
-                    </li>
-                  ))}
-                </ol>
-                {/* No initial={false}: it would pass down and freeze the
-                    looping visuals of the part shown on load. */}
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={part}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.45, ease: EASE_OUT }}
-                  >
-                    <PartBeat part={part} />
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+              {PARTS.map((p, i) => (
+                <PartBeat key={p.name} part={i} />
+              ))}
             </div>
-          );
-        }}
-      </StickyScene>
+          )}
+        >
+          {({ step }) => {
+            const part = COMPANY_STEPS[step];
+            return (
+              <div className={cn(wrap, "flex w-full flex-col gap-8 md:gap-10")}>
+                <CompanyHeader />
+                <div className="grid w-full gap-10 md:grid-cols-[11rem_1fr] md:gap-12">
+                  <StepIndex
+                    label="Three problems"
+                    items={PARTS.map((p) => p.name)}
+                    current={part}
+                    onPick={goTo}
+                  />
+                  {/* No initial={false}: it would pass down and freeze the
+                    looping visuals of the part shown on load. */}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={part}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.45, ease: EASE_OUT }}
+                    >
+                      <PartBeat part={part} />
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+            );
+          }}
+        </StickyScene>
+      </div>
 
       <div className={cn(wrap, "pt-16")}>
         <p className="mx-auto max-w-[44rem] text-center font-display text-[1.4rem] font-medium leading-snug tracking-tight text-ink text-balance md:text-[1.75rem]">

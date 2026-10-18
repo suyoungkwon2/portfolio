@@ -8,9 +8,9 @@ import {
   type MotionValue,
   type TargetAndTransition,
 } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, StickyScene, useStill, useTypewriter } from "../story/motion";
+import { EASE_OUT, StickyScene, scrollToStep, useStill, useTypewriter } from "../story/motion";
 import { ProcessFlow, type ProcessStep } from "../story/ProcessFlow";
 import {
   B,
@@ -19,6 +19,7 @@ import {
   GradioWindow,
   Question as StoryQuestion,
   SectionHeader,
+  StepIndex,
   Subhead,
   wrap,
 } from "../story/ui";
@@ -603,64 +604,63 @@ function PocHeader() {
 }
 
 export function PocApproach() {
+  const stage = useRef<HTMLDivElement>(null);
+  // The StickyScene is the stage's only child.
+  const goTo = (i: number) => {
+    const scene = stage.current?.firstElementChild;
+    if (scene instanceof HTMLElement) scrollToStep(scene, i, PICKS.length);
+  };
   return (
     <Chapter id="poc" label="07 PoC Approach" className="border-t border-line">
-      <StickyScene
-        steps={PICKS.length}
-        vh={100}
-        label="Three choices: AI Search SaaS, AI model, data source"
-        still={() => (
-          <div className={cn(wrap, "flex flex-col gap-16 py-10")}>
-            <PocHeader />
-            {PICKS.map((pick, i) => (
-              <PickBeat key={pick.name} index={i} animate={false} />
-            ))}
-          </div>
-        )}
-      >
-        {({ step }) => (
-          <div className={cn(wrap, "flex w-full flex-col gap-8 md:gap-10")}>
-            <PocHeader />
-            <div className="grid w-full gap-10 md:grid-cols-[13rem_1fr] md:gap-14">
-              <ol aria-label="Three choices" className="flex flex-col gap-1 self-start pt-1">
-                {PICKS.map((pick, i) => (
-                  <li
-                    key={pick.name}
-                    aria-current={i === step ? "step" : undefined}
-                    className={cn(
-                      "flex items-baseline gap-3 border-l-2 py-2 pl-4 transition-colors duration-500",
-                      i === step ? "border-accent text-ink" : "border-line text-ink-muted/60",
-                    )}
-                  >
-                    <span className="text-xs font-semibold">{i + 1}</span>
-                    <span className="font-display text-base font-medium">{pick.name}</span>
-                  </li>
-                ))}
-              </ol>
-              {/* Every beat stacked invisibly sizes the box, so nothing jumps. */}
-              <div className="grid">
-                {PICKS.map((pick, i) => (
-                  <div key={pick.name} aria-hidden className="invisible col-start-1 row-start-1">
-                    <PickBeat index={i} animate={false} />
-                  </div>
-                ))}
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={step}
-                    className="col-start-1 row-start-1"
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -24 }}
-                    transition={{ duration: 0.45, ease: EASE_OUT }}
-                  >
-                    <PickBeat index={step} animate />
-                  </motion.div>
-                </AnimatePresence>
+      <div ref={stage}>
+        <StickyScene
+          steps={PICKS.length}
+          vh={100}
+          label="Three choices: AI Search SaaS, AI model, data source"
+          still={() => (
+            <div className={cn(wrap, "flex flex-col gap-16 py-10")}>
+              <PocHeader />
+              {PICKS.map((pick, i) => (
+                <PickBeat key={pick.name} index={i} animate={false} />
+              ))}
+            </div>
+          )}
+        >
+          {({ step }) => (
+            <div className={cn(wrap, "flex w-full flex-col gap-8 md:gap-10")}>
+              <PocHeader />
+              <div className="grid w-full gap-10 md:grid-cols-[13rem_1fr] md:gap-14">
+                <StepIndex
+                  label="Three choices"
+                  items={PICKS.map((pick) => pick.name)}
+                  current={step}
+                  onPick={goTo}
+                />
+                {/* Every beat stacked invisibly sizes the box, so nothing jumps. */}
+                <div className="grid">
+                  {PICKS.map((pick, i) => (
+                    <div key={pick.name} aria-hidden className="invisible col-start-1 row-start-1">
+                      <PickBeat index={i} animate={false} />
+                    </div>
+                  ))}
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={step}
+                      className="col-start-1 row-start-1"
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -24 }}
+                      transition={{ duration: 0.45, ease: EASE_OUT }}
+                    >
+                      <PickBeat index={step} animate />
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </StickyScene>
+          )}
+        </StickyScene>
+      </div>
 
       <TryItStage />
       <div className="pb-16 md:pb-24" />

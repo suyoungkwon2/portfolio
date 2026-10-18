@@ -549,6 +549,43 @@ export function PhoneSplit({
 /* Thought bubble                                                      */
 /* ------------------------------------------------------------------ */
 
+// The numbered list beside a pinned scene's parts: the current one lit, and
+// clicking one jumps the scroll to it.
+export function StepIndex({
+  label,
+  items,
+  current,
+  onPick,
+}: {
+  label: string;
+  items: string[];
+  current: number;
+  onPick: (i: number) => void;
+}) {
+  return (
+    <ol aria-label={label} className="flex flex-col gap-1 self-start pt-1">
+      {items.map((name, i) => (
+        <li key={name}>
+          <button
+            type="button"
+            aria-current={i === current ? "step" : undefined}
+            onClick={() => onPick(i)}
+            className={cn(
+              "flex w-full cursor-pointer items-baseline gap-3 border-l-2 py-2 pl-4 text-left transition-colors duration-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+              i === current
+                ? "border-accent text-ink"
+                : "border-line text-ink-muted/60 hover:text-ink",
+            )}
+          >
+            <span className="text-xs font-semibold">{i + 1}</span>
+            <span className="font-display text-base font-medium">{name}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 // Staged, not quoted: emoji + italic in a soft bubble, never quote marks,
 // so it can't be mistaken for an interview line.
 export function ThoughtBubble({
