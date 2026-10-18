@@ -25,15 +25,7 @@ import {
   YEAR_END,
   toSection,
 } from "./data";
-import {
-  FEED_END,
-  HomeScreen,
-  MdAvatar,
-  MessageCard,
-  ProductImage,
-  QuoteCard,
-  type HomeDay,
-} from "./ui";
+import { FEED_END, HomeScreen, MessageCard, ProductImage, QuoteCard, type HomeDay } from "./ui";
 
 // Act 2, Conflict: 04 User Problem · 05 Company's Problem (spec §5.5–5.6).
 
@@ -52,7 +44,10 @@ const [LOW_SUGAR, GOURMET, FRUIT] = STALE_SECTIONS;
 export const BEFORE: HomeVariant = {
   days: [
     { sections: [LOW_SUGAR, GOURMET, FRUIT] },
-    { sections: [FRUIT, LOW_SUGAR, GOURMET], soldOut: ["lowsugar-2", "fruit-2"] },
+    {
+      sections: [FRUIT, LOW_SUGAR, GOURMET],
+      soldOut: ["lowsugar-2", "fruit-2"],
+    },
     {
       sections: [GOURMET, FRUIT, LOW_SUGAR],
       soldOut: ["lowsugar-2", "gourmet-1", "fruit-2"],
@@ -74,9 +69,13 @@ const yearEndRow = (products = yearend) =>
 
 export const AFTER: HomeVariant = {
   days: [
-    { sections: [MATCHA_ROW, yearEndRow([yearend[0], yearend[2], yearend[4]]), CHINESE_ROW] },
+    {
+      sections: [MATCHA_ROW, yearEndRow([yearend[0], yearend[2], yearend[4]]), CHINESE_ROW],
+    },
     { sections: [CHINESE_ROW, SNACK_ROW, MATCHA_ROW] },
-    { sections: [SNACK_ROW, yearEndRow([yearend[1], yearend[3], yearend[5]]), CHINESE_ROW] },
+    {
+      sections: [SNACK_ROW, yearEndRow([yearend[1], yearend[3], yearend[5]]), CHINESE_ROW],
+    },
   ],
   bubbles: [null, null, { emoji: "😍", text: "Oh, I didn’t know they had this." }],
 };
@@ -139,8 +138,15 @@ export function HomePhone({
             key={day}
             aria-hidden
             initial={{ top: "85%", opacity: 0 }}
-            animate={{ top: ["85%", "82%", "30%", "28%"], opacity: [0, 0.9, 0.9, 0] }}
-            transition={{ duration: SCROLL_S, times: [0, 0.08, 0.92, 1], ease: "easeInOut" }}
+            animate={{
+              top: ["85%", "82%", "30%", "28%"],
+              opacity: [0, 0.9, 0.9, 0],
+            }}
+            transition={{
+              duration: SCROLL_S,
+              times: [0, 0.08, 0.92, 1],
+              ease: "easeInOut",
+            }}
             className="absolute left-[58%] z-20 size-[12cqw] -translate-x-1/2 rounded-full border-2 border-white bg-ink/25 shadow-lg"
           />
         )}
@@ -318,93 +324,218 @@ export function UserProblem() {
 /* 05 Company's Problem                                                */
 /* ------------------------------------------------------------------ */
 
-// A: the campaign nobody can look after: dust settles, sold-outs pile up.
-function DustyCampaign({ dusty }: { dusty: boolean }) {
+// A: the campaign nobody can look after. On a loop it shrinks, fades and
+// drifts off to the top right, asking not to be forgotten.
+// Shrink progress p (0 to 1) → where the card is. The bubble sits outside
+// the card's scale so it stays readable, so it's placed from the same p:
+// hanging off the shrunken card's bottom-left corner. The drift right is
+// kept short so the bubble stays on screen. Card size is approximate.
+const CARD_W = 380;
+const CARD_H = 300;
+const drift = (p: number) => {
+  const scale = 1 - 0.7 * p;
+  const x = 90 * p;
+  const y = -150 * p;
+  return {
+    scale,
+    x,
+    y,
+    opacity: 1 - 0.65 * p,
+    bubbleX: x - (CARD_W / 2) * scale,
+    bubbleY: y + (CARD_H / 2) * scale,
+  };
+};
+// Fade in, a short hold, a 3.5s shrink, then gone; the bubble shows up once
+// the shrink is 70% done. In seconds, then as fractions of the loop.
+const [FADE_IN_S, HOLD_S, SHRINK_S, OUT_S] = [0.3, 0.4, 3.5, 0.45];
+const DRIFT_S = FADE_IN_S + HOLD_S + SHRINK_S + OUT_S;
+const FADE_END = FADE_IN_S / DRIFT_S;
+const HOLD_END = (FADE_IN_S + HOLD_S) / DRIFT_S;
+const SHRINK_END = (FADE_IN_S + HOLD_S + SHRINK_S) / DRIFT_S;
+const atP = (p: number) => HOLD_END + p * (SHRINK_END - HOLD_END);
+const START = drift(0);
+const SPEAK = drift(0.7);
+const END = drift(1);
+
+function DriftingCampaign() {
   const still = useStill();
-  const products = HOLIDAY.products;
-  const soldOut = dusty ? [1, 3, 4, 5] : [];
+  const loop = { duration: DRIFT_S, repeat: Infinity, repeatDelay: 0.6, ease: "linear" } as const;
   return (
     <div
       role="img"
-      aria-label={
-        dusty
-          ? "The “Aesthetic Holiday Prep is On” campaign card, greyed over like dust, with four of its six products sold out."
-          : "The “Aesthetic Holiday Prep is On” campaign card with six products."
-      }
-      className="relative w-full max-w-[420px] overflow-hidden rounded-2xl border border-line bg-paper p-4 shadow-[0_20px_40px_-24px_rgba(21,21,21,0.3)]"
+      aria-label="The “Aesthetic Holiday Prep is On” campaign card shrinks, fades and drifts away, saying “Don’t forget me!”"
+      className="relative w-full max-w-[420px]"
     >
-      <p className="pb-3 text-base font-semibold text-ink">
-        {HOLIDAY.emoji} {HOLIDAY.title} ›
-      </p>
-      <ul className="grid grid-cols-3 gap-2 text-sm">
-        {products.map((p, i) => (
-          <li key={p.id}>
-            <ProductImage product={p} soldOut={soldOut.includes(i)} className="text-[13px]" />
-          </li>
-        ))}
-      </ul>
-      {/* Dust: a grey veil with a little grain. */}
+      {!still && (
+        <motion.div
+          animate={{
+            opacity: [0, 0, 1, 1, 0],
+            x: [SPEAK.bubbleX, SPEAK.bubbleX, SPEAK.bubbleX, END.bubbleX, END.bubbleX],
+            y: [SPEAK.bubbleY, SPEAK.bubbleY, SPEAK.bubbleY, END.bubbleY, END.bubbleY],
+          }}
+          transition={{ ...loop, times: [0, atP(0.7), atP(0.74), SHRINK_END, 1] }}
+          className="absolute left-1/2 top-1/2 z-10"
+        >
+          <div className="absolute -left-4 top-2.5">
+            <ThoughtBubble
+              emoji="🥺"
+              text="Don’t forget me!"
+              tail="top"
+              className="whitespace-nowrap"
+            />
+          </div>
+        </motion.div>
+      )}
+      {still && (
+        <div className="absolute -bottom-14 left-0 z-10">
+          <ThoughtBubble emoji="🥺" text="Don’t forget me!" tail="top" />
+        </div>
+      )}
       <motion.div
-        aria-hidden
-        initial={false}
-        animate={{ opacity: dusty ? 1 : 0 }}
-        transition={still ? { duration: 0 } : { duration: 1.4, ease: "easeOut" }}
-        className="pointer-events-none absolute inset-0 bg-[#9a9a96]/35 [background-image:radial-gradient(rgba(80,80,76,0.35)_1px,transparent_1.4px)] [background-size:7px_7px]"
-      />
+        animate={
+          still
+            ? undefined
+            : {
+                opacity: [0, 1, START.opacity, SPEAK.opacity, END.opacity, 0],
+                scale: [1, 1, START.scale, SPEAK.scale, END.scale, END.scale],
+                x: [0, 0, START.x, SPEAK.x, END.x, END.x],
+                y: [0, 0, START.y, SPEAK.y, END.y, END.y],
+              }
+        }
+        transition={
+          still
+            ? { duration: 0 }
+            : { ...loop, times: [0, FADE_END, HOLD_END, atP(0.7), SHRINK_END, 1] }
+        }
+      >
+        <div className="rounded-2xl border border-line bg-paper p-4 shadow-[0_20px_40px_-24px_rgba(21,21,21,0.3)]">
+          <p className="pb-3 text-base font-semibold text-ink">
+            {HOLIDAY.emoji} {HOLIDAY.title} ›
+          </p>
+          <ul className="grid grid-cols-3 gap-2 text-sm">
+            {HOLIDAY.products.map((p) => (
+              <li key={p.id}>
+                <ProductImage product={p} className="text-[13px]" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </motion.div>
     </div>
   );
 }
 
-// B: 40K+ products in front of one new MD. More tiles each beat; the MD
-// looks smaller.
+// B: 40K+ products in front of one new MD. On a loop the wall fills with more
+// tiles and the MD looks smaller, until they're lost. `hold` is how long
+// each level stays up, in ms.
 const WALL = [
-  { cols: 6, rows: 4, avatar: 1 },
-  { cols: 12, rows: 8, avatar: 0.72 },
-  { cols: 20, rows: 13, avatar: 0.5 },
+  { cols: 6, rows: 4, avatar: 1, hold: 1200 },
+  { cols: 12, rows: 8, avatar: 0.72, hold: 1200 },
+  { cols: 20, rows: 13, avatar: 0.5, hold: 2400 },
 ];
 const ALL_PRODUCTS = Object.values(PRODUCTS).flat();
+// Tiles in a shuffled order, so the full wall doesn't show a pattern. Seeded
+// (mulberry32) so server and client agree.
+const TILES = (() => {
+  let seed = 7;
+  const rand = () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const { cols, rows } = WALL[WALL.length - 1];
+  return Array.from(
+    { length: cols * rows },
+    () => ALL_PRODUCTS[Math.floor(rand() * ALL_PRODUCTS.length)],
+  );
+})();
+// The avatar block is ~114px tall and scales about its centre, so at the
+// smallest level its top sits this far below the unscaled top.
+const LOST_NUDGE = (114 / 2) * (1 - WALL[WALL.length - 1].avatar);
 
-function ProductWall({ level }: { level: number }) {
-  const { cols, rows, avatar } = WALL[level];
+function ProductWall() {
   const still = useStill();
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (still) return;
+    const id = setTimeout(() => setStep((s) => (s + 1) % WALL.length), WALL[step].hold);
+    return () => clearTimeout(id);
+  }, [step, still]);
+  const level = still ? WALL.length - 1 : step;
+  const { cols, rows, avatar } = WALL[level];
+  const lost = level === WALL.length - 1;
   return (
-    <div
-      role="img"
-      aria-label="A wall of product tiles that keeps growing, with one new MD in front of it, looking smaller and smaller."
-      className="relative aspect-[4/3] w-full max-w-[440px] overflow-hidden rounded-2xl bg-paper-2"
-    >
+    <div className="flex w-full max-w-[440px] flex-col gap-3">
+      <p className="font-display text-lg font-semibold text-ink">40K+ Products</p>
       <div
-        className="grid h-full gap-[3px] p-[3px] transition-[grid-template-columns] duration-700"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        role="img"
+        aria-label="A wall of product tiles that keeps growing, with one new MD in the middle, looking smaller and smaller until they say “I’m lost.”"
+        className="relative aspect-[4/3] w-full max-w-[440px] overflow-hidden rounded-2xl bg-paper-2"
       >
-        {Array.from({ length: cols * rows }, (_, i) => (
-          <motion.span
-            key={i}
-            initial={still ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: still ? 0 : (i % 17) * 0.02 }}
-            className="block aspect-square overflow-hidden rounded-[3px]"
+        <div
+          className="grid h-full gap-[3px] p-[3px] transition-[grid-template-columns] duration-700"
+          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        >
+          {Array.from({ length: cols * rows }, (_, i) => (
+            <motion.span
+              key={i}
+              initial={still ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: still ? 0 : (i % 17) * 0.02 }}
+              className="block aspect-square overflow-hidden rounded-[3px]"
+            >
+              <ProductImage product={TILES[i]} className="rounded-none" />
+            </motion.span>
+          ))}
+        </div>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <motion.div
+            initial={false}
+            animate={{ scale: avatar }}
+            transition={still ? { duration: 0 } : { type: "spring", stiffness: 140, damping: 18 }}
+            className="flex flex-col items-center gap-1"
           >
-            <ProductImage
-              product={ALL_PRODUCTS[(i * 7 + Math.floor(i / cols) * 11) % ALL_PRODUCTS.length]}
-              className="rounded-none"
-            />
-          </motion.span>
-        ))}
+            <span className="rounded-full bg-paper p-1.5 shadow-[0_12px_28px_-10px_rgba(21,21,21,0.5)]">
+              {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+              <img
+                src="/images/ai-curation/people/new-md.webp"
+                alt=""
+                width={240}
+                height={240}
+                className="block size-[76px] rounded-full object-cover"
+              />
+            </span>
+            <span className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-medium text-ink shadow-sm">
+              New MD
+            </span>
+          </motion.div>
+          {/* At its smallest, the new MD speaks up, as the wall fills. Sits
+            outside the scale so the bubble keeps its size; nudged down to
+            meet the shrunken head. Gone at once when the loop restarts. */}
+          <AnimatePresence>
+            {lost && (
+              <motion.div
+                initial={still ? false : { opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0 } }}
+                transition={
+                  still ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 20 }
+                }
+                style={{ y: LOST_NUDGE }}
+                className="absolute bottom-full left-1/2 -ml-9 mb-1 origin-bottom-left"
+              >
+                <ThoughtBubble
+                  emoji="😵‍💫"
+                  text="I’m lost…"
+                  tail="bottom"
+                  className="whitespace-nowrap"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-      <motion.div
-        initial={false}
-        animate={{ scale: avatar }}
-        transition={still ? { duration: 0 } : { type: "spring", stiffness: 140, damping: 18 }}
-        className="absolute bottom-4 left-1/2 -ml-11 flex origin-bottom flex-col items-center gap-1"
-      >
-        <span className="rounded-full bg-paper p-1.5 shadow-[0_12px_28px_-10px_rgba(21,21,21,0.5)]">
-          <MdAvatar tone={2} className="size-[76px]" />
-        </span>
-        <span className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-medium text-ink shadow-sm">
-          New MD
-        </span>
-      </motion.div>
     </div>
   );
 }
@@ -438,32 +569,33 @@ const PARTS = [
 ];
 const ASK = "A lot of our work is blocked right now. Is there anything we could automate?";
 
-// Which part each scroll step shows, and its beat within the part.
-const COMPANY_BEATS = [
-  { part: 0, beat: 0 },
-  { part: 0, beat: 1 },
-  { part: 1, beat: 0 },
-  { part: 1, beat: 1 },
-  { part: 1, beat: 2 },
-  { part: 2, beat: 0 },
-  { part: 2, beat: 0 },
-];
+// Which part each scroll step shows. The visuals play on their own, so each
+// part just gets two steps of room.
+const COMPANY_STEPS = [0, 0, 1, 1, 2, 2];
 
-function PartVisual({ part, beat, live }: { part: number; beat: number; live: boolean }) {
-  if (part === 0) return <DustyCampaign dusty={!live || beat >= 1} />;
-  if (part === 1) return <ProductWall level={live ? beat : WALL.length - 1} />;
+function PartVisual({ part }: { part: number }) {
+  if (part === 0) return <DriftingCampaign />;
+  if (part === 1) return <ProductWall />;
   return <MessageCard quote={ASK} shown />;
 }
 
-function PartBeat({ part, beat, live }: { part: number; beat: number; live: boolean }) {
+function PartBeat({ part }: { part: number }) {
   return (
-    <div className="grid items-center gap-10 md:grid-cols-[1fr_1fr] md:gap-14">
+    // Fixed row height, copy pinned to the top: titles and paragraphs stay put
+    // as the visuals change size.
+    <div className="grid items-start gap-10 md:h-[24rem] md:grid-cols-[1fr_1fr] md:gap-14">
       <div className="flex flex-col gap-6">
         <p className="font-display text-lg font-medium text-ink md:text-xl">{PARTS[part].name}</p>
         {PARTS[part].copy}
       </div>
-      <div className="flex justify-center">
-        <PartVisual part={part} beat={beat} live={live} />
+      {/* The ask's message is short: lift it level with the copy. */}
+      <div
+        className={cn(
+          "flex h-full justify-center",
+          part === 2 ? "items-start md:pt-12" : "items-center",
+        )}
+      >
+        <PartVisual part={part} />
       </div>
     </div>
   );
@@ -479,20 +611,20 @@ export function CompanyProblem() {
   return (
     <Chapter id="company-problem" label="05 Company’s Problem" className="border-t border-line">
       <StickyScene
-        steps={COMPANY_BEATS.length}
+        steps={COMPANY_STEPS.length}
         vh={70}
         label="Campaigns left on hold, too many products to learn, and the MD team’s ask"
         still={() => (
           <div className={cn(wrap, "flex flex-col gap-16 py-10")}>
             <CompanyHeader />
             {PARTS.map((p, i) => (
-              <PartBeat key={p.name} part={i} beat={0} live={false} />
+              <PartBeat key={p.name} part={i} />
             ))}
           </div>
         )}
       >
         {({ step }) => {
-          const { part, beat } = COMPANY_BEATS[step];
+          const part = COMPANY_STEPS[step];
           return (
             <div className={cn(wrap, "flex w-full flex-col gap-8 md:gap-10")}>
               <CompanyHeader />
@@ -512,15 +644,17 @@ export function CompanyProblem() {
                     </li>
                   ))}
                 </ol>
-                <AnimatePresence mode="wait" initial={false}>
+                {/* No initial={false}: it would pass down and freeze the
+                    looping visuals of the part shown on load. */}
+                <AnimatePresence mode="wait">
                   <motion.div
                     key={part}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -24 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.45, ease: EASE_OUT }}
                   >
-                    <PartBeat part={part} beat={beat} live />
+                    <PartBeat part={part} />
                   </motion.div>
                 </AnimatePresence>
               </div>

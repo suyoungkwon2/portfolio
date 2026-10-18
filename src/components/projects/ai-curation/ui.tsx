@@ -184,7 +184,12 @@ function CardButton({ kind }: { kind: number }) {
   return (
     <span
       className="flex items-center justify-center border border-[#dfe4eb] bg-white font-medium text-[#222]"
-      style={{ height: px(32), borderRadius: px(4), gap: px(4), fontSize: px(13) }}
+      style={{
+        height: px(32),
+        borderRadius: px(4),
+        gap: px(4),
+        fontSize: px(13),
+      }}
     >
       {kind === 0 && (
         // eslint-disable-next-line @next/next/no-img-element -- static export
@@ -265,7 +270,12 @@ function HomeCard({ item, kind, state }: { item: HomeItem; kind: number; state: 
       </span>
       <span
         className="line-clamp-2 text-[#222]"
-        style={{ marginTop: px(8), fontSize: px(14), lineHeight: px(20), height: px(40) }}
+        style={{
+          marginTop: px(8),
+          fontSize: px(14),
+          lineHeight: px(20),
+          height: px(40),
+        }}
       >
         {item.name}
       </span>
@@ -291,7 +301,12 @@ function HomeCard({ item, kind, state }: { item: HomeItem; kind: number; state: 
       </span>
       <span
         className="flex items-center text-[#a7b2bc]"
-        style={{ marginTop: px(8), gap: px(2), fontSize: px(12), lineHeight: px(15) }}
+        style={{
+          marginTop: px(8),
+          gap: px(2),
+          fontSize: px(12),
+          lineHeight: px(15),
+        }}
       >
         <span className="grid place-items-center" style={{ width: px(14), height: px(14) }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- static export */}
@@ -445,43 +460,48 @@ export function MdAvatar({ tone = 0, className }: { tone?: number; className?: s
 
 export const PARAPHRASED = "Paraphrased from interviews with the MD team.";
 
-// An interview line, tidied up: quote marks and the label that says so.
+// An interview line, tidied up: serif italic, one sentence per line, and
+// the label that says so.
 export function QuoteCard({ quote, className }: { quote: string; className?: string }) {
+  const sentences = quote.split(/(?<=[.?!])\s+/);
   return (
     <figure className={cn("flex flex-col gap-3 border-l-2 border-accent pl-5", className)}>
-      <blockquote className="font-display text-xl font-medium leading-snug tracking-tight text-ink md:text-2xl">
-        “{quote}”
+      <blockquote className="instrument-serif-regular-italic text-2xl leading-snug text-ink md:text-[1.75rem]">
+        {sentences.map((line, i) => (
+          <span key={i} className="block">
+            {i === 0 && "“"}
+            {line}
+            {i === sentences.length - 1 && "”"}
+          </span>
+        ))}
       </blockquote>
       <figcaption className="text-xs text-ink-muted">{PARAPHRASED}</figcaption>
     </figure>
   );
 }
 
-// The same, as a message the MD team sent: it pops in when `shown`.
+// The same, as a message the MD team leader sent: it pops in when `shown`.
 export function MessageCard({ quote, shown }: { quote: string; shown: boolean }) {
   const still = useStill();
   return (
     <figure className="flex flex-col gap-3">
       <motion.div
-        initial={still ? false : { opacity: 0, scale: 0.85, y: 16 }}
-        animate={shown ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.85, y: 16 }}
+        initial={still ? false : { opacity: 0, scale: 0.85, y: -16 }}
+        animate={shown ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.85, y: -16 }}
         transition={
           still ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 20, delay: 0.3 }
         }
-        className="flex max-w-[30rem] origin-bottom-left gap-3 rounded-2xl border border-line bg-paper p-4 shadow-[0_20px_40px_-24px_rgba(21,21,21,0.35)]"
+        className="flex max-w-[30rem] origin-top-right gap-3 rounded-2xl border border-line bg-paper p-4 shadow-[0_20px_40px_-24px_rgba(21,21,21,0.35)]"
       >
         <MdAvatar tone={0} />
         <div className="flex min-w-0 flex-col gap-1">
           <p className="flex items-baseline gap-2 text-sm">
-            <span className="font-semibold text-ink">MD Team</span>
+            <span className="font-semibold text-ink">MD Team Leader</span>
             <span className="text-xs text-ink-muted">10:12 AM</span>
           </p>
-          <blockquote className="text-base leading-relaxed text-ink md:text-lg">
-            “{quote}”
-          </blockquote>
+          <blockquote className="text-base leading-relaxed text-ink md:text-lg">{quote}</blockquote>
         </div>
       </motion.div>
-      <figcaption className="text-xs text-ink-muted">{PARAPHRASED}</figcaption>
     </figure>
   );
 }
@@ -521,7 +541,11 @@ export function RoadmapGrid9({ spread = false }: { spread?: boolean }) {
                 initial={still ? false : { opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true, amount: 0.6 }}
-                transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.4 + hop * 0.22 }}
+                transition={{
+                  duration: 0.6,
+                  ease: EASE_OUT,
+                  delay: 0.4 + hop * 0.22,
+                }}
                 className="absolute inset-0 bg-accent/[0.09]"
               />
             )}

@@ -560,7 +560,7 @@ export function ThoughtBubble({
   emoji: string;
   text: string;
   className?: string;
-  tail?: "left" | "bottom" | "none";
+  tail?: "left" | "bottom" | "top" | "none";
 }) {
   return (
     <div
@@ -582,6 +582,12 @@ export function ThoughtBubble({
         <span
           aria-hidden
           className="absolute -left-[7px] top-5 size-3 rotate-45 border-b border-l border-ink/10 bg-paper"
+        />
+      )}
+      {tail === "top" && (
+        <span
+          aria-hidden
+          className="absolute -top-[7px] left-8 size-3 rotate-45 border-l border-t border-ink/10 bg-paper"
         />
       )}
       {tail === "bottom" && (
