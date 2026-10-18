@@ -368,13 +368,6 @@ function SelectionHeader() {
   );
 }
 
-const INSIGHTS = [
-  ["Save matching time", "Less time matching products to a theme"],
-  ["Show data in one view", "Sales, stock and price next to each product, not across sheets"],
-  ["Rank automatically", "Products ordered without hand sorting"],
-  ["Stay up to date", "Lists that update themselves when stock changes"],
-] as const;
-
 function InterviewHeader() {
   return (
     <div className="flex flex-col gap-6">
@@ -433,22 +426,7 @@ export function Interview() {
         )}
       </StickyScene>
 
-      <div className={cn(wrap, "flex flex-col gap-6 pb-24 pt-16 md:pb-32")}>
-        <SectionLabel>So the system had to…</SectionLabel>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {INSIGHTS.map(([title, text], i) => (
-            <Reveal
-              as="li"
-              key={title}
-              delay={i * 0.08}
-              className="flex flex-col gap-2 rounded-2xl border border-line bg-paper p-6"
-            >
-              <p className="font-display text-lg font-medium text-ink md:text-xl">{title}</p>
-              <p className="text-base leading-relaxed text-ink-muted">{text}</p>
-            </Reveal>
-          ))}
-        </ul>
-      </div>
+      <div className="pb-24 md:pb-32" />
     </Chapter>
   );
 }
@@ -460,10 +438,11 @@ export function Interview() {
 function Hmw({ progress, live }: { progress?: MotionValue<number>; live: boolean }) {
   return (
     <Question
-      lead="How might we let an MD launch a campaign just by naming a theme,"
-      turn="without losing the quality of a hand-picked one"
+      lead="How might we let an MD manage a campaign with just a theme,"
+      turn="without losing hand‑picked quality"
       progress={progress}
       live={live}
+      inline
     />
   );
 }
@@ -472,25 +451,88 @@ const GOALS = [
   ["Internal efficiency", "Automate the manual workflow so MDs get their time back."],
   [
     "Customer experience",
-    "Offer more diverse, high-quality campaigns that bring back the joy of discovery.",
+    // A non-breaking hyphen, so the circle never splits “high-quality”.
+    "Offer more diverse, high‑quality campaigns that bring back the joy of discovery.",
   ],
 ] as const;
 const FEATURES = [
   ["Find products by theme", "Type a theme, get a ranked product list."],
+  ["See product data in one view", "Brand, recent sales, stock and price next to every product."],
   ["Refresh every hour", "Sold-out or stale items are swapped out automatically."],
 ] as const;
 
-function GoalsAndFeatures() {
+function GoalCircle({
+  goal: [term, text],
+  shown,
+  delay,
+}: {
+  goal: (typeof GOALS)[number];
+  shown: boolean;
+  delay: number;
+}) {
   return (
-    <div className="grid gap-12 md:grid-cols-2 md:gap-14">
-      <div className="flex flex-col gap-6">
-        <Subhead>Goals</Subhead>
-        <TermList rows={GOALS} className="[&>div]:md:grid-cols-[11rem_1fr]" />
+    <motion.div
+      initial={shown ? false : { opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, ease: EASE_OUT, delay }}
+      className="flex size-64 shrink-0 flex-col items-center justify-center gap-3 rounded-full border border-ink/20 px-9 text-center md:size-72"
+    >
+      <p className="text-sm font-medium text-ink-muted">{term}</p>
+      <p className="font-display text-lg font-medium leading-snug tracking-tight text-ink md:text-xl">
+        {text}
+      </p>
+    </motion.div>
+  );
+}
+
+// The two goals as circles: internal efficiency first, then an arrow on to
+// what customers get from it.
+function Goals({ animate }: { animate: boolean }) {
+  const still = useStill();
+  const shown = !animate || still;
+  return (
+    <div className="flex flex-col gap-8">
+      <Subhead>Goals</Subhead>
+      <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center md:gap-8">
+        <GoalCircle goal={GOALS[0]} shown={shown} delay={0.2} />
+        <svg
+          aria-hidden
+          viewBox="0 0 64 24"
+          className="w-14 shrink-0 rotate-90 overflow-visible text-ink-muted md:w-16 md:rotate-0"
+        >
+          <motion.path
+            d="M2 12 H60 M52 4 L60 12 L52 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={shown ? false : { pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.5, ease: "easeInOut", delay: 0.8 }}
+          />
+        </svg>
+        <GoalCircle goal={GOALS[1]} shown={shown} delay={1.3} />
       </div>
-      <div className="flex flex-col gap-6">
-        <Subhead>Key Features</Subhead>
-        <TermList rows={FEATURES} className="[&>div]:md:grid-cols-[11rem_1fr]" />
-      </div>
+    </div>
+  );
+}
+
+function KeyFeatures() {
+  return (
+    <div className="flex flex-col gap-8">
+      <Subhead>Key Features</Subhead>
+      <ol className="grid gap-8 md:grid-cols-3 md:gap-10">
+        {FEATURES.map(([term, text], i) => (
+          <li key={term} className="flex flex-col gap-3 border-t border-line pt-5">
+            <span className="grid size-8 place-items-center rounded-full bg-ink text-xs font-semibold text-paper">
+              {i + 1}
+            </span>
+            <p className="text-lg font-medium text-ink">{term}</p>
+            <p className="text-base leading-relaxed text-ink-muted">{text}</p>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
@@ -540,7 +582,7 @@ function BiggerPicture() {
   );
 }
 
-const DEFINE_BEATS = 4;
+const DEFINE_BEATS = 5;
 
 export function Define() {
   return (
@@ -553,7 +595,8 @@ export function Define() {
           <div className={cn(wrap, "flex flex-col gap-16 py-14")}>
             <SectionLabel>07 DEFINE</SectionLabel>
             <Hmw live={false} />
-            <GoalsAndFeatures />
+            <Goals animate={false} />
+            <KeyFeatures />
             <TheBar />
             <Strategy animate={false} />
           </div>
@@ -567,7 +610,8 @@ export function Define() {
             <div className="grid">
               {[
                 <Hmw key="q" live={false} />,
-                <GoalsAndFeatures key="g" />,
+                <Goals key="g" animate={false} />,
+                <KeyFeatures key="f" />,
                 <TheBar key="b" />,
                 <Strategy key="s" animate={false} />,
               ].map((beat) => (
@@ -585,9 +629,10 @@ export function Define() {
                   transition={{ duration: 0.45, ease: EASE_OUT }}
                 >
                   {step === 0 && <Hmw progress={progress} live />}
-                  {step === 1 && <GoalsAndFeatures />}
-                  {step === 2 && <TheBar />}
-                  {step === 3 && <Strategy animate />}
+                  {step === 1 && <Goals animate />}
+                  {step === 2 && <KeyFeatures />}
+                  {step === 3 && <TheBar />}
+                  {step === 4 && <Strategy animate />}
                 </motion.div>
               </AnimatePresence>
             </div>

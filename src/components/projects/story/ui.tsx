@@ -264,17 +264,20 @@ export function TermList({
 }
 
 // The How-might-we question. As the reader scrolls, the rest of the
-// sentence dims so only the constraint (`turn`) stays lit.
+// sentence dims so only the constraint (`turn`) stays lit. `turn` starts on
+// its own line unless `inline`.
 export function Question({
   lead,
   turn,
   progress,
   live,
+  inline = false,
 }: {
   lead: React.ReactNode;
   turn: React.ReactNode;
   progress?: MotionValue<number>;
   live: boolean;
+  inline?: boolean;
 }) {
   const idle = useMotionValue(0);
   const dim = useTransform(progress ?? idle, [0.06, 0.2], [1, 0.25]);
@@ -282,7 +285,7 @@ export function Question({
   return (
     <p className="font-display font-medium tracking-tight text-[1.75rem] leading-[1.2] text-ink md:text-[2.6rem]">
       <motion.span style={rest}>{lead}</motion.span>
-      <br />
+      {inline ? " " : <br />}
       <Em>{turn}</Em>
       <motion.span style={rest}>?</motion.span>
     </p>
