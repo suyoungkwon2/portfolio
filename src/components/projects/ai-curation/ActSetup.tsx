@@ -144,7 +144,7 @@ export function TitleCard({
           glass ? "text-white/70" : "text-ink-muted",
         )}
       >
-        Curation Theme Title <Pencil aria-hidden className="size-3" strokeWidth={1.75} />
+        Campaign Theme Title <Pencil aria-hidden className="size-3" strokeWidth={1.75} />
       </p>
       <ul className={cn("text-sm", glass ? "text-white" : "text-ink")}>
         {HERO_THEMES.map((theme, i) => (
@@ -418,7 +418,7 @@ function ThemeToCampaigns() {
     <div
       ref={ref}
       role="img"
-      aria-label="Four curation theme titles are typed into a note: The Ultimate Snack Drop, Spicy Chinese Takeout Vibe, The Sweetest Year-End Vibe and Matcha Core: Trending Now. An AI node lights up, and Kurly’s homepage fills with a campaign of matching products for each title, one after another."
+      aria-label="Four campaign theme titles are typed into a note: The Ultimate Snack Drop, Spicy Chinese Takeout Vibe, The Sweetest Year-End Vibe and Matcha Core: Trending Now. An AI node lights up, and Kurly’s homepage fills with a campaign of matching products for each title, one after another."
       className="relative w-[300px] max-w-full"
       style={{ aspectRatio: `${SCENE_W} / ${SCENE_H}` }}
     >
@@ -496,7 +496,7 @@ const CONTEXT_BEATS: CopyBeat[] = [
     ],
   },
   {
-    headline: "But the Curation Went Stale",
+    headline: "But the Campaigns Went Stale",
     body: [
       <>
         A space meant to show something new and good every day started showing{" "}
