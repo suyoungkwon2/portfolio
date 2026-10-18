@@ -213,7 +213,9 @@ Prev / Next
 
 ### 5.7 06 EMPLOYEE INTERVIEW
 - Headline: **Where Does an MD’s Week Go?**
-- Body: I interviewed **8 MDs and marketers**, from juniors to seniors, and mapped every step of building a campaign. The goal: find the steps that took the most time and could be handed to AI.
+- Body: To find the steps that took the most time and could be handed to AI, and to learn what MDs look for when they pick products, I interviewed **8 MDs and marketers**, from juniors to seniors, and mapped every step of building a campaign.
+- 섹션 제목과 본문은 장면 밖 위에 고정 없이 둠. 아래 두 장면은 같은 위계(번호 붙은 SubHeading, 09의 `1 · Which AI?` 형식)
+- **1 · Steps AI could take over** — Body: Building one campaign took nine steps. The first five took the most time, and **five of the nine could be automated**.
 - **▶ Scroll scene — `WorkflowTrack`** (가로 레일, 스크롤에 따라 MD 아바타가 한 칸씩 이동, 막히는 칸마다 빨간 페인포인트 카드가 떨어짐)
 
 | # | Step | Pain point (카드 문구, 그대로) |
@@ -231,9 +233,15 @@ Prev / Next
   - Step 5: 화살표가 실제로 Step 2로 되감기고 아바타가 뒤로 끌려가는 루프 모션.
   - Step 1–5 위로 `⏳ Most time-consuming` 괄호가 그려짐. 자동화 가능한 칸(3, 4, 5, 8, 9)만 강조색 연한 틴트 + 범례 `Automation available`.
   - 페인포인트는 실제 인터뷰 결과라 라벨 불필요. 이모지만 연출.
+- **▶ Scroll scene — `SelectionCheck`** (워크플로 다음, 같은 섹션 안의 두 번째 장면. 근거: 2024/5/3 인터뷰 정리의 “상품 선정 시 확인 정보”)
+  - SubHeading: **2 · What MDs check before adding a product**
+  - Body: Fitting the theme was only the first test. Before a product went in, MDs also checked its **brand, recent sales, stock, discount, final price**, and whether it was already running in another campaign. That data sat in separate sheets and tools, so they looked it up **one product at a time**.
+  - 왼쪽: 08 Copilot 결과 1번과 같은 상품 사진(`matcha-3`, Namyang Matcha Latte). 오른쪽: 표 한 줄 `Fits “Matcha Core: Trending Now”? · Yes ✓`
+  - 스크롤 한 번: 아래로 6줄이 차례로 나타남 — Brand · Namyang / Recent sales · 1,240 a week / Stock · 170 left / Discount · 8% off / Final price · ₩25,340 / In another campaign? · No. 아래 `Illustrative values.`
+  - 씬 3단계(테마 적합 → 6개 확인 → 여유). 모바일·reduced motion은 최종 상태.
 - **Key insights (4 카드)** — 카드 제목 위에 작은 라벨 `So the system had to…`
   - **Save matching time** · Less time matching products to a theme
-  - **Show data in one view** · Sales and stock side by side, not in separate tools
+  - **Show data in one view** · Sales, stock and price next to each product, not across sheets
   - **Rank automatically** · Products ordered without hand sorting
   - **Stay up to date** · Lists that update themselves when stock changes
 

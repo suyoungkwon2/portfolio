@@ -9,15 +9,18 @@ import {
   B,
   Body,
   Chapter,
+  DataNote,
   Fold,
   Question,
   SectionHeader,
   SectionLabel,
   Subhead,
+  SubHeading,
   TermList,
   wrap,
 } from "../story/ui";
-import { MdAvatar, RoadmapGrid9, STRATEGY } from "./ui";
+import { PRODUCTS } from "./data";
+import { MdAvatar, ProductImage, RoadmapGrid9, STRATEGY } from "./ui";
 
 // Act 3, Listen: 06 Employee Interview · 07 Define (spec §5.7–5.8).
 
@@ -30,11 +33,17 @@ const WORKFLOW: { step: string; pain?: string }[] = [
   { step: "Concept Definition" },
   { step: "Product Discovery", pain: "Matching products to a concept by hand" },
   { step: "Product Selection", pain: "Checking sales data one by one" },
-  { step: "Enough SKUs?", pain: "Not enough products → back to Concept Definition" },
+  {
+    step: "Enough SKUs?",
+    pain: "Not enough products → back to Concept Definition",
+  },
   { step: "Campaign Proposal" },
   { step: "Campaign Approval" },
   { step: "System Registration", pain: "Ordering every product slot by hand" },
-  { step: "Campaign Operation", pain: "Watching for sold-out and low-stock items" },
+  {
+    step: "Campaign Operation",
+    pain: "Watching for sold-out and low-stock items",
+  },
 ];
 const LOOP_FROM = 4; // Enough SKUs?
 const LOOP_TO = 1; // Concept Definition
@@ -66,7 +75,10 @@ function useWalker(at: number, live: boolean) {
     return () => timers.forEach(clearTimeout);
   }, [at, live]);
   const onLoop = live && at === LOOP_FROM;
-  return { pos: onLoop && phase === 1 ? LOOP_TO : at, looping: onLoop && phase < 3 };
+  return {
+    pos: onLoop && phase === 1 ? LOOP_TO : at,
+    looping: onLoop && phase < 3,
+  };
 }
 
 function WorkflowTrack({ step, live }: { step: number; live: boolean }) {
@@ -140,7 +152,10 @@ function WorkflowTrack({ step, live }: { step: number; live: boolean }) {
               aria-hidden
               initial={false}
               animate={{ opacity: summary && automatable(i) ? 1 : 0 }}
-              transition={{ duration: 0.4, delay: summary && live ? 0.1 * i : 0 }}
+              transition={{
+                duration: 0.4,
+                delay: summary && live ? 0.1 * i : 0,
+              }}
               className="absolute -inset-y-2 inset-x-0.5 rounded-xl bg-accent/[0.08]"
             />
             <span
@@ -174,7 +189,12 @@ function WorkflowTrack({ step, live }: { step: number; live: boolean }) {
                 transition={
                   still
                     ? { duration: 0 }
-                    : { type: "spring", stiffness: 300, damping: 18, delay: 0.25 }
+                    : {
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 18,
+                        delay: 0.25,
+                      }
                 }
                 className="rounded-lg border border-alert/25 bg-alert/[0.06] p-2 text-[12px] leading-snug text-ink"
               >
@@ -238,9 +258,103 @@ function WorkflowList() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* 06 Employee Interview: what an MD checks before picking a product   */
+/* ------------------------------------------------------------------ */
+
+// The same product 08's Copilot puts first for “Matcha Core: Trending Now”.
+const CHECKED = PRODUCTS.matcha[2];
+// From the interviews: what MDs look up before a product goes in.
+// Values are made up.
+const CHECKS = [
+  ["Brand", "Namyang"],
+  ["Recent sales", "1,240 a week"],
+  ["Stock", "170 left"],
+  ["Discount", "8% off"],
+  ["Final price", CHECKED.price],
+  ["In another campaign?", "No"],
+] as const;
+// Theme fit, then the six checks, then a spare hold.
+const CHECK_STEPS = 3;
+
+function SelectionCheck({ step, live }: { step: number; live: boolean }) {
+  const still = useStill();
+  const open = !live || step >= 1;
+  return (
+    <div
+      role="img"
+      aria-label={`A product, ${CHECKED.name}, checked for the theme “Matcha Core: Trending Now”. It fits the theme, then six more checks appear: ${CHECKS.map(([k, v]) => `${k}: ${v}`).join(", ")}.`}
+      className="grid items-start gap-8 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] md:gap-14"
+    >
+      <div aria-hidden className="flex w-full max-w-60 flex-col gap-3">
+        <ProductImage product={CHECKED} className="rounded-2xl" />
+        <p className="text-sm leading-snug text-ink">{CHECKED.name}</p>
+      </div>
+
+      <div aria-hidden className="flex w-full max-w-[30rem] flex-col gap-3">
+        <dl className="flex flex-col">
+          <div className="flex items-baseline justify-between gap-4 border-b border-ink pb-3">
+            <dt className="text-base text-ink-muted md:text-lg">
+              Fits “Matcha Core: Trending Now”?
+            </dt>
+            <dd className="text-base font-semibold text-ink md:text-lg">Yes ✓</dd>
+          </div>
+          {CHECKS.map(([term, value], i) => (
+            <motion.div
+              key={term}
+              initial={false}
+              animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+              transition={
+                still || !live
+                  ? { duration: 0 }
+                  : {
+                      duration: 0.35,
+                      ease: EASE_OUT,
+                      delay: open ? 0.12 * i : 0,
+                    }
+              }
+              className="flex items-baseline justify-between gap-4 border-b border-line py-3 last:border-b-0"
+            >
+              <dt className="text-base text-ink-muted md:text-lg">{term}</dt>
+              <dd className="text-base text-ink md:text-lg">{value}</dd>
+            </motion.div>
+          ))}
+        </dl>
+        <DataNote>Illustrative values.</DataNote>
+      </div>
+    </div>
+  );
+}
+
+function WorkflowHeader() {
+  return (
+    <div className="flex flex-col gap-3">
+      <SubHeading>1 · Steps AI could take over</SubHeading>
+      <Body className="max-w-[48rem]">
+        Building one campaign took nine steps. The first five took the most time, and{" "}
+        <B>five of the nine could be automated</B>.
+      </Body>
+    </div>
+  );
+}
+
+function SelectionHeader() {
+  return (
+    <div className="flex flex-col gap-3">
+      <SubHeading>2 · What MDs check before adding a product</SubHeading>
+      <Body className="max-w-[48rem]">
+        Fitting the theme was only the first test. Before a product went in, MDs also checked its{" "}
+        <B>brand, recent sales, stock, discount, final price</B>, and whether it was already running
+        in another campaign. That data sat in separate sheets and tools, so they looked it up{" "}
+        <B>one product at a time</B>.
+      </Body>
+    </div>
+  );
+}
+
 const INSIGHTS = [
   ["Save matching time", "Less time matching products to a theme"],
-  ["Show data in one view", "Sales and stock side by side, not in separate tools"],
+  ["Show data in one view", "Sales, stock and price next to each product, not across sheets"],
   ["Rank automatically", "Products ordered without hand sorting"],
   ["Stay up to date", "Lists that update themselves when stock changes"],
 ] as const;
@@ -250,9 +364,9 @@ function InterviewHeader() {
     <div className="flex flex-col gap-6">
       <SectionHeader label="06 EMPLOYEE INTERVIEW" headline="Where Does an MD’s Week Go?" />
       <Body className="max-w-[48rem]">
-        I interviewed <B>8 MDs and marketers</B>, from juniors to seniors, and mapped every step of
-        building a campaign. The goal: find the steps that took the most time and could be handed to
-        AI.
+        To find the steps that took the most time and could be handed to AI, and to learn what MDs
+        look for when they pick products, I interviewed <B>8 MDs and marketers</B>, from juniors to
+        seniors, and mapped every step of building a campaign.
       </Body>
     </div>
   );
@@ -261,21 +375,44 @@ function InterviewHeader() {
 export function Interview() {
   return (
     <Chapter id="interview" label="06 Employee Interview" className="border-t border-line">
+      <div className={cn(wrap, "pt-24 md:pt-32")}>
+        <InterviewHeader />
+      </div>
+
       <StickyScene
         steps={TRACK_STEPS}
         vh={55}
         label="An MD walking the campaign workflow"
         still={() => (
           <div className={cn(wrap, "flex flex-col gap-10")}>
-            <InterviewHeader />
+            <WorkflowHeader />
             <WorkflowList />
           </div>
         )}
       >
         {({ step, live }) => (
-          <div className={cn(wrap, "flex w-full flex-col gap-8")}>
-            <InterviewHeader />
+          <div className={cn(wrap, "flex w-full flex-col gap-10")}>
+            <WorkflowHeader />
             <WorkflowTrack step={step} live={live} />
+          </div>
+        )}
+      </StickyScene>
+
+      <StickyScene
+        steps={CHECK_STEPS}
+        vh={55}
+        label="What an MD checks before adding a product"
+        still={() => (
+          <div className={cn(wrap, "flex flex-col gap-10")}>
+            <SelectionHeader />
+            <SelectionCheck step={CHECK_STEPS - 1} live={false} />
+          </div>
+        )}
+      >
+        {({ step, live }) => (
+          <div className={cn(wrap, "flex w-full flex-col gap-10")}>
+            <SelectionHeader />
+            <SelectionCheck step={step} live={live} />
           </div>
         )}
       </StickyScene>
