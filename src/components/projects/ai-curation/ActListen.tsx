@@ -20,8 +20,7 @@ import {
   TermList,
   wrap,
 } from "../story/ui";
-import { PRODUCTS } from "./data";
-import { MdAvatar, ProductImage, RoadmapGrid9, STRATEGY } from "./ui";
+import { MdAvatar, RoadmapGrid9, STRATEGY, WebProductCard, type WebProduct } from "./ui";
 
 // Act 3, Listen: 06 Employee Interview · 07 Define (spec §5.7–5.8).
 
@@ -269,15 +268,22 @@ function WorkflowList() {
 /* 06 Employee Interview: what an MD checks before picking a product   */
 /* ------------------------------------------------------------------ */
 
-// The same product 08's Copilot puts first for “Matcha Core: Trending Now”.
-const CHECKED = PRODUCTS.matcha[2];
+// A product an MD might weigh for “Matcha Core: Trending Now”, as listed on
+// Kurly.
+const CHECKED: WebProduct = {
+  src: "/images/ai-curation/products/matcha-syrup.webp",
+  name: "[Madvanilla] Matcha Syrup 300g",
+  price: "₩15,600",
+  was: "₩18,600",
+  off: "16%",
+};
 // From the interviews: what MDs look up before a product goes in.
 // Values are made up.
 const CHECKS = [
-  ["Brand", "Namyang"],
+  ["Brand", "Madvanilla"],
   ["Recent sales", "1,240 a week"],
   ["Stock", "170 left"],
-  ["Discount", "8% off"],
+  ["Discount", `${CHECKED.off} off`],
   ["Final price", CHECKED.price],
   ["In another campaign?", "No"],
 ] as const;
@@ -293,9 +299,8 @@ function SelectionCheck({ step, live }: { step: number; live: boolean }) {
       aria-label={`A product, ${CHECKED.name}, checked for the theme “Matcha Core: Trending Now”. It fits the theme, then six more checks appear: ${CHECKS.map(([k, v]) => `${k}: ${v}`).join(", ")}.`}
       className="grid items-start gap-8 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] md:gap-14"
     >
-      <div aria-hidden className="flex w-full max-w-60 flex-col gap-3">
-        <ProductImage product={CHECKED} className="rounded-2xl" />
-        <p className="text-sm leading-snug text-ink">{CHECKED.name}</p>
+      <div aria-hidden className="w-full max-w-60">
+        <WebProductCard product={CHECKED} />
       </div>
 
       <div aria-hidden className="flex w-full max-w-[30rem] flex-col gap-3">
@@ -352,10 +357,12 @@ function SelectionHeader() {
     <div className="flex flex-col gap-3">
       <SubHeading>2 · What MDs check before adding a product</SubHeading>
       <Body className="max-w-[48rem]">
-        Fitting the theme was only the first test. Before a product went in, MDs also checked its{" "}
-        <B>brand, recent sales, stock, discount, final price</B>, and whether it was already running
-        in another campaign. That data sat in separate sheets and tools, so they looked it up{" "}
-        <B>one product at a time</B>.
+        <span className="block">Fitting the theme was only the first test.</span>
+        <span className="block">
+          MDs also checked each product’s <B>brand, recent sales, stock, discount, final price</B>,
+          and whether it was already in another campaign. That data sat in separate tools, so they
+          looked it up <B>one product at a time</B>.
+        </span>
       </Body>
     </div>
   );

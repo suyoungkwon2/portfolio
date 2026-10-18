@@ -66,6 +66,47 @@ export function ProductImage({
   );
 }
 
+// A product card from Kurly's web store, as in 01's homepage: photo, Add to
+// cart, delivery tag, name and price.
+export type WebProduct = {
+  src: string;
+  name: string;
+  price: string;
+  // Struck-through list price and the discount, when on sale.
+  was?: string;
+  off?: string;
+};
+
+export function WebProductCard({
+  product,
+  className,
+}: {
+  product: WebProduct;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-col text-[#333]", className)}>
+      <span className="block aspect-[720/936] overflow-hidden rounded-[4px] bg-[#f4f1ea]">
+        {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+        <img src={product.src} alt="" loading="lazy" className="size-full object-cover" />
+      </span>
+      <span className="mt-2 flex h-9 items-center justify-center gap-1.5 rounded-[4px] border border-[#ddd] text-[15px]">
+        <ShoppingCart className="size-4" strokeWidth={1.75} />
+        Add to cart
+      </span>
+      <span className="mt-2.5 text-[13px] text-[#999]">Dawn Delivery</span>
+      <span className="mt-0.5 text-[15px] leading-snug">{product.name}</span>
+      {product.was && (
+        <span className="mt-1 text-[13px] text-[#b5b5b5] line-through">{product.was}</span>
+      )}
+      <span className="flex gap-1.5 text-[17px] font-bold">
+        {product.off && <span className="text-[#fa622f]">{product.off}</span>}
+        {product.price}
+      </span>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Kurly screens                                                       */
 /* ------------------------------------------------------------------ */
