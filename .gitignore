@@ -36,3 +36,6 @@ legacy-jekyll/_site
 legacy-jekyll/.bundle
 legacy-jekyll/vendor
 .gstack/
+
+# internal source material (confidential, not served or committed)
+/sources/
