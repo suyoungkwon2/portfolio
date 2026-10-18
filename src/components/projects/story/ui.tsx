@@ -465,8 +465,9 @@ export function HookLines({
         <div className={cn(wrap, "grid w-full place-items-center", !live && "min-h-[60svh] py-14")}>
           <p className="font-display font-medium tracking-tight text-center text-[2rem] leading-[1.15] text-ink text-balance md:text-[3.25rem]">
             <span className="block">{first}</span>
+            {/* Half a line apart, so the two sentences read as two beats. */}
             <motion.span
-              className="block"
+              className="mt-[0.5em] block"
               initial={false}
               animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
               transition={{ duration: 0.6, ease: EASE_OUT }}

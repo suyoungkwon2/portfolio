@@ -202,18 +202,19 @@ export function useBeatClock<F>({
 }
 
 // Draws a fixed-size scene (`width` px wide) inside a column that may be
-// narrower: returns a ref for the column and the scale that fits it.
-export function useFitScale(width: number) {
+// narrower: returns a ref for the column and the scale that fits it. Pass a
+// `max` above 1 to let the scene grow with a wider column too.
+export function useFitScale(width: number, max = 1) {
   const ref = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(([entry]) =>
-      setScale(Math.min(1, entry.contentRect.width / width)),
+      setScale(Math.min(max, entry.contentRect.width / width)),
     );
     ro.observe(el);
     return () => ro.disconnect();
-  }, [width]);
+  }, [width, max]);
   return { ref, scale };
 }

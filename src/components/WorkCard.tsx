@@ -6,6 +6,7 @@ import Link from "next/link";
 import { projects } from "@/content/projects";
 import type { WorkItem } from "@/content/works";
 import { ChipGroup } from "./project/ChipGroup";
+import { AiCurationThumbnail } from "./projects/ai-curation/AiCurationThumbnail";
 import { AiSearchThumbnail } from "./projects/ai-search/AiSearchThumbnail";
 import { GradientBackdrop } from "./GradientBackdrop";
 
@@ -15,7 +16,7 @@ import { GradientBackdrop } from "./GradientBackdrop";
 // Work grid: plain thumbnail + text below, no card border or background).
 const sectorAccent: Record<WorkItem["sector"], string> = {
   "AI Research": "from-accent-soft via-accent-soft/40 to-transparent",
-  "Projects": "from-accent-2-soft via-accent-2-soft/40 to-transparent",
+  Projects: "from-accent-2-soft via-accent-2-soft/40 to-transparent",
 };
 
 export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
@@ -44,6 +45,7 @@ export function WorkCard({ work, index }: { work: WorkItem; index: number }) {
 // in place of the thumbnail image.
 const scenes: Record<string, React.ComponentType> = {
   "ai-search": AiSearchThumbnail,
+  "ai-curation": AiCurationThumbnail,
 };
 
 // The card's picture: a clip, a shader backdrop with the thumbnail over it,

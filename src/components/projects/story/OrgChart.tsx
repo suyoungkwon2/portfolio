@@ -9,7 +9,7 @@ import { Chapter, SectionHeader, wrap } from "./ui";
 // column. Both groups keep the same 24px padding on every side of their chips.
 
 // What each role lights up in the chart while it's the newest one.
-export type RoleCue = "me" | "team" | "links" | "request";
+export type RoleCue = "me" | "team" | "links";
 
 type OrgNode = { label: string; cx: number; cy: number; w: number; me?: boolean; team?: boolean };
 const NODE_H = 52;
@@ -82,17 +82,6 @@ export function OrgChart({
         >
           <path d="M1 1 9 5 1 9" fill="none" stroke="var(--color-ink-muted)" strokeWidth="1" />
         </marker>
-        <marker
-          id="org-arrow-accent"
-          viewBox="0 0 10 10"
-          refX="9"
-          refY="5"
-          markerWidth="5"
-          markerHeight="5"
-          orient="auto-start-reverse"
-        >
-          <path d="M1 1 9 5 1 9" fill="none" stroke="var(--color-accent)" strokeWidth="2" />
-        </marker>
       </defs>
 
       {groups.map(({ x1, x2, cy, filled }) => (
@@ -113,35 +102,28 @@ export function OrgChart({
         />
       ))}
 
-      {/* Alignment: the dashes run the way each arrow points, briefly. A
-          request from below (`request`) draws its up arrow bold in the accent. */}
-      {ORG_LINKS.map(({ y1, y2 }, link) =>
+      {/* Alignment: the dashes run the way each arrow points, briefly. */}
+      {ORG_LINKS.map(({ y1, y2 }) =>
         [
           [LINK_X[0], y1 + 4, y2 - 4],
           [LINK_X[1], y2 - 4, y1 + 4],
-        ].map(([x, from, to]) => {
-          const asked = cue === "request" && link === 1 && x === LINK_X[1];
-          return (
-            <motion.line
-              key={`${beat}-${x}-${y1}`}
-              x1={x}
-              y1={from}
-              x2={x}
-              y2={to}
-              stroke={asked ? "var(--color-accent)" : "var(--color-ink-muted)"}
-              strokeWidth={asked ? 2.5 : 1}
-              vectorEffect="non-scaling-stroke"
-              strokeDasharray={`${DASH / 2} ${DASH / 2}`}
-              markerEnd={asked ? "url(#org-arrow-accent)" : "url(#org-arrow)"}
-              initial={{ strokeDashoffset: 0 }}
-              animate={
-                cue === "links" || asked ? { strokeDashoffset: -DASH * 6 } : { strokeDashoffset: 0 }
-              }
-              transition={{ duration: 2, ease: "linear" }}
-              className="transition-[stroke] duration-300"
-            />
-          );
-        }),
+        ].map(([x, from, to]) => (
+          <motion.line
+            key={`${beat}-${x}-${y1}`}
+            x1={x}
+            y1={from}
+            x2={x}
+            y2={to}
+            stroke="var(--color-ink-muted)"
+            strokeWidth={1}
+            vectorEffect="non-scaling-stroke"
+            strokeDasharray={`${DASH / 2} ${DASH / 2}`}
+            markerEnd="url(#org-arrow)"
+            initial={{ strokeDashoffset: 0 }}
+            animate={cue === "links" ? { strokeDashoffset: -DASH * 6 } : { strokeDashoffset: 0 }}
+            transition={{ duration: 2, ease: "linear" }}
+          />
+        )),
       )}
 
       {nodes.map((n) => (

@@ -48,21 +48,21 @@ const VIEW_W = 1180;
 // One loop, in seconds: the four titles type out, overlapping, the AI node
 // lights, and Kurly's homepage fills with a campaign for each title, one
 // after another.
-const KEY_S = 0.035;
+export const KEY_S = 0.035;
 const LINE_STARTS = [0.4, 0.65, 0.9, 1.15];
 const TYPED_S = Math.max(...HERO_THEMES.map((t, i) => LINE_STARTS[i] + t.title.length * KEY_S));
 // The dashes run from the note into AI, AI lights, then they run on into the page.
-const LINE_S = 0.18;
+export const LINE_S = 0.18;
 const LINE_IN_AT = TYPED_S + 0.2;
 const AI_AT = LINE_IN_AT + LINE_S;
 const LINE_OUT_AT = AI_AT + 0.3;
-const FILL_AT = LINE_OUT_AT + LINE_S;
+export const FILL_AT = LINE_OUT_AT + LINE_S;
 const SECTION_GAP_S = 0.35;
 const FILL_KEY_S = 0.07;
-const SHOWN = 4; // products in each campaign row
+export const SHOWN = 4; // products in each campaign row
 const LOOP_S = FILL_AT + SECTION_GAP_S * 3 + SHOWN * FILL_KEY_S + 3;
 
-type HeroFrame = {
+export type HeroFrame = {
   typed: number[];
   lineIn: boolean;
   ai: boolean;
@@ -73,7 +73,7 @@ type HeroFrame = {
   out: boolean;
 };
 
-function heroFrame(t: number): HeroFrame {
+export function heroFrame(t: number): HeroFrame {
   return {
     typed: HERO_THEMES.map((theme, i) =>
       Math.max(0, Math.min(theme.title.length, Math.floor((t - LINE_STARTS[i]) / KEY_S))),
@@ -89,7 +89,7 @@ function heroFrame(t: number): HeroFrame {
   };
 }
 
-const sameHero = (a: HeroFrame, b: HeroFrame) =>
+export const sameHero = (a: HeroFrame, b: HeroFrame) =>
   a.lineIn === b.lineIn &&
   a.ai === b.ai &&
   a.lineOut === b.lineOut &&
@@ -100,9 +100,9 @@ const sameHero = (a: HeroFrame, b: HeroFrame) =>
 // Scene geometry (px, inside a 300 × 630 box that scales to its column).
 const SCENE_W = 300;
 const SCENE_H = 630;
-const CARD_H = 172;
+export const CARD_H = 172;
 const AI_W = 92;
-const AI_H = 64;
+export const AI_H = 64;
 const AI_Y = 198;
 const WEB_TOP = 298;
 const WEB_H = SCENE_H - WEB_TOP;
@@ -113,32 +113,60 @@ const HEADER_H = Math.round((196 * SCENE_W) / VIEW_W);
 const SECTION_H = 120;
 
 // A lavender from Kurly's purple family, for the dashes.
-const LAVENDER = "#b9a2f2";
+export const LAVENDER = "#b9a2f2";
 // The AI Search hero's glow: violet into sky blue, blurred, under a card.
 const GLOW =
   "pointer-events-none absolute rounded-[1.5rem] bg-[linear-gradient(90deg,rgba(176,114,255,0.75),rgba(91,225,255,0.75))] blur-xl";
 
-function TitleCard({ typed, caret }: { typed: number[]; caret: number }) {
+export function TitleCard({
+  typed,
+  caret,
+  glass = false,
+}: {
+  typed: number[];
+  caret: number;
+  // Frosted and see-through, for a dark backdrop (the card thumbnail).
+  glass?: boolean;
+}) {
+  const rule = glass ? "border-white/25" : "border-line";
   return (
     <div
-      className="absolute inset-x-0 top-0 rounded-xl border border-line bg-paper px-3.5 pb-1.5 pt-2.5"
+      className={cn(
+        "absolute inset-x-0 top-0 rounded-xl border px-3.5 pb-1.5 pt-2.5",
+        glass ? "border-white/30 bg-white/15 backdrop-blur-md" : "border-line bg-paper",
+      )}
       style={{ height: CARD_H }}
     >
-      <p className="flex items-center gap-1.5 border-b border-line pb-2 text-xs font-medium text-ink-muted">
+      <p
+        className={cn(
+          "flex items-center gap-1.5 border-b pb-2 text-xs font-medium",
+          rule,
+          glass ? "text-white/70" : "text-ink-muted",
+        )}
+      >
         Curation Theme Title <Pencil aria-hidden className="size-3" strokeWidth={1.75} />
       </p>
-      <ul className="text-sm text-ink">
+      <ul className={cn("text-sm", glass ? "text-white" : "text-ink")}>
         {HERO_THEMES.map((theme, i) => (
           <li
             key={theme.title}
-            className="flex h-8 items-center gap-2 border-b border-dashed border-line last:border-b-0"
+            className={cn(
+              "flex h-8 items-center gap-2 border-b border-dashed last:border-b-0",
+              rule,
+            )}
           >
             <span aria-hidden className={cn("transition-opacity", typed[i] === 0 && "opacity-0")}>
               {theme.emoji}
             </span>
             <span className="truncate">{theme.title.slice(0, typed[i])}</span>
             {caret === i && (
-              <span aria-hidden className="-ml-1.5 inline-block h-4 w-px animate-pulse bg-ink" />
+              <span
+                aria-hidden
+                className={cn(
+                  "-ml-1.5 inline-block h-4 w-px animate-pulse",
+                  glass ? "bg-white" : "bg-ink",
+                )}
+              />
             )}
           </li>
         ))}
@@ -149,12 +177,12 @@ function TitleCard({ typed, caret }: { typed: number[]; caret: number }) {
 
 // A soft, blurred orb (violet core, warm top, cyan bottom) with “AI” on it,
 // in light tints that sit well on white. It swells a little as it works.
-function AiNode({ on }: { on: boolean }) {
+export function AiNode({ on, top = AI_Y }: { on: boolean; top?: number }) {
   const id = useId();
   return (
     <motion.div
       className="absolute left-1/2 -ml-[46px] grid place-items-center"
-      style={{ top: AI_Y, width: AI_W, height: AI_H }}
+      style={{ top, width: AI_W, height: AI_H }}
       initial={false}
       animate={{ scale: on ? 1.08 : 1 }}
       transition={on ? { duration: 0.4, ease: EASE_OUT } : { duration: 0 }}
@@ -224,14 +252,13 @@ function AiNode({ on }: { on: boolean }) {
 }
 
 // Kurly-purple dashes: from the note down into AI, and from AI on into the
-// page. Each is revealed along its length by a solid mask.
+// page.
 const LINES = [
   { d: `M${SCENE_W / 2} ${CARD_H + 4} V${AI_Y + 6}`, key: "in" },
   { d: `M${SCENE_W / 2} ${AI_Y + AI_H - 6} V${WEB_TOP - 4}`, key: "out" },
 ] as const;
 
 function Connectors({ on, still }: { on: [boolean, boolean]; still: boolean }) {
-  const id = useId();
   return (
     <svg
       aria-hidden
@@ -240,40 +267,58 @@ function Connectors({ on, still }: { on: [boolean, boolean]; still: boolean }) {
       className="pointer-events-none absolute inset-0"
     >
       {LINES.map(({ d, key }, i) => (
-        <g key={key}>
-          <mask
-            id={`${id}-${key}`}
-            maskUnits="userSpaceOnUse"
-            x="0"
-            y="0"
-            width={SCENE_W}
-            height={SCENE_H}
-          >
-            <motion.path
-              d={d}
-              fill="none"
-              stroke="#fff"
-              strokeWidth={6}
-              initial={false}
-              animate={{ pathLength: on[i] ? 1 : 0 }}
-              // Drawn quickly; wiped at once when the loop starts over.
-              transition={
-                still || !on[i] ? { duration: 0 } : { duration: LINE_S, ease: "easeInOut" }
-              }
-            />
-          </mask>
-          <path
-            d={d}
-            mask={`url(#${id}-${key})`}
-            fill="none"
-            stroke={LAVENDER}
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeDasharray="3 6"
-          />
-        </g>
+        <DashLine key={key} d={d} on={on[i]} still={still} w={SCENE_W} h={SCENE_H} />
       ))}
     </svg>
+  );
+}
+
+// One lavender dashed line, revealed along its length by a solid mask. Goes
+// in an SVG of size w × h.
+export function DashLine({
+  d,
+  on,
+  still,
+  w,
+  h,
+  width = 2,
+  dash = "3 6",
+  duration = LINE_S,
+}: {
+  d: string;
+  on: boolean;
+  still: boolean;
+  w: number;
+  h: number;
+  width?: number;
+  dash?: string;
+  duration?: number;
+}) {
+  const id = useId();
+  return (
+    <g>
+      <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width={w} height={h}>
+        <motion.path
+          d={d}
+          fill="none"
+          stroke="#fff"
+          strokeWidth={6}
+          initial={false}
+          animate={{ pathLength: on ? 1 : 0 }}
+          // Drawn quickly; wiped at once when the loop starts over.
+          transition={still || !on ? { duration: 0 } : { duration, ease: "easeInOut" }}
+        />
+      </mask>
+      <path
+        d={d}
+        mask={`url(#${id})`}
+        fill="none"
+        stroke={LAVENDER}
+        strokeWidth={width}
+        strokeLinecap="round"
+        strokeDasharray={dash}
+      />
+    </g>
   );
 }
 
@@ -520,7 +565,8 @@ function KurlyHomepage({ step, live }: { step: number; live: boolean }) {
   // Leaving the tour starts it over from the top next time.
   if (!touring && stop !== -1) setStop(-1);
 
-  // Stale, the days tick by and each reload brings back the same page.
+  // Stale, the days tick by and each reload brings back the same page. The
+  // first day reloads too, so the beat is even from the start.
   const [day, setDay] = useState(0);
   const reloading = stale && inView;
   useEffect(() => {
@@ -559,7 +605,7 @@ function KurlyHomepage({ step, live }: { step: number; live: boolean }) {
           className="ml-1.5 grid size-5 place-items-center rounded-full"
           initial={false}
           animate={
-            stale && day > 0
+            stale
               ? {
                   rotate: [0, 360],
                   scale: [1, 0.85, 1],
@@ -624,7 +670,7 @@ function KurlyHomepage({ step, live }: { step: number; live: boolean }) {
               aria-hidden
               className="absolute inset-0 bg-paper"
               initial={{ opacity: 0 }}
-              animate={{ opacity: day === 0 ? 0 : [0, 0.95, 0.95, 0] }}
+              animate={{ opacity: [0, 0.95, 0.95, 0] }}
               transition={{ duration: 1.1, times: [0, 0.25, 0.45, 1], ease: "easeInOut" }}
             />
           )}
@@ -853,14 +899,11 @@ export function Impact() {
 const ROLES: Role[] = [
   {
     title: "Strategy",
-    // The ask came up from the MD team (05): their arrow draws bold.
-    cue: "request",
+    cue: "me",
     body: (
       <>
-        Defined the problem from the interviews and set the plan:{" "}
-        <B>give MDs an internal copilot first</B>, so they could trust the AI and help us improve
-        it, then test it with customers, then launch. Framed it as the first step of a homepage
-        personalization roadmap.
+        Set the plan from the interviews: <B>give MDs an internal copilot first</B>, then test with
+        customers, then launch. Framed it as step one of homepage personalization.
       </>
     ),
   },
@@ -869,9 +912,9 @@ const ROLES: Role[] = [
     cue: "me",
     body: (
       <>
-        Interviewed <B>8 MDs and marketers</B> to map the campaign workflow. Designed the{" "}
-        <B>Campaign Copilot UI</B> and the <B>Google Sheet</B> MDs use to launch campaigns, and
-        trained MDs on every update with guides I wrote and kept up to date.
+        Interviewed <B>8 MDs and marketers</B> to map the workflow. Designed the{" "}
+        <B>Campaign Copilot UI</B> and the <B>Google Sheet</B> MDs launch campaigns from, and
+        trained MDs on every update.
       </>
     ),
   },
@@ -880,9 +923,8 @@ const ROLES: Role[] = [
     cue: "team",
     body: (
       <>
-        Designed and ran the internal evaluations and the A/B test, worked with the ML engineer who
-        built the curation algorithm, designed the system architecture that connected AI curation to
-        Kurly’s <B>inventory and content management tools</B>, and led QA through launch.
+        Ran the internal evaluations and the A/B test, connected AI curation to Kurly’s{" "}
+        <B>inventory and content management systems</B>, and led QA through launch.
       </>
     ),
   },
@@ -890,10 +932,7 @@ const ROLES: Role[] = [
     title: "Alignment",
     cue: "links",
     body: (
-      <>
-        Kept the CEO, the MD and marketing teams, and the data team on the same page, from model
-        choice to rollout.
-      </>
+      <>Kept the CEO and the MD, marketing, and data teams aligned from model choice to rollout.</>
     ),
   },
 ];
@@ -904,11 +943,10 @@ export function Roles() {
       headline="Turning an MD’s Craft into a System"
       roles={ROLES}
       below={[
-        { label: "MD Team", w: 120 },
-        { label: "Marketing Team", w: 158 },
-        { label: "Data Team", w: 118 },
+        { label: "MD/Marketing Team", w: 182 },
+        { label: "CMS/IMS Team", w: 150 },
       ]}
-      orgLabel="Team structure: the AI PM (me) reports to and gets approval from the C-level, works in one team with an ML engineer and a backend engineer, and works back and forth with the MD, marketing and data teams. The request came up from the MD team."
+      orgLabel="Team structure: the AI PM (me) reports to and gets approval from the C-level, works in one team with an ML engineer and a backend engineer, and works back and forth with the MD/marketing team and the CMS/IMS team."
     />
   );
 }
@@ -921,8 +959,20 @@ export function Hook() {
   return (
     <div className="border-t border-line">
       <HookLines
-        first="Customers came to Kurly to discover something new."
-        second="The homepage kept showing them the same things."
+        first={
+          <>
+            Customers came to Kurly
+            <br />
+            to discover <span className="whitespace-nowrap">something new 👀</span>
+          </>
+        }
+        second={
+          <>
+            The homepage kept showing them
+            <br />
+            <span className="whitespace-nowrap">the same things 🙁</span>
+          </>
+        }
         label="Customers came to discover; the homepage repeated itself"
       />
     </div>
