@@ -551,12 +551,71 @@ const CARD_W = 1140;
 const POP = 1.1;
 // The tour plays on its own: a short look at the top of the page, then a
 // stop per campaign.
-const TOP_S = 1.2;
+const TOP_S = 1.0;
 const STOP_S = 2.8;
-// Within a stop, in seconds: the page glides, the card pops, holds, settles.
-const POP_TIMES = [0, 0.8, 0.85, 1.25, 2.2, 2.55, 2.65].map((t) => t / STOP_S);
+// Within a stop, in seconds: the page glides, the card pops (easing out),
+// holds, then sinks back slowly (easing in and out) before it fades.
+const POP_TIMES = [0, 0.8, 0.85, 1.35, 1.95, 2.6, 2.75].map((t) => t / STOP_S);
+const POP_EASE = ["linear", "linear", "easeOut", "linear", "easeInOut", "linear"] as const;
+const POP_AT = POP_TIMES[2] * STOP_S;
+
 const SHADOW_OFF = "0 0 0 0 rgba(0,0,0,0)";
 const SHADOW_ON = "0 24px 48px -12px rgba(0,0,0,0.35)";
+
+// As the card pops, tiny specks of colour burst out from behind it on every
+// side and fade: the joy of finding something new. Fixed jitter, so every
+// pop looks alike.
+const SPECK_COLORS = ["#7b3fe4", "#ff5c8a", "#ff6b4a", "#c9b6ff", "#ffe066"];
+const SPECKS = Array.from({ length: 36 }, (_, i) => {
+  const jitter = (k: number) => Math.abs((Math.sin(i * 12.9898 + k * 78.233) * 43758.5453) % 1);
+  return {
+    angle: (i / 36) * Math.PI * 2 + (jitter(1) - 0.5) * 0.3,
+    reach: 40 + jitter(2) * 70,
+    size: 3 + Math.round(jitter(3) * 3),
+    // Some round, some little slivers.
+    round: jitter(5) > 0.4,
+    spin: (jitter(6) - 0.5) * 360,
+    delay: jitter(4) * 0.2,
+    color: SPECK_COLORS[i % SPECK_COLORS.length],
+  };
+});
+
+function JoyBurst({ w, h }: { w: number; h: number }) {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      {SPECKS.map((p, i) => {
+        const dx = Math.cos(p.angle);
+        const dy = Math.sin(p.angle);
+        // From just inside the card's resting edge, hidden behind it, straight
+        // out past its popped edge.
+        const edge =
+          Math.min(w / 2 / Math.max(Math.abs(dx), 1e-3), h / 2 / Math.max(Math.abs(dy), 1e-3)) *
+          0.95;
+        return (
+          <motion.span
+            key={i}
+            className={cn("absolute", p.round ? "rounded-full" : "rounded-[1px]")}
+            style={{
+              left: w / 2 + dx * edge - p.size / 2,
+              top: h / 2 + dy * edge - p.size / 2,
+              width: p.round ? p.size : p.size * 0.6,
+              height: p.round ? p.size : p.size * 1.8,
+              background: p.color,
+            }}
+            initial={{ opacity: 0, x: 0, y: 0, rotate: 0 }}
+            animate={{
+              opacity: [0, 1, 1, 0],
+              x: dx * p.reach,
+              y: dy * p.reach,
+              rotate: p.spin,
+            }}
+            transition={{ duration: 1, delay: POP_AT + p.delay, ease: EASE_OUT }}
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 function KurlyHomepage({ step, live }: { step: number; live: boolean }) {
   const { ref, scale } = useFitScale(VIEW_W);
@@ -687,6 +746,22 @@ function KurlyHomepage({ step, live }: { step: number; live: boolean }) {
           )}
         </div>
 
+        {/* Specks burst from behind the card as it pops. */}
+        {card && (
+          <div
+            key={`specks-${focus}`}
+            className="pointer-events-none absolute z-[5]"
+            style={{
+              left: (CARD_X - CROP_X) * scale,
+              top: ((WINDOW_H - card.h) / 2) * scale,
+              width: CARD_W * scale,
+              height: card.h * scale,
+            }}
+          >
+            <JoyBurst w={CARD_W * scale} h={card.h * scale} />
+          </div>
+        )}
+
         {/* The campaign in focus, lifted out of the page: a copy laid exactly
             over it that grows past the window's edges, then settles back. */}
         {card && (
@@ -715,7 +790,7 @@ function KurlyHomepage({ step, live }: { step: number; live: boolean }) {
                 SHADOW_OFF,
               ],
             }}
-            transition={{ duration: STOP_S, times: POP_TIMES, ease: "easeInOut" }}
+            transition={{ duration: STOP_S, times: POP_TIMES, ease: [...POP_EASE] }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
             <img
