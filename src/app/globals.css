@@ -17,6 +17,8 @@
  *                             Curation's 06 Employee Interview)
  *   --color-automatable    -> blue outline, the steps that could be automated
  *                             (same chart)
+ *   --color-pass           -> green, the one that passed a check (AI
+ *                             Curation's 09 blind test); outlines and marks only
  */
 @theme {
   --color-paper: #ffffff;
@@ -33,6 +35,7 @@
   --color-alert: #d1242f;
   --color-slow: #C85252;
   --color-automatable: #4672b9;
+  --color-pass: #1f883d;
 
   --font-display: "Aspekta", sans-serif;
   --font-aspekta: "Aspekta", sans-serif;

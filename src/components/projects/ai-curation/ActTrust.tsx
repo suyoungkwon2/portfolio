@@ -1217,117 +1217,235 @@ export function Copilot() {
 /* 09 Internal Evaluation                                              */
 /* ------------------------------------------------------------------ */
 
-const { matcha, snack, yearend } = PRODUCTS;
-// Shown as List 1 and List 2; which model made which stays hidden until the
-// reader picks. Model B drifts off theme.
-const BLIND = [
+const { yearend } = PRODUCTS;
+
+// 09's first check on two of its 10 themes, one plain and one that needs
+// reasoning. A is our algorithm (its picks from the test); B stands in for the
+// Vertex agent with a few of Kurly's keyword-search results for the same
+// phrase, which ignores what a theme leaves out; the two overlap, as they did.
+type Pick = { no: number; name: string; breaks?: boolean };
+const BLIND: { kind: string; theme: string; ruled?: string; a: Pick[]; b: Pick[] }[] = [
   {
-    list: "List 1",
-    model: "Model B",
-    who: "Google Cloud Vertex agent",
-    products: [matcha[0], snack[4], matcha[5], yearend[3], matcha[4]],
+    kind: "Plain theme",
+    theme: "A cute home café",
+    a: [
+      { no: 5116361, name: "[Osulloc] Strawberry Green Tea Cake" },
+      { no: 5065874, name: "[Fritz] Seal Cupping Mug" },
+      { no: 1000052839, name: "[Coffee Bean] Choco Mousse Cake" },
+      { no: 5040751, name: "[Blue Bottle] Mug" },
+      { no: 1000093702, name: "[Bread & Co] Earl Grey Cake" },
+    ],
+    b: [
+      { no: 5040751, name: "[Blue Bottle] Mug" },
+      { no: 1000490315, name: "[Teavine] Low-Sugar Home Café Syrup" },
+      { no: 1000093702, name: "[Bread & Co] Earl Grey Cake" },
+      { no: 1000370038, name: "[Home Moment] Café Mugs" },
+      { no: 5116361, name: "[Osulloc] Strawberry Green Tea Cake" },
+    ],
   },
   {
-    list: "List 2",
-    model: "Model A",
-    who: "our own algorithm built on GPT-4o",
-    products: [matcha[2], matcha[3], matcha[0], snack[3], matcha[1]],
+    kind: "Needs reasoning",
+    theme: "Beer snacks, but no chicken",
+    ruled: "chicken",
+    a: [
+      { no: 5031956, name: "Spicy Squid Tempura" },
+      { no: 1000353959, name: "Fried Smelt" },
+      { no: 5119405, name: "Squid & Peanuts Platter" },
+      { no: 1000168269, name: "Seasoned Dried Squid" },
+      { no: 5042999, name: "Perilla Leaf Tempura" },
+    ],
+    b: [
+      { no: 1000353959, name: "Fried Smelt" },
+      { no: 1000308975, name: "Boneless Sweet Crispy Chicken", breaks: true },
+      { no: 1001530446, name: "Air-Fryer Squid Tempura" },
+      { no: 1000168269, name: "Seasoned Dried Squid" },
+      { no: 1000608637, name: "Boneless BBQ Chicken", breaks: true },
+    ],
   },
 ];
+const LISTS = [
+  { key: "a", list: "Model A", model: "Our algorithm" },
+  { key: "b", list: "Model B", model: "Vertex AI agent" },
+] as const;
+// Where each list sits on wide screens: row r (after the header), column c.
+const CELL = [
+  ["md:[grid-area:2/2]", "md:[grid-area:2/3]"],
+  ["md:[grid-area:3/2]", "md:[grid-area:3/3]"],
+];
+const CONDITIONS = [
+  "56 people, including the CEO, MD lead, and marketing lead",
+  "10 themes",
+  "Blind: only Model A and Model B",
+];
 
-function BlindPick() {
-  const [pick, setPick] = useState<number | null>(null);
-  const revealed = pick !== null;
+function PickTiles({ picks, flag }: { picks: Pick[]; flag: boolean }) {
   return (
-    <div className="flex flex-col gap-5">
-      <p className="font-display text-lg font-medium text-ink md:text-xl">
-        Which list would you publish?
-      </p>
-      <div role="group" aria-label="Pick a list" className="grid gap-4 md:grid-cols-2">
-        {BLIND.map((b, i) => {
-          const picked = pick === i;
-          const winner = b.model === "Model A";
-          return (
-            <button
-              key={b.list}
-              type="button"
-              aria-pressed={picked}
-              onClick={() => setPick(i)}
+    <ul className="grid grid-cols-5 gap-2">
+      {picks.map((p) => (
+        <li key={p.no} className="relative">
+          <span
+            className={cn(
+              "block aspect-square overflow-hidden rounded-lg bg-[#f4f1ea] ring-offset-2 ring-offset-paper transition-shadow duration-500",
+              flag && p.breaks && "ring-2 ring-alert",
+            )}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+            <img
+              src={`/images/ai-curation/products/kurly-${p.no}.webp`}
+              alt={p.name}
+              loading="lazy"
+              className="size-full object-cover"
+            />
+          </span>
+          {p.breaks && (
+            <span
+              aria-hidden
               className={cn(
-                "flex flex-col gap-3 rounded-2xl border bg-paper p-4 text-left transition-[border-color,box-shadow] duration-300",
-                picked ? "border-accent ring-2 ring-accent" : "border-line hover:border-accent",
-                focusRing,
+                "absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-alert text-[11px] font-bold text-paper transition-[opacity,scale] duration-300",
+                flag ? "scale-100 opacity-100" : "scale-50 opacity-0",
               )}
             >
-              <span className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-ink">{b.list}</span>
-                <span className="relative h-6">
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.span
-                      key={revealed ? "model" : "pick"}
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.25 }}
-                      className={cn(
-                        "inline-block rounded-full px-2.5 py-1 text-xs font-semibold",
-                        !revealed && "bg-paper-2 text-ink-muted",
-                        revealed && winner && "bg-accent text-paper",
-                        revealed && !winner && "bg-paper-2 text-ink",
-                      )}
-                    >
-                      {revealed ? b.model : "Publish this one"}
-                    </motion.span>
-                  </AnimatePresence>
-                </span>
-              </span>
-              <span className="text-xs text-ink-muted">
-                {MATCHA.emoji} {MATCHA.title}
-              </span>
-              <span className="grid grid-cols-5 gap-1.5">
-                {b.products.map((p) => (
-                  <ProductImage key={p.id} product={p} />
-                ))}
-              </span>
-              <span
-                className={cn(
-                  "text-xs text-ink-muted transition-opacity duration-300",
-                  revealed ? "opacity-100" : "opacity-0",
-                )}
-              >
-                {b.model}: {b.who}
-                {picked && " · Your pick"}
-              </span>
-            </button>
-          );
-        })}
+              ✕
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// Two beats: the lists as the voters saw them, A and B; then who made which,
+// what B got wrong, and the result.
+function BlindTest({ revealed }: { revealed: boolean }) {
+  const still = useStill();
+  const fade = still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT };
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4">
+        <SubHeading>1 · Which AI? A blind test</SubHeading>
+        <Body className="max-w-[48rem]">
+          To choose the model, I tested whether <B>our own algorithm</B>, built around how MDs
+          curate, beats a general-purpose AI, <B>Google Cloud’s Vertex AI agent</B>.
+        </Body>
+        <ul aria-label="Test conditions" className="flex flex-wrap gap-2">
+          {CONDITIONS.map((c) => (
+            <li key={c} className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink">
+              {c}
+            </li>
+          ))}
+        </ul>
       </div>
-      <p aria-live="polite" className="min-h-6 font-display text-lg font-medium text-ink">
-        {revealed && "Kurly employees picked Model A 68% of the time."}
-      </p>
-      <DataNote>Illustrative data.</DataNote>
+
+      <div className="grid gap-x-8 gap-y-6 md:grid-cols-[10rem_1fr_1fr]">
+        {/* The pick: Model A's column gets a box and a check. */}
+        <motion.span
+          aria-hidden
+          initial={false}
+          animate={revealed ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
+          transition={fade}
+          className="pointer-events-none relative -mx-4 -my-3 hidden rounded-2xl border-2 border-pass md:block md:[grid-area:1/2/4/3]"
+        >
+          <span className="absolute -right-3 -top-3 grid size-6 place-items-center rounded-full bg-pass text-[13px] font-bold text-paper">
+            ✓
+          </span>
+        </motion.span>
+        {LISTS.map((l, c) => (
+          <p
+            key={l.key}
+            className={cn(
+              "hidden text-sm font-semibold md:block",
+              c === 0 ? "md:[grid-area:1/2]" : "md:[grid-area:1/3]",
+            )}
+          >
+            <span className={cn(revealed && l.key === "a" ? "text-pass" : "text-ink")}>
+              {l.list}
+            </span>
+            <motion.span
+              initial={false}
+              animate={{ opacity: revealed ? 1 : 0 }}
+              transition={fade}
+              className="font-normal text-ink-muted"
+            >
+              {" "}
+              · {l.model}
+            </motion.span>
+          </p>
+        ))}
+        {BLIND.map((t, r) => (
+          <div key={t.theme} className="contents">
+            <div
+              className={cn(
+                "flex flex-col gap-1 md:pt-2",
+                r === 0 ? "md:[grid-area:2/1]" : "md:[grid-area:3/1]",
+              )}
+            >
+              <span className="text-xs text-ink-muted">{t.kind}</span>
+              <span className="font-display text-lg font-medium leading-snug text-ink">
+                “{t.theme}”
+              </span>
+            </div>
+            {LISTS.map((l, c) => (
+              <div key={l.key} className={cn("flex flex-col gap-2", CELL[r][c])}>
+                <span className="text-xs font-semibold text-ink md:hidden">
+                  {l.list}
+                  {revealed && ` · ${l.model}`}
+                </span>
+                <PickTiles picks={t[l.key]} flag={revealed} />
+                {t.ruled && l.key === "b" && (
+                  <motion.span
+                    initial={false}
+                    animate={{ opacity: revealed ? 1 : 0 }}
+                    transition={fade}
+                    className="text-xs font-medium text-alert"
+                  >
+                    {t[l.key].filter((p) => p.breaks).length} of 5 are {t.ruled}
+                  </motion.span>
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={false}
+        animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+        transition={fade}
+        className="flex max-w-[48rem] flex-col gap-2"
+      >
+        <p className="font-display text-xl font-medium text-ink md:text-2xl">
+          Our algorithm won 68% of 56 votes.
+        </p>
+        <p className="text-base leading-relaxed text-ink-muted">
+          On plain themes the two were close. On themes that needed reasoning, ours won{" "}
+          <B>77%</B>: keyword search can’t tell what a theme leaves out or puts first.
+        </p>
+        <DataNote>
+          A’s picks are from the test. B is illustrative: Kurly’s keyword search for the same
+          theme.
+        </DataNote>
+      </motion.div>
     </div>
   );
 }
 
-// 21 campaigns, each the mean of three experts' 1–10 scores (so in thirds).
-// Only the average is real; the spread is staged to land on it.
+// 21 campaigns, each the mean of three experts' scores (so in thirds). Real:
+// the 8.95 average, most at 10, and one 0 for a theme that returned no
+// products. The rest of the spread is staged to land on the average.
 const SCORES = [
+  0,
   ...Array(1).fill(22),
-  ...Array(2).fill(24),
-  ...Array(2).fill(25),
+  ...Array(1).fill(23),
   ...Array(3).fill(26),
-  ...Array(4).fill(27),
-  ...Array(5).fill(28),
-  ...Array(2).fill(29),
-  ...Array(2).fill(30),
+  ...Array(3).fill(27),
+  ...Array(12).fill(30),
 ].map((thirds: number) => thirds / 3);
 const MEAN = 8.95;
 const AXIS_W = 640;
 const AXIS_X0 = 20;
-const unitX = (v: number) => AXIS_X0 + ((v - 1) / 9) * (AXIS_W - AXIS_X0 * 2);
-const DOT_R = 7;
-const AXIS_Y = 120;
+const unitX = (v: number) => AXIS_X0 + (v / 10) * (AXIS_W - AXIS_X0 * 2);
+const DOT_R = 6;
+const AXIS_Y = 190;
 
 function ScoreDots() {
   const still = useStill();
@@ -1347,7 +1465,7 @@ function ScoreDots() {
         ref={ref}
         viewBox={`0 0 ${AXIS_W} ${AXIS_Y + 34}`}
         role="img"
-        aria-label="21 test campaigns scored from 1 to 10 by an expert panel, most between 8 and 10. The average is 8.95."
+        aria-label="21 test campaigns scored out of 10 by an expert panel. Most scored 10; one scored 0 because it returned no products. The average is 8.95."
         className="w-full max-w-[640px]"
       >
         <line
@@ -1357,23 +1475,23 @@ function ScoreDots() {
           y2={AXIS_Y}
           stroke="var(--color-line)"
         />
-        {Array.from({ length: 10 }, (_, k) => (
+        {Array.from({ length: 11 }, (_, k) => (
           <g key={k}>
             <line
-              x1={unitX(k + 1)}
-              x2={unitX(k + 1)}
+              x1={unitX(k)}
+              x2={unitX(k)}
               y1={AXIS_Y}
               y2={AXIS_Y + 5}
               stroke="var(--color-ink-muted)"
             />
             <text
-              x={unitX(k + 1)}
+              x={unitX(k)}
               y={AXIS_Y + 20}
               textAnchor="middle"
               fontSize={12}
               fill="var(--color-ink-muted)"
             >
-              {k + 1}
+              {k}
             </text>
           </g>
         ))}
@@ -1382,7 +1500,7 @@ function ScoreDots() {
             key={d.i}
             cx={d.x}
             r={DOT_R}
-            fill="var(--color-accent)"
+            fill={d.v === 0 ? "var(--color-alert)" : "var(--color-accent)"}
             fillOpacity={0.85}
             initial={still ? false : { cy: -20, opacity: 0 }}
             animate={on ? { cy: d.y, opacity: 1 } : { cy: -20, opacity: 0 }}
@@ -1419,6 +1537,15 @@ function ScoreDots() {
           >
             8.95
           </text>
+          {/* The one 0: a theme that came back empty. */}
+          <text
+            x={unitX(0) + DOT_R + 6}
+            y={AXIS_Y - DOT_R + 2}
+            fontSize={12}
+            fill="var(--color-alert)"
+          >
+            No products found
+          </text>
         </motion.g>
       </svg>
       <figcaption>
@@ -1435,44 +1562,44 @@ export function Evaluation() {
       label="09 Internal Evaluation"
       className="border-t border-line pt-24 md:pt-32"
     >
-      <div className={cn(wrap, "flex flex-col gap-20")}>
-        <div className="flex flex-col gap-6">
-          <SectionHeader
-            label="09 INTERNAL EVALUATION"
-            headline="Earning the MDs’ Trust, One Test at a Time"
-          />
-          <Body className="max-w-[48rem]">
-            Before asking customers to see AI picks, I needed proof that the people who know
-            curation best trusted them. I ran two checks.
-          </Body>
-        </div>
-
-        <section className="flex flex-col gap-8">
-          <div className="flex flex-col gap-4">
-            <SubHeading>1 · Which AI? A blind test</SubHeading>
-            <Body className="max-w-[48rem]">
-              Two models curated the same 10 themes: <B>Model A</B>, our own algorithm built on
-              GPT-4o, and <B>Model B</B>, a Google Cloud Vertex agent. People from C-level,
-              marketing, MD, and data teams picked the better list without knowing which was which.{" "}
-              <B>Model A won 68% of 56 votes</B>, and <B>77%</B> on themes that needed more
-              reasoning.
-            </Body>
-          </div>
-          <BlindPick />
-        </section>
-
-        <section className="grid items-center gap-10 md:grid-cols-[1fr_1.2fr] md:gap-14">
-          <div className="flex flex-col gap-4">
-            <SubHeading>2 · Would experts ship it?</SubHeading>
-            <Body>
-              An expert panel, a PM, the MD lead, and the marketing lead, scored{" "}
-              <B>21 test campaigns</B> from 1 to 10. The average was <B>8.95 / 10</B>, with high
-              satisfaction across most themes.
-            </Body>
-          </div>
-          <ScoreDots />
-        </section>
+      <div className={cn(wrap, "flex flex-col gap-6")}>
+        <SectionHeader
+          label="09 INTERNAL EVALUATION"
+          headline="Earning the MDs’ Trust, One Test at a Time"
+        />
+        <Body className="max-w-[48rem]">
+          Before asking customers to see AI picks, I needed proof that the people who know
+          curation best trusted them. I ran two checks.
+        </Body>
       </div>
+
+      {/* Each check holds for its own scroll. */}
+      <StickyScene steps={3} vh={60} label="Blind test: our algorithm or Vertex AI">
+        {({ step, live }) => (
+          <div className={cn(wrap, "w-full")}>
+            <BlindTest revealed={!live || step >= 1} />
+          </div>
+        )}
+      </StickyScene>
+
+      <StickyScene steps={2} vh={60} label="Expert panel scores">
+        {() => (
+          <div className={cn(wrap, "w-full")}>
+            <section className="grid items-center gap-10 md:grid-cols-[1fr_1.2fr] md:gap-14">
+              <div className="flex flex-col gap-4">
+                <SubHeading>2 · Would experts ship it?</SubHeading>
+                <Body>
+                  An expert panel, a PM, the MD lead, and the marketing lead, scored{" "}
+                  <B>21 test campaigns</B> out of 10. Most got a 10. The average was{" "}
+                  <B>8.95 / 10</B> only because one theme returned no products and scored 0; the
+                  other 20 averaged <B>9.4</B>.
+                </Body>
+              </div>
+              <ScoreDots />
+            </section>
+          </div>
+        )}
+      </StickyScene>
 
       <Kicker>The experts trusted it. Now the question was whether customers would. ↓</Kicker>
     </Chapter>

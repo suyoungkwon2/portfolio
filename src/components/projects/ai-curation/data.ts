@@ -88,7 +88,7 @@ export const PRODUCTS = {
 export type Theme = { emoji: string; title: string; products: Product[] };
 
 // The page's hero object is MATCHA: it's typed in the hero, searched in 08,
-// judged in 09, added to the sheet in 12 and goes live on the homepage.
+// added to the sheet in 12 and goes live on the homepage.
 export const MATCHA: Theme = {
   emoji: "🍵",
   title: "Matcha Core: Trending Now",

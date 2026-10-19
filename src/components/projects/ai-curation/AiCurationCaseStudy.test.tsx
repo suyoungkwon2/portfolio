@@ -60,19 +60,14 @@ describe("AiCurationCaseStudy", () => {
     expect(within(copilot).getByText("No products match.")).toBeInTheDocument();
   });
 
-  it("reveals the models after a blind pick", () => {
+  it("sets the blind test's two models side by side on a plain and a reasoning theme", () => {
     render(<AiCurationCaseStudy />);
     const evaluation = document.getElementById("evaluation")!;
-    const lists = within(evaluation).getAllByRole("button", { pressed: false });
-    fireEvent.click(lists[1]);
-
-    expect(lists[1]).toHaveAttribute("aria-pressed", "true");
-    expect(
-      within(evaluation).getByText("Kurly employees picked Model A 68% of the time."),
-    ).toBeInTheDocument();
-    expect(
-      within(evaluation).getByText("Model A: our own algorithm built on GPT-4o · Your pick"),
-    ).toBeInTheDocument();
+    expect(within(evaluation).getByText("“A cute home café”")).toBeInTheDocument();
+    expect(within(evaluation).getByText("“Beer snacks, but no chicken”")).toBeInTheDocument();
+    expect(within(evaluation).getByAltText("Spicy Squid Tempura")).toBeInTheDocument();
+    expect(within(evaluation).getByAltText("Boneless BBQ Chicken")).toBeInTheDocument();
+    expect(within(evaluation).getByText("Our algorithm won 68% of 56 votes.")).toBeInTheDocument();
   });
 
   it("answers “Can you tell?” once a campaign is picked", () => {
