@@ -11,7 +11,7 @@ import {
 import { ArrowDown, ChevronDown, Download, Megaphone, MessageSquare } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, Reveal, StickyScene, useStill } from "../story/motion";
+import { EASE_OUT, Reveal, StickyScene, scrollToStep, useStill } from "../story/motion";
 import {
   B,
   Body,
@@ -191,30 +191,35 @@ const GUIDE: { spots: Spot[]; title: string; body: string }[] = [
   },
 ];
 
-function GuideSteps({ step }: { step: number | null }) {
+function GuideSteps({ step, goTo }: { step: number | null; goTo: (i: number) => void }) {
   return (
     <ol className="flex flex-col gap-4">
       {GUIDE.map((g, i) => (
-        <li
-          key={g.title}
-          aria-current={step === i ? "step" : undefined}
-          className={cn(
-            "flex gap-3 transition-opacity duration-300",
-            step !== null && step !== i && "opacity-35",
-          )}
-        >
-          <span
+        <li key={g.title}>
+          <button
+            type="button"
+            aria-current={step === i ? "step" : undefined}
+            disabled={step === null}
+            onClick={() => goTo(i)}
             className={cn(
-              "grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold",
-              step === i ? "bg-accent text-paper" : "bg-paper-2 text-ink",
+              "flex gap-3 rounded-md text-left transition-opacity duration-300 hover:opacity-100",
+              step !== null && step !== i && "opacity-35",
+              focusRing,
             )}
           >
-            {i + 1}
-          </span>
-          <span className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-ink">{g.title}</span>
-            <span className="text-xs leading-relaxed text-ink-muted">{g.body}</span>
-          </span>
+            <span
+              className={cn(
+                "grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold",
+                step === i ? "bg-accent text-paper" : "bg-paper-2 text-ink",
+              )}
+            >
+              {i + 1}
+            </span>
+            <span className="flex flex-col gap-1">
+              <span className="text-sm font-medium text-ink">{g.title}</span>
+              <span className="text-xs leading-relaxed text-ink-muted">{g.body}</span>
+            </span>
+          </button>
         </li>
       ))}
     </ol>
@@ -238,37 +243,68 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
   const [formNote, setFormNote] = useState(false);
   const table = useRef<HTMLDivElement>(null);
   const idle = useMotionValue(0);
-  // Guided, the theme starts empty and is typed in on scroll.
-  const [typed, setTyped] = useState(guide ? 0 : MATCHA.title.length);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.4 });
+  const onScreen = useInView(ref, { amount: 0.5 });
 
-  // Guided: page scroll types the theme (step 1), runs down the results
-  // (step 3), then across their columns (step 4).
+  // Guided, step 1 types the theme in by itself once the app is on screen,
+  // again each time the walkthrough comes back to it.
+  const typing = guide?.step === 0 && !still;
+  const [typed, setTyped] = useState(0);
+  useEffect(() => {
+    let i = 0;
+    let timer = setTimeout(() => setTyped(0), 0);
+    if (!typing || !onScreen) return () => clearTimeout(timer);
+    const tick = () => {
+      i += 1;
+      setTyped(i);
+      if (i < MATCHA.title.length) timer = setTimeout(tick, 70);
+    };
+    timer = setTimeout(tick, 400);
+    return () => clearTimeout(timer);
+  }, [typing, onScreen]);
+  const theme = typing ? MATCHA.title.slice(0, typed) : MATCHA.title;
+
+  // Guided: page scroll runs down the results (step 3), then across their
+  // columns (step 4).
   useMotionValueEvent(guide?.progress ?? idle, "change", (v) => {
     if (!guide) return;
     const at = v * GUIDE.length;
     const step = Math.min(GUIDE.length - 1, Math.floor(at));
     const local = Math.min(1, Math.max(0, at - step));
     const ease = (from: number) => Math.min(1, Math.max(0, (local - from) / (0.9 - from)));
-    setTyped(step === 0 ? Math.round(ease(0.05) * MATCHA.title.length) : MATCHA.title.length);
     const el = table.current;
     if (!el) return;
     el.scrollTop =
       step < 2 ? 0 : (step === 2 ? ease(0.35) : 1) * (el.scrollHeight - el.clientHeight);
     el.scrollLeft = step < 3 ? 0 : (step === 3 ? ease(0.1) : 1) * (el.scrollWidth - el.clientWidth);
   });
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.4 });
-
-  // Guided, it runs when the walkthrough reaches Search; otherwise once by
-  // itself the first time it's on screen. Search runs it again.
-  if (run === 0 && (guide ? guide.step >= 2 : inView)) setRun(1);
+  // Guided, it runs when the walkthrough reaches Search and the results stay
+  // empty before it, unless Search is pressed there; otherwise once by itself
+  // the first time it's on screen. Search runs it again.
+  const [pressed, setPressed] = useState(false);
+  const [lastStep, setLastStep] = useState(guide?.step);
+  if (guide?.step !== lastStep) {
+    setLastStep(guide?.step);
+    setPressed(false);
+  }
+  const waiting = guide !== undefined && guide.step < 2 && !pressed;
+  if (waiting && run !== 0) {
+    setRun(0);
+    setRevealed(0);
+  }
+  if (run === 0 && (guide ? !waiting : inView)) setRun(1);
   const focus = guide ? GUIDE[guide.step].spots : null;
-  const spot = (k: Spot | "other") =>
+  // `fill` draws the ring inside the box it fills, edge to edge.
+  const spot = (k: Spot | "other", fill = false) =>
     cn(
       "transition-opacity duration-300",
       focus &&
         (focus.includes(k as Spot)
-          ? "rounded-lg ring-2 ring-accent ring-offset-4 ring-offset-paper"
+          ? cn(
+              "rounded-lg ring-2 ring-accent",
+              fill ? "ring-inset" : "ring-offset-4 ring-offset-paper",
+            )
           : "opacity-25"),
     );
   useEffect(() => {
@@ -301,8 +337,8 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
       (words.length === 0 ||
         words.some((w) => `${r.name} ${r.supplier}`.toLowerCase().includes(w))),
   ).slice(0, resultCount(scope, strict));
-  const shown = results.slice(0, revealed);
-  const done = revealed === Infinity;
+  const shown = waiting ? [] : results.slice(0, revealed);
+  const done = !waiting && revealed === Infinity;
   const canRate = run > 0 && done && rated === null;
 
   return (
@@ -312,12 +348,20 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              setPressed(true);
               setRun((n) => n + 1);
             }}
             aria-label="Search"
             className="flex flex-col gap-4 rounded-lg border border-line bg-paper p-3"
           >
-            <p className="text-sm font-semibold text-ink">Search</p>
+            <p
+              className={cn(
+                "text-sm font-semibold text-ink transition-opacity duration-300",
+                focus && !focus.includes("theme") && !focus.includes("settings") && "opacity-25",
+              )}
+            >
+              Search
+            </p>
             <div className={cn("flex flex-col gap-4", spot("other"))}>
               <Field label="Name *">
                 {(id) => (
@@ -342,19 +386,15 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                 )}
               </Field>
             </div>
-            <div className={spot("theme")}>
+            {/* Steps 1 and 2 light up the form's full width. */}
+            <div className={cn("-mx-3 -my-2 px-3 py-2", spot("theme", true))}>
               <Field label="Theme Subject *">
-                {(id) => (
-                  <input
-                    id={id}
-                    readOnly
-                    value={guide ? MATCHA.title.slice(0, typed) : MATCHA.title}
-                    className={cn(input, focusRing)}
-                  />
-                )}
+                {(id) => <input id={id} readOnly value={theme} className={cn(input, focusRing)} />}
               </Field>
             </div>
-            <div className={cn("flex flex-col gap-4", spot("settings"))}>
+            <div
+              className={cn("-mx-3 -my-2 flex flex-col gap-4 px-3 py-2", spot("settings", true))}
+            >
               <Field label="Mandatory Keywords">
                 {(id) => (
                   <input
@@ -450,7 +490,13 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
             <div className="flex flex-col gap-3 md:absolute md:inset-0">
               {/* Rating and export, between the app's header and its results. */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-line bg-paper px-3 py-2">
-                <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-2", spot("rate"))}>
+                {/* Steps 5 and 6 light up the bar's full height. */}
+                <div
+                  className={cn(
+                    "-my-2 -ml-3 flex flex-wrap items-center gap-x-3 gap-y-2 py-2 pl-3 pr-2",
+                    spot("rate", true),
+                  )}
+                >
                   <label htmlFor={rateId} className="text-xs font-medium text-ink">
                     Satisfaction
                   </label>
@@ -462,7 +508,7 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                     value={rating}
                     onChange={(e) => setRating(Number(e.target.value))}
                     aria-describedby={`${rateId}-hint`}
-                    className={cn("w-28 accent-accent", focusRing)}
+                    className={cn("w-24 accent-accent", focusRing)}
                   />
                   <span className="rounded border border-line bg-paper px-1.5 py-px text-xs tabular-nums text-ink">
                     {rating}
@@ -511,29 +557,30 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                     )}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  disabled={!done || results.length === 0}
-                  onClick={() =>
-                    downloadCsv(results, [
-                      ["Name", name],
-                      ["Position", position],
-                      ["Theme Subject", MATCHA.title],
-                      ["Mandatory Keywords", keywords],
-                      ["Search Scope", String(scope)],
-                      ["Validation Strictness", String(strict)],
-                      ["Category", picked.length ? `${site}: ${picked.join(", ")}` : site],
-                    ])
-                  }
-                  className={cn(
-                    "ml-auto flex h-7 items-center gap-1.5 rounded-md border border-line px-3 text-xs font-medium text-ink hover:bg-paper-2 disabled:opacity-35",
-                    focusRing,
-                    spot("csv"),
-                  )}
-                >
-                  <Download aria-hidden className="size-3.5" />
-                  CSV Download
-                </button>
+                <span className={cn("-my-2 -mr-3 ml-auto py-2 pl-2 pr-3", spot("csv", true))}>
+                  <button
+                    type="button"
+                    disabled={!done || results.length === 0}
+                    onClick={() =>
+                      downloadCsv(results, [
+                        ["Name", name],
+                        ["Position", position],
+                        ["Theme Subject", MATCHA.title],
+                        ["Mandatory Keywords", keywords],
+                        ["Search Scope", String(scope)],
+                        ["Validation Strictness", String(strict)],
+                        ["Category", picked.length ? `${site}: ${picked.join(", ")}` : site],
+                      ])
+                    }
+                    className={cn(
+                      "flex h-7 items-center gap-1.5 rounded-md border border-line px-3 text-xs font-medium text-ink hover:bg-paper-2 disabled:opacity-35",
+                      focusRing,
+                    )}
+                  >
+                    <Download aria-hidden className="size-3.5" />
+                    CSV Download
+                  </button>
+                </span>
               </div>
               <div
                 className={cn(
@@ -871,6 +918,11 @@ const GLANCE = [
 ];
 
 export function Copilot() {
+  const stage = useRef<HTMLDivElement>(null);
+  const goTo = (i: number) => {
+    const scene = stage.current?.firstElementChild;
+    if (scene instanceof HTMLElement) scrollToStep(scene, i, GUIDE.length);
+  };
   return (
     <Chapter
       id="copilot"
@@ -906,30 +958,32 @@ export function Copilot() {
       </div>
 
       {/* Pins on the Copilot; scrolling on runs down its results, then moves on. */}
-      <StickyScene steps={GUIDE.length} vh={70} label="Campaign Copilot, step by step">
-        {({ step, progress, live }) => (
-          <div
-            className={cn(
-              wrap,
-              "grid w-full gap-6 xl:grid-cols-[13rem_minmax(0,1fr)] xl:items-center xl:gap-10",
-            )}
-          >
-            <div className={cn(live && "hidden xl:block")}>
-              <GuideSteps step={live ? step : null} />
+      <div ref={stage}>
+        <StickyScene steps={GUIDE.length} vh={70} label="Campaign Copilot, step by step">
+          {({ step, progress, live }) => (
+            <div
+              className={cn(
+                wrap,
+                "grid w-full gap-6 xl:grid-cols-[13rem_minmax(0,1fr)] xl:items-center xl:gap-10",
+              )}
+            >
+              <div className={cn(live && "hidden xl:block")}>
+                <GuideSteps step={live ? step : null} goTo={goTo} />
+              </div>
+              {live && (
+                <p aria-live="polite" className="text-sm text-ink xl:hidden">
+                  <span className="font-semibold text-accent">{step + 1}.</span>{" "}
+                  {GUIDE[step].title}. <span className="text-ink-muted">{GUIDE[step].body}</span>
+                </p>
+              )}
+              {/* A touch smaller, so the whole app fits the pinned screen. */}
+              <Reveal className="md:[zoom:0.86]">
+                <CopilotDemo guide={live ? { step, progress } : undefined} />
+              </Reveal>
             </div>
-            {live && (
-              <p aria-live="polite" className="text-sm text-ink xl:hidden">
-                <span className="font-semibold text-accent">{step + 1}.</span> {GUIDE[step].title}.{" "}
-                <span className="text-ink-muted">{GUIDE[step].body}</span>
-              </p>
-            )}
-            {/* A touch smaller, so the whole app fits the pinned screen. */}
-            <Reveal className="md:[zoom:0.86]">
-              <CopilotDemo guide={live ? { step, progress } : undefined} />
-            </Reveal>
-          </div>
-        )}
-      </StickyScene>
+          )}
+        </StickyScene>
+      </div>
 
       <div className={cn(wrap, "mt-14 flex flex-col gap-14")}>
         <div className="flex flex-col gap-6">
