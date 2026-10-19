@@ -79,9 +79,11 @@ const branchClass = "ml-2 flex flex-col gap-px border-l border-line pl-1.5";
 // takes back control.
 let stopGlide: (() => void) | null = null;
 function glideTo(target: HTMLElement) {
-  stopGlide?.();
   const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
-  const end = target.getBoundingClientRect().top + window.scrollY - margin;
+  glideToY(target.getBoundingClientRect().top + window.scrollY - margin);
+}
+function glideToY(end: number) {
+  stopGlide?.();
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     window.scrollTo({ top: end, behavior: "instant" });
     return;
@@ -149,6 +151,13 @@ function TreeItem({
         <Link
           href={node.href}
           aria-current={marked ? "page" : undefined}
+          // The page you're on: back to its top, as the chapter links glide.
+          onClick={(e) => {
+            if (!marked) return;
+            e.preventDefault();
+            glideToY(0);
+            history.replaceState(null, "", location.pathname + location.search);
+          }}
           className={cn(
             "flex min-h-7 flex-1 items-center px-2 text-[13px] leading-snug tracking-[-0.005em] transition-colors",
             marked
