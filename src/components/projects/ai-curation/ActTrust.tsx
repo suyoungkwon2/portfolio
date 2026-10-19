@@ -1623,7 +1623,25 @@ export function Evaluation() {
         )}
       </StickyScene>
 
-      <Kicker>The experts trusted it. Now the question was whether customers would. ↓</Kicker>
+      {/* The handoff holds for a scroll: the second line is the turn. */}
+      <StickyScene steps={2} vh={60} label="On to customers">
+        {({ step, live }) => (
+          <div className={cn(wrap, "w-full")}>
+            <p className="text-center font-display text-[1.4rem] font-medium leading-snug tracking-tight text-ink md:text-[1.75rem]">
+              The algorithm held up, and the MDs trusted it.
+              <br />
+              <motion.span
+                initial={false}
+                animate={{ opacity: !live || step >= 1 ? 1 : 0 }}
+                transition={{ duration: 0.5, ease: EASE_OUT }}
+              >
+                Now it had to work for customers. ↓
+              </motion.span>
+            </p>
+          </div>
+        )}
+      </StickyScene>
+      <div className="pb-16 md:pb-24" />
     </Chapter>
   );
 }
