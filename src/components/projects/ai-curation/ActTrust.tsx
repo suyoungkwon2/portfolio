@@ -1040,6 +1040,67 @@ function TechTable({ play }: { play?: boolean }) {
   );
 }
 
+// The timeline comes in, then Features, then (on the next scroll, and never
+// before Features) Performance.
+function UpdatesScene({ step, live }: { step: number; live: boolean }) {
+  const still = useStill();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.3 });
+  const [featuresIn, setFeaturesIn] = useState(false);
+  useEffect(() => {
+    if (!inView) return;
+    const t = setTimeout(() => setFeaturesIn(true), live && !still ? 1100 : 0);
+    return () => clearTimeout(t);
+  }, [inView, live, still]);
+  const wantPerf = featuresIn && (!live || step >= 1);
+  const [perfIn, setPerfIn] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setPerfIn(wantPerf), wantPerf && live && !still ? 600 : 0);
+    return () => clearTimeout(t);
+  }, [wantPerf, live, still]);
+  return (
+    <div ref={ref} className={cn(wrap, "flex w-full flex-col gap-12")}>
+      <div className="grid items-end gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
+        <div className="flex flex-col gap-4">
+          <SubHeading>6 updates to make it MD-ready</SubHeading>
+          <Body>
+            MDs’ ratings, feedback, and follow-up interviews drove every update. I announced
+            each one and trained MDs on how to use it.
+          </Body>
+        </div>
+        <UpdateTimeline />
+      </div>
+      <div className="grid gap-12 md:grid-cols-2 md:gap-16">
+        <motion.div
+          initial={false}
+          animate={featuresIn ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+          transition={still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT }}
+          className="flex flex-col gap-5"
+        >
+          <SubSubHeading>Features</SubSubHeading>
+          <p className="text-sm leading-relaxed text-ink-muted">
+            New features that made MDs’ work easier and the results more satisfying.
+          </p>
+          <ul className="flex flex-col gap-5">
+            {KEY_UPDATES.map((u) => (
+              <li key={u.v} className="flex gap-4">
+                <span className="w-7 shrink-0 pt-0.5 text-xs font-semibold text-accent">
+                  {u.v}
+                </span>
+                <span className="flex flex-col gap-1">
+                  <span className="text-base font-medium text-ink">{u.title}</span>
+                  <span className="text-sm leading-relaxed text-ink-muted">{u.body}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+        <Performance shown={perfIn} hold={live} />
+      </div>
+    </div>
+  );
+}
+
 const GLANCE = [
   "Open to every employee",
   "6 updates in 8 weeks from MD feedback",
@@ -1146,43 +1207,7 @@ export function Copilot() {
 
       {/* Features first; Performance comes in on the next scroll. */}
       <StickyScene steps={3} vh={50} label="Six updates to the Copilot">
-        {({ step, live }) => (
-          <div className={cn(wrap, "flex w-full flex-col gap-12")}>
-            <div className="grid items-end gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
-              <div className="flex flex-col gap-4">
-                <SubHeading>6 updates to make it MD-ready</SubHeading>
-                <Body>
-                  MDs’ ratings, feedback, and follow-up interviews drove every update. I announced
-                  each one and trained MDs on how to use it.
-                </Body>
-              </div>
-              <UpdateTimeline />
-            </div>
-            <div className="grid gap-12 md:grid-cols-2 md:gap-16">
-              {/* Comes in once the timeline has. */}
-              <Reveal delay={1.1} className="flex flex-col gap-5">
-                <SubSubHeading>Features</SubSubHeading>
-                <p className="text-sm leading-relaxed text-ink-muted">
-                  New features that made MDs’ work easier and the results more satisfying.
-                </p>
-                <ul className="flex flex-col gap-5">
-                  {KEY_UPDATES.map((u) => (
-                    <li key={u.v} className="flex gap-4">
-                      <span className="w-7 shrink-0 pt-0.5 text-xs font-semibold text-accent">
-                        {u.v}
-                      </span>
-                      <span className="flex flex-col gap-1">
-                        <span className="text-base font-medium text-ink">{u.title}</span>
-                        <span className="text-sm leading-relaxed text-ink-muted">{u.body}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </Reveal>
-              <Performance shown={!live || step >= 1} hold={live} />
-            </div>
-          </div>
-        )}
+        {({ step, live }) => <UpdatesScene step={step} live={live} />}
       </StickyScene>
     </Chapter>
   );
@@ -1449,14 +1474,7 @@ export function Evaluation() {
         </section>
       </div>
 
-      <Kicker tight>The experts trusted it. Now the question was whether customers would. ↓</Kicker>
-      <ProgressBeat
-        from={0}
-        lit={2}
-        current={2}
-        label="The copilot passed internal evaluation; the A/B test is next"
-      />
-      <div className="pb-16 md:pb-24" />
+      <Kicker>The experts trusted it. Now the question was whether customers would. ↓</Kicker>
     </Chapter>
   );
 }
