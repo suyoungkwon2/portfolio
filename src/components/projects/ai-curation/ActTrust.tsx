@@ -1,19 +1,30 @@
 "use client";
 
 import {
+  animate,
   AnimatePresence,
   motion,
   useInView,
   useMotionValue,
   useMotionValueEvent,
-  useScroll,
-  useTransform,
   type MotionValue,
 } from "framer-motion";
-import { ArrowDown, ChevronDown, Download, Megaphone, MessageSquare } from "lucide-react";
+import {
+  ArrowDown,
+  ChevronDown,
+  Download,
+  Megaphone,
+  MessageSquare,
+} from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, Reveal, StickyScene, scrollToStep, useStill } from "../story/motion";
+import {
+  EASE_OUT,
+  Reveal,
+  StickyScene,
+  scrollToStep,
+  useStill,
+} from "../story/motion";
 import {
   B,
   Body,
@@ -63,7 +74,10 @@ const ROW_S = 0.06;
 const resultCount = (scope: number, strict: number) =>
   Math.max(
     3,
-    Math.min(COPILOT_RESULTS.length, Math.round((scope * 3) / 8) + 1 - Math.floor(strict / 7)),
+    Math.min(
+      COPILOT_RESULTS.length,
+      Math.round((scope * 3) / 8) + 1 - Math.floor(strict / 7),
+    ),
   );
 
 function Slider({
@@ -106,7 +120,13 @@ function Slider({
   );
 }
 
-function Field({ label, children }: { label: string; children: (id: string) => React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: (id: string) => React.ReactNode;
+}) {
   const id = useId();
   return (
     <div className="flex flex-col gap-1.5">
@@ -135,11 +155,16 @@ const COLUMNS: { label: string; value: (r: Row) => string; num?: boolean }[] = [
     value: (r) => ((r.listPrice - priceOf(r)) / r.listPrice).toFixed(3),
     num: true,
   },
-  { label: "Weekly sales", value: (r) => r.sales.toLocaleString("en-US"), num: true },
+  {
+    label: "Weekly sales",
+    value: (r) => r.sales.toLocaleString("en-US"),
+    num: true,
+  },
   { label: "Deal GMV", value: (r) => won(r.sales * priceOf(r)), num: true },
   {
     label: "Content GMV",
-    value: (r) => won(Math.round((r.sales * priceOf(r) * r.contentDeals) / 100) * 100),
+    value: (r) =>
+      won(Math.round((r.sales * priceOf(r) * r.contentDeals) / 100) * 100),
     num: true,
   },
   { label: "Stock", value: (r) => r.stock.toLocaleString("en-US"), num: true },
@@ -151,7 +176,8 @@ const COLUMNS: { label: string; value: (r: Row) => string; num?: boolean }[] = [
   { label: "Content code", value: (r) => r.content },
 ];
 
-const csvCell = (s: string) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+const csvCell = (s: string) =>
+  /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 
 // The search and its results as a CSV. The BOM keeps Excel on Windows from
 // garbling it (Beta 1.1's fix).
@@ -177,19 +203,31 @@ const ROWS = COPILOT_RESULTS;
 // 08's walkthrough: one step per scroll, each spotlighting part of the app.
 type Spot = "theme" | "settings" | "search" | "results" | "csv" | "rate";
 const GUIDE: { spots: Spot[]; title: string; body: string }[] = [
-  { spots: ["theme"], title: "Type a theme", body: "The theme subject is all it needs." },
+  {
+    spots: ["theme"],
+    title: "Type a theme",
+    body: "The theme subject is all it needs.",
+  },
   {
     spots: ["settings"],
     title: "Tune the search",
     body: "Optional: must-have keywords, how widely to look, how strictly to judge, which categories.",
   },
-  { spots: ["search", "results"], title: "Search", body: "Products come in, top to bottom." },
+  {
+    spots: ["search", "results"],
+    title: "Search",
+    body: "Products come in, top to bottom.",
+  },
   {
     spots: ["results"],
     title: "Scroll for the details",
     body: "Price, discount, sales, stock, and codes for every product.",
   },
-  { spots: ["csv"], title: "Download the CSV", body: "Ready to register in Kurly’s systems." },
+  {
+    spots: ["csv"],
+    title: "Download the CSV",
+    body: "Ready to register in Kurly’s systems.",
+  },
   {
     spots: ["rate"],
     title: "Rate the results",
@@ -197,7 +235,13 @@ const GUIDE: { spots: Spot[]; title: string; body: string }[] = [
   },
 ];
 
-function GuideSteps({ step, goTo }: { step: number | null; goTo: (i: number) => void }) {
+function GuideSteps({
+  step,
+  goTo,
+}: {
+  step: number | null;
+  goTo: (i: number) => void;
+}) {
   return (
     <ol className="flex flex-col gap-4">
       {GUIDE.map((g, i) => (
@@ -223,7 +267,9 @@ function GuideSteps({ step, goTo }: { step: number | null; goTo: (i: number) => 
             </span>
             <span className="flex flex-col gap-1">
               <span className="text-sm font-medium text-ink">{g.title}</span>
-              <span className="text-xs leading-relaxed text-ink-muted">{g.body}</span>
+              <span className="text-xs leading-relaxed text-ink-muted">
+                {g.body}
+              </span>
             </span>
           </button>
         </li>
@@ -232,7 +278,11 @@ function GuideSteps({ step, goTo }: { step: number | null; goTo: (i: number) => 
   );
 }
 
-function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<number> } }) {
+function CopilotDemo({
+  guide,
+}: {
+  guide?: { step: number; progress: MotionValue<number> };
+}) {
   const still = useStill();
   const [name, setName] = useState("Suyoung Kwon");
   const [position, setPosition] = useState("PM");
@@ -240,7 +290,11 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
   const [strict, setStrict] = useState(10);
   const [keywords, setKeywords] = useState("");
   const [site, setSite] = useState<Site>("Market");
-  const [cats, setCats] = useState<Record<Site, string[]>>({ Market: [], Beauty: [], Now: [] });
+  const [cats, setCats] = useState<Record<Site, string[]>>({
+    Market: [],
+    Beauty: [],
+    Now: [],
+  });
   const [run, setRun] = useState(0);
   const [revealed, setRevealed] = useState(0);
   const [rating, setRating] = useState(5);
@@ -278,12 +332,18 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
     const at = v * GUIDE.length;
     const step = Math.min(GUIDE.length - 1, Math.floor(at));
     const local = Math.min(1, Math.max(0, at - step));
-    const ease = (from: number) => Math.min(1, Math.max(0, (local - from) / (0.9 - from)));
+    const ease = (from: number) =>
+      Math.min(1, Math.max(0, (local - from) / (0.9 - from)));
     const el = table.current;
     if (!el) return;
     el.scrollTop =
-      step < 2 ? 0 : (step === 2 ? ease(0.35) : 1) * (el.scrollHeight - el.clientHeight);
-    el.scrollLeft = step < 3 ? 0 : (step === 3 ? ease(0.1) : 1) * (el.scrollWidth - el.clientWidth);
+      step < 2
+        ? 0
+        : (step === 2 ? ease(0.35) : 1) * (el.scrollHeight - el.clientHeight);
+    el.scrollLeft =
+      step < 3
+        ? 0
+        : (step === 3 ? ease(0.1) : 1) * (el.scrollWidth - el.clientWidth);
   });
   // Guided, it runs when the walkthrough reaches Search and the results stay
   // empty before it, unless Search is pressed there; otherwise once by itself
@@ -323,7 +383,10 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
     timers.push(setTimeout(() => setRevealed(0), 0));
     timers.push(
       ...Array.from({ length: ROWS.length + 1 }, (_, i) =>
-        setTimeout(() => setRevealed(i === ROWS.length ? Infinity : i + 1), 400 + i * ROW_S * 1000),
+        setTimeout(
+          () => setRevealed(i === ROWS.length ? Infinity : i + 1),
+          400 + i * ROW_S * 1000,
+        ),
       ),
     );
     return () => timers.forEach(clearTimeout);
@@ -363,7 +426,10 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
             <p
               className={cn(
                 "text-sm font-semibold text-ink transition-opacity duration-300",
-                focus && !focus.includes("theme") && !focus.includes("settings") && "opacity-25",
+                focus &&
+                  !focus.includes("theme") &&
+                  !focus.includes("settings") &&
+                  "opacity-25",
               )}
             >
               Search
@@ -395,11 +461,21 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
             {/* Steps 1 and 2 light up the form's full width. */}
             <div className={cn("-mx-3 -my-2 px-3 py-2", spot("theme", true))}>
               <Field label="Theme Subject *">
-                {(id) => <input id={id} readOnly value={theme} className={cn(input, focusRing)} />}
+                {(id) => (
+                  <input
+                    id={id}
+                    readOnly
+                    value={theme}
+                    className={cn(input, focusRing)}
+                  />
+                )}
               </Field>
             </div>
             <div
-              className={cn("-mx-3 -my-2 flex flex-col gap-4 px-3 py-2", spot("settings", true))}
+              className={cn(
+                "-mx-3 -my-2 flex flex-col gap-4 px-3 py-2",
+                spot("settings", true),
+              )}
             >
               <Field label="Mandatory Keywords">
                 {(id) => (
@@ -429,9 +505,12 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                 onChange={setStrict}
               />
               <fieldset className="flex flex-col gap-2">
-                <legend className="pb-1 text-xs font-medium text-ink">Category</legend>
+                <legend className="pb-1 text-xs font-medium text-ink">
+                  Category
+                </legend>
                 <span className="text-[11px] text-ink-muted">
-                  Pick none to search all of {site === "Now" ? "Kurly Now" : site}.
+                  Pick none to search all of{" "}
+                  {site === "Now" ? "Kurly Now" : site}.
                 </span>
                 <div
                   role="radiogroup"
@@ -507,7 +586,10 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                     spot("rate", true),
                   )}
                 >
-                  <label htmlFor={rateId} className="text-xs font-medium text-ink">
+                  <label
+                    htmlFor={rateId}
+                    className="text-xs font-medium text-ink"
+                  >
                     Satisfaction
                   </label>
                   <input
@@ -567,7 +649,12 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                     )}
                   </span>
                 </div>
-                <span className={cn("-my-2 -mr-3 ml-auto py-2 pl-2 pr-3", spot("csv", true))}>
+                <span
+                  className={cn(
+                    "-my-2 -mr-3 ml-auto py-2 pl-2 pr-3",
+                    spot("csv", true),
+                  )}
+                >
                   <button
                     type="button"
                     disabled={!done || results.length === 0}
@@ -579,7 +666,12 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                         ["Mandatory Keywords", keywords],
                         ["Search Scope", String(scope)],
                         ["Validation Strictness", String(strict)],
-                        ["Category", picked.length ? `${site}: ${picked.join(", ")}` : site],
+                        [
+                          "Category",
+                          picked.length
+                            ? `${site}: ${picked.join(", ")}`
+                            : site,
+                        ],
                       ])
                     }
                     className={cn(
@@ -607,7 +699,10 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                   tabIndex={0}
                   role="region"
                   aria-label="Result table, scrolls sideways"
-                  className={cn("max-h-[28rem] overflow-auto md:max-h-none md:flex-1", focusRing)}
+                  className={cn(
+                    "max-h-[28rem] overflow-auto md:max-h-none md:flex-1",
+                    focusRing,
+                  )}
                 >
                   <table className="w-max min-w-full text-left text-xs">
                     <thead className="sticky top-0 z-20 bg-paper text-[11px] text-ink-muted">
@@ -648,7 +743,10 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                               className="sticky left-0 z-10 bg-paper px-3 py-1.5 font-normal shadow-[inset_-1px_0_0_var(--color-line)]"
                             >
                               <span className="flex w-[14.5rem] items-center gap-2.5">
-                                <ProductImage product={r} className="size-9 shrink-0 text-[10px]" />
+                                <ProductImage
+                                  product={r}
+                                  className="size-9 shrink-0 text-[10px]"
+                                />
                                 {/* Names linked to the Kurly product page (v2.3). */}
                                 <span className="leading-snug text-ink underline decoration-line underline-offset-2">
                                   {r.name}
@@ -673,9 +771,14 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                   </table>
                 </div>
                 {run > 0 && done && results.length === 0 && (
-                  <p className="px-3 py-6 text-center text-xs text-ink-muted">No products match.</p>
+                  <p className="px-3 py-6 text-center text-xs text-ink-muted">
+                    No products match.
+                  </p>
                 )}
-                <p aria-live="polite" className="mt-auto px-3 py-2 text-[11px] text-ink-muted">
+                <p
+                  aria-live="polite"
+                  className="mt-auto px-3 py-2 text-[11px] text-ink-muted"
+                >
                   {done
                     ? `${results.length} products found for “${MATCHA.title}”.`
                     : run > 0
@@ -688,7 +791,8 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
         </div>
       </GradioWindow>
       <DataNote>
-        A rebuild of the real Copilot. Illustrative data. Internal figures have been changed.
+        A rebuild of the real Copilot. Illustrative data. Internal figures have
+        been changed.
       </DataNote>
     </div>
   );
@@ -727,7 +831,8 @@ const ROUNDS = 3;
 function lines(label: string) {
   return label.split(" ").reduce<string[]>((out, word) => {
     const last = out[out.length - 1];
-    if (last && (last + " " + word).length <= 18) out[out.length - 1] = `${last} ${word}`;
+    if (last && (last + " " + word).length <= 18)
+      out[out.length - 1] = `${last} ${word}`;
     else out.push(word);
     return out;
   }, []);
@@ -777,7 +882,12 @@ function PipelineDots() {
             markerHeight="6"
             orient="auto"
           >
-            <path d="M1 1 9 5 1 9" fill="none" stroke="var(--color-ink-muted)" strokeWidth="1.5" />
+            <path
+              d="M1 1 9 5 1 9"
+              fill="none"
+              stroke="var(--color-ink-muted)"
+              strokeWidth="1.5"
+            />
           </marker>
         </defs>
         {PIPELINE.slice(0, -1).map((_, i) => (
@@ -825,7 +935,11 @@ function PipelineDots() {
                 rx={12}
                 fill={end ? "var(--color-accent)" : "var(--color-paper)"}
                 stroke={
-                  end ? "none" : KEY_NODES.includes(i) ? "var(--color-accent)" : "var(--color-line)"
+                  end
+                    ? "none"
+                    : KEY_NODES.includes(i)
+                      ? "var(--color-accent)"
+                      : "var(--color-line)"
                 }
               />
               <text
@@ -871,11 +985,14 @@ function PipelineDots() {
               className={cn(
                 "rounded-lg border px-3 py-1.5",
                 KEY_NODES.includes(i) ? "border-accent" : "border-line",
-                i === PIPELINE.length - 1 && "border-accent bg-accent text-paper",
+                i === PIPELINE.length - 1 &&
+                  "border-accent bg-accent text-paper",
               )}
             >
               {label}
-              {i === LOOP_NODE && <span className="ml-2 text-xs text-accent">× k</span>}
+              {i === LOOP_NODE && (
+                <span className="ml-2 text-xs text-accent">× k</span>
+              )}
             </span>
             {i < PIPELINE.length - 1 && (
               <ArrowDown aria-hidden className="ml-3 size-3.5 text-ink-muted" />
@@ -913,7 +1030,11 @@ function UpdateTimeline() {
           className="relative flex flex-col items-center gap-2"
         >
           <span className="grid size-9 place-items-center rounded-lg border border-line bg-paper shadow-sm">
-            <Megaphone aria-hidden className="size-4 text-ink-muted" strokeWidth={1.75} />
+            <Megaphone
+              aria-hidden
+              className="size-4 text-ink-muted"
+              strokeWidth={1.75}
+            />
           </span>
           <span className="text-xs font-semibold text-ink">{v}</span>
           <span className="size-[9px] rounded-full bg-accent ring-4 ring-paper" />
@@ -945,7 +1066,15 @@ const KEY_UPDATES = [
 // Fades in on the updates' second beat; its numbers count up once it's in.
 // While it counts, the page holds still so the numbers can land.
 const COUNT_MS = 400 + 1100;
-const SCROLL_KEYS = ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "];
+const SCROLL_KEYS = [
+  "ArrowDown",
+  "ArrowUp",
+  "PageDown",
+  "PageUp",
+  "Home",
+  "End",
+  " ",
+];
 
 function Performance({ shown, hold }: { shown: boolean; hold: boolean }) {
   const still = useStill();
@@ -1003,7 +1132,11 @@ const TECH: { metric: string; first: string; final: Num; from?: number }[] = [
     final: { value: 15, prefix: "~", suffix: " seconds" },
     from: 60,
   },
-  { metric: "Minimum conditions met", first: "Often missed", final: { value: 87, suffix: "%+" } },
+  {
+    metric: "Minimum conditions met",
+    first: "Often missed",
+    final: { value: 87, suffix: "%+" },
+  },
   {
     metric: "Cost per query",
     first: "~$0.50",
@@ -1031,10 +1164,15 @@ function TechTable({ play }: { play?: boolean }) {
       <tbody>
         {TECH.map((t) => (
           <tr key={t.metric} className="border-b border-line last:border-b-0">
-            <th scope="row" className="py-3 pr-4 text-base font-normal text-ink">
+            <th
+              scope="row"
+              className="py-3 pr-4 text-base font-normal text-ink"
+            >
               {t.metric}
             </th>
-            <td className="whitespace-nowrap py-3 pr-4 text-base text-ink-muted">{t.first}</td>
+            <td className="whitespace-nowrap py-3 pr-4 text-base text-ink-muted">
+              {t.first}
+            </td>
             <td className="whitespace-nowrap py-3 font-display text-xl font-medium tracking-tight text-accent md:text-2xl">
               <CountUp to={t.final} from={t.from} play={play} />
             </td>
@@ -1060,7 +1198,10 @@ function UpdatesScene({ step, live }: { step: number; live: boolean }) {
   const wantPerf = featuresIn && (!live || step >= 1);
   const [perfIn, setPerfIn] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setPerfIn(wantPerf), wantPerf && live && !still ? 600 : 0);
+    const t = setTimeout(
+      () => setPerfIn(wantPerf),
+      wantPerf && live && !still ? 600 : 0,
+    );
     return () => clearTimeout(t);
   }, [wantPerf, live, still]);
   return (
@@ -1069,8 +1210,8 @@ function UpdatesScene({ step, live }: { step: number; live: boolean }) {
         <div className="flex flex-col gap-4">
           <SubHeading>6 updates to make it MD-ready</SubHeading>
           <Body>
-            MDs’ ratings, feedback, and follow-up interviews drove every update. I announced each
-            one and trained MDs on how to use it.
+            MDs’ ratings, feedback, and follow-up interviews drove every update.
+            I announced each one and trained MDs on how to use it.
           </Body>
         </div>
         <UpdateTimeline />
@@ -1079,20 +1220,29 @@ function UpdatesScene({ step, live }: { step: number; live: boolean }) {
         <motion.div
           initial={false}
           animate={featuresIn ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT }}
+          transition={
+            still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT }
+          }
           className="flex flex-col gap-5"
         >
           <SubSubHeading>Features</SubSubHeading>
           <p className="text-sm leading-relaxed text-ink-muted">
-            New features that made MDs’ work easier and the results more satisfying.
+            New features that made MDs’ work easier and the results more
+            satisfying.
           </p>
           <ul className="flex flex-col gap-5">
             {KEY_UPDATES.map((u) => (
               <li key={u.v} className="flex gap-4">
-                <span className="w-7 shrink-0 pt-0.5 text-xs font-semibold text-accent">{u.v}</span>
+                <span className="w-7 shrink-0 pt-0.5 text-xs font-semibold text-accent">
+                  {u.v}
+                </span>
                 <span className="flex flex-col gap-1">
-                  <span className="text-base font-medium text-ink">{u.title}</span>
-                  <span className="text-sm leading-relaxed text-ink-muted">{u.body}</span>
+                  <span className="text-base font-medium text-ink">
+                    {u.title}
+                  </span>
+                  <span className="text-sm leading-relaxed text-ink-muted">
+                    {u.body}
+                  </span>
                 </span>
               </li>
             ))}
@@ -1123,27 +1273,35 @@ export function Copilot() {
       className="border-t border-line py-24 md:py-32"
     >
       <div className={cn(wrap, "flex flex-col gap-6")}>
-        <SectionHeader label="08 INTERNAL COPILOT" headline="A Copilot That Cuts Curation Time" />
+        <SectionHeader
+          label="08 INTERNAL COPILOT"
+          headline="A Copilot That Cuts Curation Time"
+        />
         <div className="flex max-w-[48rem] flex-col gap-3">
           <Body className="max-w-none">
-            I designed and delivered <B>Campaign Copilot</B>, an internal tool that supports how MDs
-            plan campaigns. Since only employees would use it, a custom front end wasn’t worth the
-            time, so I chose <B>Gradio</B> to ship it fast and clean. It had two goals:
+            I designed and delivered <B>Campaign Copilot</B>, an internal tool
+            that supports how MDs plan campaigns. Since only employees would use
+            it, a custom front end wasn’t worth the time, so I chose{" "}
+            <B>Gradio</B> to ship it fast and clean. It had two goals:
           </Body>
           <ol className="flex flex-col gap-2 text-base leading-relaxed text-ink-muted md:text-lg">
             <li>
-              1. <B>Cut the time spent finding and picking products.</B> It reads what a theme is
-              after, finds products that fit, and shows what MDs need to choose them in one view.
+              1. <B>Cut the time spent finding and picking products.</B> It
+              reads what a theme is after, finds products that fit, and shows
+              what MDs need to choose them in one view.
             </li>
             <li>
-              2. <B>Raise curation quality until MDs are satisfied with it.</B> Every search they
-              ran and rated showed us where the AI fell short.
+              2. <B>Raise curation quality until MDs are satisfied with it.</B>{" "}
+              Every search they ran and rated showed us where the AI fell short.
             </li>
           </ol>
         </div>
         <ul aria-label="At a glance" className="flex flex-wrap gap-2">
           {GLANCE.map((g) => (
-            <li key={g} className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink">
+            <li
+              key={g}
+              className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink"
+            >
               {g}
             </li>
           ))}
@@ -1152,7 +1310,11 @@ export function Copilot() {
 
       {/* Pins on the Copilot; scrolling on runs down its results, then moves on. */}
       <div ref={stage}>
-        <StickyScene steps={GUIDE.length} vh={70} label="Campaign Copilot, step by step">
+        <StickyScene
+          steps={GUIDE.length}
+          vh={70}
+          label="Campaign Copilot, step by step"
+        >
           {({ step, progress, live }) => (
             <div
               className={cn(
@@ -1165,8 +1327,9 @@ export function Copilot() {
               </div>
               {live && (
                 <p aria-live="polite" className="text-sm text-ink xl:hidden">
-                  <span className="font-semibold text-accent">{step + 1}.</span> {GUIDE[step].title}
-                  . <span className="text-ink-muted">{GUIDE[step].body}</span>
+                  <span className="font-semibold text-accent">{step + 1}.</span>{" "}
+                  {GUIDE[step].title}.{" "}
+                  <span className="text-ink-muted">{GUIDE[step].body}</span>
                 </p>
               )}
               {/* A touch smaller, so the whole app fits the pinned screen. */}
@@ -1186,7 +1349,8 @@ export function Copilot() {
               <SubHeading>How it works</SubHeading>
               <div className="flex max-w-[48rem] flex-col gap-3">
                 <Body className="max-w-none">
-                  From nothing but a short theme subject, the algorithm finds the products that fit.
+                  From nothing but a short theme subject, the algorithm finds
+                  the products that fit.
                   <br />
                   Three steps do most of the work:
                 </Body>
@@ -1195,7 +1359,8 @@ export function Copilot() {
                     1. <B>Refining the request</B> into what the theme is after
                   </li>
                   <li>
-                    2. <B>Generating candidate products and keywords</B> over several rounds
+                    2. <B>Generating candidate products and keywords</B> over
+                    several rounds
                   </li>
                   <li>
                     3. <B>Ranking</B> what comes back
@@ -1227,7 +1392,13 @@ const { yearend } = PRODUCTS;
 // Vertex agent with a few of Kurly's keyword-search results for the same
 // phrase, which ignores what a theme leaves out; the two overlap, as they did.
 type Pick = { no: number; name: string; breaks?: boolean };
-const BLIND: { kind: string; theme: string; ruled?: string; a: Pick[]; b: Pick[] }[] = [
+const BLIND: {
+  kind: string;
+  theme: string;
+  ruled?: string;
+  a: Pick[];
+  b: Pick[];
+}[] = [
   {
     kind: "Plain theme",
     theme: "A cute home café",
@@ -1327,12 +1498,16 @@ function BlindTest({ revealed }: { revealed: boolean }) {
       <div className="flex flex-col gap-5">
         <SubHeading>1 · Which AI? A blind test</SubHeading>
         <Body className="max-w-[48rem]">
-          To choose the model, I tested whether <B>our own algorithm</B>, built around how MDs
-          curate, beats a general-purpose AI, <B>Google Cloud’s Vertex AI agent</B>.
+          To choose the model, I tested whether <B>our own algorithm</B>, built
+          around how MDs curate, beats a general-purpose AI,{" "}
+          <B>Google Cloud’s Vertex AI agent</B>.
         </Body>
         <ul aria-label="Test conditions" className="flex flex-wrap gap-2">
           {CONDITIONS.map((c) => (
-            <li key={c} className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink">
+            <li
+              key={c}
+              className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink"
+            >
               {c}
             </li>
           ))}
@@ -1344,7 +1519,9 @@ function BlindTest({ revealed }: { revealed: boolean }) {
         <motion.span
           aria-hidden
           initial={false}
-          animate={revealed ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
+          animate={
+            revealed ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }
+          }
           transition={fade}
           className="pointer-events-none relative -mx-4 -my-4 hidden rounded-2xl border-2 border-pass md:block md:[grid-area:1/2/4/3]"
         >
@@ -1360,7 +1537,11 @@ function BlindTest({ revealed }: { revealed: boolean }) {
               c === 0 ? "md:[grid-area:1/2]" : "md:[grid-area:1/3]",
             )}
           >
-            <span className={cn(revealed && l.key === "a" ? "text-pass" : "text-ink")}>
+            <span
+              className={cn(
+                revealed && l.key === "a" ? "text-pass" : "text-ink",
+              )}
+            >
               {l.list}
             </span>
             <motion.span
@@ -1388,7 +1569,10 @@ function BlindTest({ revealed }: { revealed: boolean }) {
               </span>
             </div>
             {LISTS.map((l, c) => (
-              <div key={l.key} className={cn("flex flex-col gap-2", CELL[r][c])}>
+              <div
+                key={l.key}
+                className={cn("flex flex-col gap-2", CELL[r][c])}
+              >
                 <span className="text-xs font-semibold text-ink md:hidden">
                   {l.list}
                   {revealed && ` · ${l.model}`}
@@ -1420,11 +1604,13 @@ function BlindTest({ revealed }: { revealed: boolean }) {
           Our algorithm won 68% of 56 votes.
         </p>
         <p className="text-base leading-relaxed text-ink-muted">
-          On plain themes the two were close. On themes that needed reasoning, ours won <B>77%</B>:
-          keyword search can’t tell what a theme leaves out or puts first.
+          On plain themes the two were close. On themes that needed reasoning,
+          ours won <B>77%</B>: keyword search can’t tell what a theme leaves out
+          or puts first.
         </p>
         <DataNote>
-          A’s picks are from the test. B is illustrative: Kurly’s keyword search for the same theme.
+          A’s picks are from the test. B is illustrative: Kurly’s keyword search
+          for the same theme.
         </DataNote>
       </motion.div>
     </div>
@@ -1443,7 +1629,11 @@ const SCORES = [
   ...Array(12).fill(30),
 ].map((thirds: number) => thirds / 3);
 const MEAN = 8.95;
-const PANEL = ["A PM, the MD lead, and the marketing lead", "21 test campaigns", "Scored 0 to 10"];
+const PANEL = [
+  "A PM, the MD lead, and the marketing lead",
+  "21 test campaigns",
+  "Scored 0 to 10",
+];
 const PANEL_SCORES = [
   { value: "8.95", label: "Average score, out of 10" },
   { value: "9.4", label: "Without the one theme that returned no products" },
@@ -1464,7 +1654,12 @@ function ScoreDots() {
   const dots = SCORES.map((v, i) => {
     const level = seen.get(v) ?? 0;
     seen.set(v, level + 1);
-    return { v, i, x: unitX(v), y: AXIS_Y - DOT_R - 2 - level * (DOT_R * 2 + 2) };
+    return {
+      v,
+      i,
+      x: unitX(v),
+      y: AXIS_Y - DOT_R - 2 - level * (DOT_R * 2 + 2),
+    };
   });
   return (
     <figure className="flex flex-col gap-3">
@@ -1575,13 +1770,17 @@ export function Evaluation() {
           headline="Earning the MDs’ Trust, One Test at a Time"
         />
         <Body className="max-w-[48rem]">
-          Before asking customers to see AI picks, I needed proof that the people who know curation
-          best trusted them. I ran two checks.
+          Before asking customers to see AI picks, I needed proof that the
+          people who know curation best trusted them. I ran two checks.
         </Body>
       </div>
 
       {/* Each check holds for its own scroll. */}
-      <StickyScene steps={3} vh={60} label="Blind test: our algorithm or Vertex AI">
+      <StickyScene
+        steps={3}
+        vh={60}
+        label="Blind test: our algorithm or Vertex AI"
+      >
         {({ step, live }) => (
           <div className={cn(wrap, "w-full")}>
             <BlindTest revealed={!live || step >= 1} />
@@ -1597,12 +1796,18 @@ export function Evaluation() {
                 <div className="flex flex-col gap-5">
                   <SubHeading>2 · Would experts ship it?</SubHeading>
                   <Body>
-                    A homepage-wide A/B test was a big call, so first I ran one last subjective
-                    review with the leads.
+                    A homepage-wide A/B test was a big call, so first I ran one
+                    last subjective review with the leads.
                   </Body>
-                  <ul aria-label="Review conditions" className="flex flex-wrap gap-2">
+                  <ul
+                    aria-label="Review conditions"
+                    className="flex flex-wrap gap-2"
+                  >
                     {PANEL.map((c) => (
-                      <li key={c} className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink">
+                      <li
+                        key={c}
+                        className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink"
+                      >
                         {c}
                       </li>
                     ))}
@@ -1611,7 +1816,9 @@ export function Evaluation() {
                 <dl className="grid grid-cols-2 gap-6 border-t border-line pt-6">
                   {PANEL_SCORES.map((m) => (
                     <div key={m.label} className="flex flex-col gap-1">
-                      <dt className="order-2 text-sm leading-snug text-ink-muted">{m.label}</dt>
+                      <dt className="order-2 text-sm leading-snug text-ink-muted">
+                        {m.label}
+                      </dt>
                       <dd className="order-1 font-display text-[2rem] font-medium leading-none tracking-tight text-accent md:text-[2.5rem]">
                         {m.value}
                       </dd>
@@ -1653,16 +1860,25 @@ export function Evaluation() {
 /* ------------------------------------------------------------------ */
 
 const SETUP = [
-  ["Objective", "Validate AI curation quality before the final integration decision"],
+  [
+    "Objective",
+    "Validate AI curation quality before the final integration decision",
+  ],
   [
     "Hypothesis",
     <>
       AI-curated campaigns perform <B>as well as</B> MD-curated ones
     </>,
   ],
-  ["Method", "Same homepage slot, same theme; only who picked the products changed"],
+  [
+    "Method",
+    "Same homepage slot, same theme; only who picked the products changed",
+  ],
   ["Target", "24,278 users in A (MD) vs 24,455 in B (AI)"],
-  ["Conditions", "20 slots, at least 30 products per campaign, a new theme every day"],
+  [
+    "Conditions",
+    "20 slots, at least 30 products per campaign, a new theme every day",
+  ],
   ["Duration", "2 weeks"],
 ] as const;
 
@@ -1680,10 +1896,44 @@ const sale = (i: number): HomeItem => {
   return { id, src, name, price, ...SALE[i] };
 };
 
+// Two year-end picks only the AI made, as listed on Kurly.
+const AI_ONLY: HomeItem[] = [
+  {
+    id: "yearend-cake",
+    src: "/images/ai-curation/products/yearend-cake.webp",
+    name: "[Josun Deli] Josun Hotel Black Choco Cake, 800 g",
+    price: "₩40,000",
+    was: "₩42,000",
+    off: "4%",
+    reviews: "466",
+  },
+  {
+    id: "yearend-tiramisu",
+    src: "/images/ai-curation/products/yearend-tiramisu.webp",
+    name: "[Hart Tiramisu] Tiramisu, 5 Kinds (Pick 1)",
+    price: "₩24,000~",
+    was: "₩26,000",
+    off: "7%",
+    reviews: "999+",
+  },
+];
+
 // Same theme, two pickers: A, the control, is the MD's; B, the test, the AI's.
 const GROUPS = [
-  { label: "A", group: "Control", who: "Picked by an MD", ai: false, items: [0, 2, 3, 5, 1, 4] },
-  { label: "B", group: "Test", who: "Picked by AI", ai: true, items: [2, 4, 0, 1, 5, 3] },
+  {
+    label: "A",
+    group: "Control",
+    who: "Picked by an MD",
+    ai: false,
+    items: [0, 2, 3, 5, 1, 4].map(sale),
+  },
+  {
+    label: "B",
+    group: "Test",
+    who: "Picked by AI",
+    ai: true,
+    items: [AI_ONLY[0], sale(4), AI_ONLY[1], sale(0), sale(5), sale(3)],
+  },
 ];
 
 function GroupPhones({ scroll }: { scroll?: MotionValue<number> }) {
@@ -1707,7 +1957,7 @@ function GroupPhones({ scroll }: { scroll?: MotionValue<number> }) {
           <PhoneFrame>
             <CampaignPage
               title={`${YEAR_END.emoji} ${YEAR_END.title}`}
-              items={g.items.map(sale)}
+              items={g.items}
               total={64}
               scroll={scroll}
             />
@@ -1737,7 +1987,11 @@ function SlotMap({ lit }: { lit: boolean }) {
       className="flex w-full max-w-[300px] flex-col gap-2 rounded-2xl border border-line bg-paper p-3 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.18)]"
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- static export */}
-      <img src="/images/ai-curation/app/kurly-logo.svg" alt="" className="mx-1 mb-1 h-7 w-auto" />
+      <img
+        src="/images/ai-curation/app/kurly-logo.svg"
+        alt=""
+        className="mx-1 mb-1 h-7 w-auto"
+      />
       {HOMEPAGE.map((b) => (
         <span
           key={b.name}
@@ -1750,19 +2004,27 @@ function SlotMap({ lit }: { lit: boolean }) {
         </span>
       ))}
       <span className="flex flex-col gap-2.5 rounded-lg border border-[#d4a9ff] bg-[#f5ecff] p-3">
-        <span className="text-center text-sm font-semibold text-ink">Themed Campaigns</span>
+        <span className="text-center text-sm font-semibold text-ink">
+          Themed Campaigns
+        </span>
         <span className="grid grid-cols-5 gap-1.5">
           {Array.from({ length: SLOTS }, (_, i) => (
             <motion.span
               key={i}
               initial={false}
               animate={{ opacity: lit ? 1 : 0.25, scale: lit ? 1 : 0.85 }}
-              transition={still ? { duration: 0 } : { duration: 0.3, delay: 0.2 + i * 0.04 }}
+              transition={
+                still
+                  ? { duration: 0 }
+                  : { duration: 0.3, delay: 0.2 + i * 0.04 }
+              }
               className="h-5 rounded-[4px] bg-[#a35ee8]"
             />
           ))}
         </span>
-        <span className="text-center text-xs font-medium text-[#5f0080]">20 test slots</span>
+        <span className="text-center text-xs font-medium text-[#5f0080]">
+          20 test slots
+        </span>
       </span>
     </div>
   );
@@ -1770,30 +2032,19 @@ function SlotMap({ lit }: { lit: boolean }) {
 
 // All the campaigns the test ran, behind the phones. On the way in they
 // dissolve in, row by row from the top, in a scattered order; after that the
-// rows drift slowly with the scroll, every other one the other way.
+// rows glide on their own, every other one the other way.
 const WALL_ROWS = 7;
-// How far a row travels, in px, over the whole pass through the screen.
-const WALL_DRIFT = 240;
+// Seconds for a row to travel one full copy of itself.
+const WALL_LOOP = 90;
 // A fixed scatter (0 to 1) per chip, so every visit plays the same.
-const scatter = (r: number, i: number) => (((r * 31 + i * 17) * 7919) % 101) / 100;
+const scatter = (r: number, i: number) =>
+  (((r * 31 + i * 17) * 7919) % 101) / 100;
 
-function ThemeWall({
-  progress,
-  className,
-}: {
-  // Drives the drift when the wall is pinned (its own scroll position isn't).
-  progress?: MotionValue<number>;
-  className?: string;
-}) {
+function ThemeWall({ className }: { className?: string }) {
   const still = useStill();
   const ref = useRef<HTMLDivElement>(null);
   const seen = useInView(ref, { once: true, amount: 0.3 });
   const shown = still || seen;
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const drift = useTransform(progress ?? scrollYProgress, (v) =>
-    still ? 0 : (v - 0.5) * WALL_DRIFT,
-  );
-  const back = useTransform(drift, (x) => -x);
   const rows = Array.from({ length: WALL_ROWS }, (_, r) =>
     AB_TITLES.filter((_, i) => i % WALL_ROWS === r),
   );
@@ -1801,43 +2052,75 @@ function ThemeWall({
     <div
       ref={ref}
       aria-hidden
-      className={cn("flex flex-col gap-8", className)}
+      className={cn("flex flex-col gap-8 overflow-hidden", className)}
       style={{
-        maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+        maskImage:
+          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
       }}
     >
       {rows.map((row, r) => (
-        <div key={r} className="flex justify-center overflow-hidden">
-          <motion.ul style={{ x: r % 2 ? back : drift }} className="flex shrink-0 gap-2">
-            {row.map((t, i) => (
+        // Two copies back to back, so the loop never shows a seam.
+        <motion.ul
+          key={r}
+          initial={false}
+          animate={
+            still ? { x: 0 } : { x: r % 2 ? ["-50%", "0%"] : ["0%", "-50%"] }
+          }
+          transition={
+            still
+              ? { duration: 0 }
+              : { duration: WALL_LOOP, ease: "linear", repeat: Infinity }
+          }
+          className="flex w-max shrink-0"
+        >
+          {[0, 1].map((copy) =>
+            row.map((t, i) => (
               <motion.li
-                key={t}
+                key={`${copy}-${t}`}
                 initial={false}
                 animate={{ opacity: shown ? 1 : 0 }}
                 transition={
                   still
                     ? { duration: 0 }
-                    : { duration: 0.6, delay: r * 0.18 + scatter(r, i) * 0.7, ease: "easeOut" }
+                    : {
+                        duration: 0.6,
+                        delay: r * 0.18 + scatter(r, i) * 0.7,
+                        ease: "easeOut",
+                      }
                 }
-                className="shrink-0 whitespace-nowrap rounded-full border border-line bg-paper px-3.5 py-2 text-sm text-ink-muted"
+                className="mr-2 shrink-0 whitespace-nowrap rounded-full border border-line bg-paper px-3.5 py-2 text-sm text-ink-muted"
               >
                 {t}
               </motion.li>
-            ))}
-          </motion.ul>
-        </div>
+            )),
+          )}
+        </motion.ul>
       ))}
     </div>
   );
 }
 
-// 125 campaigns behind the two groups' phones; while pinned, the phones
-// scroll down their campaign pages.
-function GroupsScene({ progress }: { progress?: MotionValue<number> }) {
-  const idle = useMotionValue(0);
-  const scroll = useTransform(progress ?? idle, (v) => Math.min(1, Math.max(0, (v - 0.15) / 0.65)));
+// 125 campaigns behind the two groups' phones; once on screen, the phones
+// scroll down their campaign pages and back, on their own.
+function GroupsScene() {
+  const still = useStill();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.4 });
+  const scroll = useMotionValue(0);
+  useEffect(() => {
+    if (still || !inView) return;
+    const run = animate(scroll, [0, 1], {
+      duration: 4,
+      delay: 0.8,
+      ease: "easeInOut",
+      repeat: Infinity,
+      repeatType: "reverse",
+      repeatDelay: 1.2,
+    });
+    return () => run.stop();
+  }, [still, inView, scroll]);
   return (
-    <div className="flex w-full flex-col items-center gap-8">
+    <div ref={ref} className="flex w-full flex-col items-center gap-8">
       <div className={cn(wrap, "flex flex-col items-center gap-4 text-center")}>
         <SubHeading>
           <span className="text-accent">
@@ -1852,9 +2135,9 @@ function GroupsScene({ progress }: { progress?: MotionValue<number> }) {
         </Body>
       </div>
       <div className="relative w-full">
-        <ThemeWall progress={progress} className="absolute inset-x-0 top-1/2 -translate-y-1/2" />
+        <ThemeWall className="absolute inset-x-0 top-1/2 -translate-y-1/2" />
         <div className={cn(wrap, "relative")}>
-          <GroupPhones scroll={progress ? scroll : undefined} />
+          <GroupPhones scroll={scroll} />
         </div>
       </div>
       <DataNote>Illustrative example.</DataNote>
@@ -1886,7 +2169,10 @@ function TrustChip({ name, text }: { name: string; text: string }) {
         {name}
         <ChevronDown
           aria-hidden
-          className={cn("size-3.5 transition-transform duration-200", open && "rotate-180")}
+          className={cn(
+            "size-3.5 transition-transform duration-200",
+            open && "rotate-180",
+          )}
         />
       </button>
       <AnimatePresence initial={false}>
@@ -1947,12 +2233,19 @@ function ParityBars({
           className="flex flex-col items-center gap-3 text-center"
           aria-label={`${k.name}: MD-curated 100, AI-curated ${k.ai.toFixed(1)}, p = ${k.p}`}
         >
-          <div aria-hidden className="flex items-end gap-3" style={{ height: h + 28 }}>
+          <div
+            aria-hidden
+            className="flex items-end gap-3"
+            style={{ height: h + 28 }}
+          >
             {[
               { v: 100, ai: false },
               { v: k.ai, ai: true },
             ].map((bar) => (
-              <div key={String(bar.ai)} className="flex flex-col items-center gap-1.5">
+              <div
+                key={String(bar.ai)}
+                className="flex flex-col items-center gap-1.5"
+              >
                 <span
                   className={cn(
                     "font-display font-medium tabular-nums tracking-tight",
@@ -1985,7 +2278,12 @@ function ParityBars({
               </div>
             ))}
           </div>
-          <p className={cn("font-medium text-ink", small ? "text-xs" : "text-sm md:text-base")}>
+          <p
+            className={cn(
+              "font-medium text-ink",
+              small ? "text-xs" : "text-sm md:text-base",
+            )}
+          >
             {k.name}
           </p>
           <p className="text-xs text-ink-muted">p = {k.p}</p>
@@ -2022,18 +2320,30 @@ function SecondaryKpis() {
 
 export function AbTest() {
   return (
-    <Chapter id="ab-test" label="10 A/B Test" className="border-t border-line pt-24 md:pt-32">
+    <Chapter
+      id="ab-test"
+      label="10 A/B Test"
+      className="border-t border-line pt-24 md:pt-32"
+    >
       <div className={cn(wrap, "flex flex-col gap-10")}>
-        <SectionHeader label="10 A/B TEST" headline="Could Customers Tell the Difference?" />
+        <SectionHeader
+          label="10 A/B TEST"
+          headline="Could Customers Tell the Difference?"
+        />
         <Body className="max-w-[48rem]">
-          To decide whether AI could run the homepage, I <B>designed a 2-week A/B test</B> around
-          one question: would customers notice who did the picking?
+          To decide whether AI could run the homepage, I{" "}
+          <B>designed a 2-week A/B test</B> around one question: would customers
+          notice who did the picking?
         </Body>
         <TermList rows={SETUP} />
       </div>
 
       {/* Each holds for a scroll: the slots light up, then the phones scroll. */}
-      <StickyScene steps={2} vh={60} label="Where the test ran on Kurly’s homepage">
+      <StickyScene
+        steps={2}
+        vh={60}
+        label="Where the test ran on Kurly’s homepage"
+      >
         {({ step, live }) => (
           <div
             className={cn(
@@ -2047,10 +2357,12 @@ export function AbTest() {
             <div className="flex max-w-[26rem] flex-col gap-5">
               <SubHeading>Where it ran</SubHeading>
               <Body>
-                The test ran in the <B>20 themed-campaign slots</B> at the bottom of Kurly’s
-                homepage. Both groups saw the same slots and the same themes.
+                The test ran in the <B>20 themed-campaign slots</B> at the
+                bottom of Kurly’s homepage. Both groups saw the same slots and
+                the same themes.
                 <br />
-                Only the products changed: group A got the MD’s picks, group B got the AI’s.
+                Only the products changed: group A got the MD’s picks, group B
+                got the AI’s.
               </Body>
             </div>
           </div>
@@ -2058,7 +2370,7 @@ export function AbTest() {
       </StickyScene>
 
       <StickyScene steps={3} vh={70} label="Group A and group B, side by side">
-        {({ progress, live }) => <GroupsScene progress={live ? progress : undefined} />}
+        {() => <GroupsScene />}
       </StickyScene>
 
       <div className={cn(wrap, "flex flex-col gap-4 pt-16")}>
@@ -2105,7 +2417,8 @@ export function AbTest() {
                 •
               </span>
               <span>
-                AI campaigns used <B>fewer products but more diverse categories</B>, with similar
+                AI campaigns used{" "}
+                <B>fewer products but more diverse categories</B>, with similar
                 theme relevance.
               </span>
             </li>
@@ -2122,7 +2435,8 @@ export function AbTest() {
       </div>
 
       <Kicker tight>
-        A tie was the win. I took the results to the CEO and got approval to let AI run the slots.
+        A tie was the win. I took the results to the CEO and got approval to let
+        AI run the slots.
       </Kicker>
       <ProgressBeat
         from={2}
