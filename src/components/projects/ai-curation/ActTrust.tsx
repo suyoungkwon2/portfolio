@@ -24,6 +24,7 @@ import {
   PhoneFrame,
   SectionHeader,
   SubHeading,
+  SubSubHeading,
   TermList,
   wrap,
   type Num,
@@ -698,6 +699,8 @@ const PIPELINE = [
   "Final product list",
 ];
 const LOOP_NODE = 2;
+// Refine, generate, and rank do most of the work.
+const KEY_NODES = [1, 2, 4];
 const NODE_W = 124;
 const NODE_GAP = 26;
 const NODE_H = 66;
@@ -813,7 +816,7 @@ function PipelineDots() {
                 rx={12}
                 fill={end ? "var(--color-accent)" : "var(--color-paper)"}
                 stroke={
-                  end ? "none" : i === LOOP_NODE ? "var(--color-accent)" : "var(--color-line)"
+                  end ? "none" : KEY_NODES.includes(i) ? "var(--color-accent)" : "var(--color-line)"
                 }
               />
               <text
@@ -858,7 +861,7 @@ function PipelineDots() {
             <span
               className={cn(
                 "rounded-lg border px-3 py-1.5",
-                i === LOOP_NODE ? "border-accent" : "border-line",
+                KEY_NODES.includes(i) ? "border-accent" : "border-line",
                 i === PIPELINE.length - 1 && "border-accent bg-accent text-paper",
               )}
             >
@@ -872,7 +875,7 @@ function PipelineDots() {
         ))}
       </ol>
       <figcaption className="text-xs text-ink-muted">
-        Curation algorithm built by our ML engineer.
+        A simplified view of the curation algorithm our ML engineer built.
       </figcaption>
     </figure>
   );
@@ -882,32 +885,101 @@ function PipelineDots() {
 /* 08: six updates                                                     */
 /* ------------------------------------------------------------------ */
 
+// After the first release (Beta 1.0), from the user manual's version history.
+const UPDATES = ["1.1", "1.2", "2.0", "2.1", "2.2", "2.3"];
+
 function UpdateTimeline() {
   return (
     <ol
-      aria-label="Six Copilot updates, v1 to v6"
+      aria-label="Six Copilot updates, 1.1 to 2.3"
       className="relative flex items-end justify-between gap-2"
     >
-      <span aria-hidden className="absolute inset-x-4 bottom-[13px] h-px bg-line" />
-      {Array.from({ length: 6 }, (_, i) => (
+      {/* Runs through the dots' centers. */}
+      <span aria-hidden className="absolute inset-x-4 bottom-1 h-px bg-line" />
+      {UPDATES.map((v, i) => (
         <Reveal
           as="li"
-          key={i}
+          key={v}
           delay={i * 0.1}
           className="relative flex flex-col items-center gap-2"
         >
           <span className="grid size-9 place-items-center rounded-lg border border-line bg-paper shadow-sm">
             <Megaphone aria-hidden className="size-4 text-ink-muted" strokeWidth={1.75} />
           </span>
-          <span className="text-xs font-semibold text-ink">v{i + 1}</span>
+          <span className="text-xs font-semibold text-ink">{v}</span>
           <span className="size-[9px] rounded-full bg-accent ring-4 ring-paper" />
         </Reveal>
       ))}
-      <Reveal as="li" delay={0.7} className="relative flex flex-col items-center pb-0.5">
-        <ArrowDown aria-hidden className="size-5 text-accent" />
-        <span className="sr-only">On to the internal evaluation</span>
-      </Reveal>
     </ol>
+  );
+}
+
+// The updates that changed the most, each answering what MDs ran into.
+const KEY_UPDATES = [
+  {
+    v: "1.2",
+    title: "Categories shape the search",
+    body: "A picked category now guides the search, not just filters it.",
+  },
+  {
+    v: "2.0",
+    title: "Scope and strictness sliders",
+    body: "MDs choose how widely to look and how strictly to judge.",
+  },
+  {
+    v: "2.1",
+    title: "Brand search by keyword",
+    body: "Mandatory keywords match deal, content, and supplier names.",
+  },
+];
+
+// The first release against the last.
+const TECH: { metric: string; first: string; final: Num; from?: number }[] = [
+  {
+    metric: "Search speed",
+    first: "~1 minute",
+    final: { value: 15, prefix: "~", suffix: " seconds" },
+    from: 60,
+  },
+  { metric: "Minimum conditions met", first: "Often missed", final: { value: 87, suffix: "%+" } },
+  {
+    metric: "Cost per query",
+    first: "~$0.50",
+    final: { value: 0.07, decimals: 2, prefix: "under $" },
+    from: 0.5,
+  },
+];
+
+function TechTable({ play }: { play?: boolean }) {
+  return (
+    <table className="w-full text-left">
+      <thead>
+        <tr className="border-b border-line text-sm text-ink-muted">
+          <th scope="col" className="pb-3 font-medium">
+            Metric
+          </th>
+          <th scope="col" className="pb-3 font-medium">
+            First version
+          </th>
+          <th scope="col" className="pb-3 font-medium">
+            Final version
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {TECH.map((t) => (
+          <tr key={t.metric} className="border-b border-line last:border-b-0">
+            <th scope="row" className="py-3 pr-4 text-base font-normal text-ink">
+              {t.metric}
+            </th>
+            <td className="whitespace-nowrap py-3 pr-4 text-base text-ink-muted">{t.first}</td>
+            <td className="whitespace-nowrap py-3 font-display text-xl font-medium tracking-tight text-accent md:text-2xl">
+              <CountUp to={t.final} from={t.from} play={play} />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -985,23 +1057,65 @@ export function Copilot() {
         </StickyScene>
       </div>
 
-      <div className={cn(wrap, "mt-14 flex flex-col gap-14")}>
-        <div className="flex flex-col gap-6">
-          <SubHeading>How it works</SubHeading>
-          <PipelineDots />
-        </div>
-
-        <div className="grid items-end gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
-          <div className="flex flex-col gap-4">
-            <SubHeading>6 updates, one guide at a time</SubHeading>
-            <Body>
-              Every update came with an announcement and a short guide I wrote, so MDs always knew
-              what changed and how to use it.
-            </Body>
+      {/* How it works and the updates each hold for a scroll. */}
+      <StickyScene steps={2} vh={60} label="How the curation algorithm works">
+        {() => (
+          <div className={cn(wrap, "flex w-full flex-col gap-6")}>
+            <div className="flex flex-col gap-4">
+              <SubHeading>How it works</SubHeading>
+              <Body className="max-w-[48rem]">
+                From nothing but a short theme subject, the algorithm finds the products that fit.
+                Three steps do most of the work: <B>refining the request</B> into what the theme is
+                after, <B>generating candidate products and keywords</B> over several rounds, and{" "}
+                <B>ranking</B> what comes back.
+              </Body>
+            </div>
+            <PipelineDots />
           </div>
-          <UpdateTimeline />
-        </div>
-      </div>
+        )}
+      </StickyScene>
+
+      <StickyScene steps={2} vh={60} label="Six updates to the Copilot">
+        {({ step, live }) => (
+          <div className={cn(wrap, "flex w-full flex-col gap-12")}>
+            <div className="grid items-end gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
+              <div className="flex flex-col gap-4">
+                <SubHeading>6 updates to make it MD-ready</SubHeading>
+                <Body>
+                  MDs’ ratings, feedback, and follow-up interviews drove every update. I announced
+                  each one and trained MDs on how to use it.
+                </Body>
+              </div>
+              <UpdateTimeline />
+            </div>
+            <div className="grid gap-12 md:grid-cols-2 md:gap-16">
+              <div className="flex flex-col gap-5">
+                <SubSubHeading>Features</SubSubHeading>
+                <ul className="flex flex-col gap-5">
+                  {KEY_UPDATES.map((u) => (
+                    <li key={u.v} className="flex gap-4">
+                      <span className="w-7 shrink-0 pt-0.5 text-xs font-semibold text-accent">
+                        {u.v}
+                      </span>
+                      <span className="flex flex-col gap-1">
+                        <span className="text-base font-medium text-ink">{u.title}</span>
+                        <span className="text-sm leading-relaxed text-ink-muted">{u.body}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex flex-col gap-5">
+                <SubSubHeading>Performance</SubSubHeading>
+                <p className="text-sm leading-relaxed text-ink-muted">
+                  Not just features: searches got faster, more accurate, and cheaper too.
+                </p>
+                <TechTable play={!live || step >= 1} />
+              </div>
+            </div>
+          </div>
+        )}
+      </StickyScene>
     </Chapter>
   );
 }
@@ -1221,55 +1335,6 @@ function ScoreDots() {
   );
 }
 
-const TECH: { metric: string; first: string; final: Num; from?: number }[] = [
-  {
-    metric: "Search speed",
-    first: "~1 minute",
-    final: { value: 15, prefix: "~", suffix: " seconds" },
-    from: 60,
-  },
-  { metric: "Minimum conditions met", first: "Often missed", final: { value: 87, suffix: "%+" } },
-  {
-    metric: "Cost per query",
-    first: "~$0.50",
-    final: { value: 0.07, decimals: 2, prefix: "under $" },
-    from: 0.5,
-  },
-];
-
-function TechTable() {
-  return (
-    <table className="w-full text-left">
-      <thead>
-        <tr className="border-b border-line text-sm text-ink-muted">
-          <th scope="col" className="pb-3 font-medium">
-            Metric
-          </th>
-          <th scope="col" className="pb-3 font-medium">
-            First version
-          </th>
-          <th scope="col" className="pb-3 font-medium">
-            Final version
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {TECH.map((t) => (
-          <tr key={t.metric} className="border-b border-line last:border-b-0">
-            <th scope="row" className="py-4 pr-4 text-base font-normal text-ink md:text-lg">
-              {t.metric}
-            </th>
-            <td className="py-4 pr-4 text-base text-ink-muted md:text-lg">{t.first}</td>
-            <td className="py-4 font-display text-xl font-medium tracking-tight text-accent md:text-[1.75rem]">
-              <CountUp to={t.final} from={t.from} />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
 export function Evaluation() {
   return (
     <Chapter
@@ -1285,7 +1350,7 @@ export function Evaluation() {
           />
           <Body className="max-w-[48rem]">
             Before asking customers to see AI picks, I needed proof that the people who know
-            curation best trusted them. I ran three checks.
+            curation best trusted them. I ran two checks.
           </Body>
         </div>
 
@@ -1313,11 +1378,6 @@ export function Evaluation() {
             </Body>
           </div>
           <ScoreDots />
-        </section>
-
-        <section className="flex flex-col gap-8">
-          <SubHeading>3 · Faster, more accurate, cheaper</SubHeading>
-          <TechTable />
         </section>
       </div>
 
