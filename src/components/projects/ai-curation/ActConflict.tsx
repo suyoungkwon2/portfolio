@@ -129,7 +129,7 @@ export function HomePhone({
   variant: HomeVariant;
   day: number;
   scrolled?: boolean;
-  // Drawn over the screen (12's arriving campaign).
+  // Drawn over the screen (11's arriving campaign).
   children?: React.ReactNode;
 }) {
   const still = useStill();

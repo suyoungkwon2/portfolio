@@ -34,198 +34,11 @@ import { AFTER, BEFORE, DayBubble, DayTabs, HomePhone, LabelNote } from "./ActCo
 import { CHINESE, MATCHA, SNACK } from "./data";
 import { ProgressBeat, RoadmapGrid9 } from "./ui";
 
-// Act 5, Payoff: 11 Improvement · 12 Integration & Impact · 13 Reflection
-// (spec §5.12–5.14).
+// Act 5, Payoff: 11 Integration & Impact · 12 Reflection
+// (spec §5.13–5.14).
 
 /* ------------------------------------------------------------------ */
-/* 11 Improvement: VersionRace                                         */
-/* ------------------------------------------------------------------ */
-
-type Version = { name: string; change: string; all: number; critical: number; live?: boolean };
-const VERSIONS: Version[] = [
-  { name: "Start", change: "", all: 9.17, critical: 0.76 },
-  { name: "v1", change: "More verification passes", all: 8.72, critical: 0.64 },
-  { name: "v2", change: "Added new data types", all: 2.64, critical: 1.21, live: true },
-  { name: "v3", change: "v1 + v2 together", all: 4.08, critical: 1.56 },
-];
-const START = VERSIONS[0].all;
-// The bar's track runs to 10%.
-const TRACK = 10;
-const V3 = 3;
-// v3 dives below v2 before bouncing back up.
-const V3_DIP = 1.9;
-
-function RaceRow({ v, i, on, still }: { v: Version; i: number; on: boolean; still: boolean }) {
-  const pct = (x: number) => `${(x / TRACK) * 100}%`;
-  const width =
-    !on && i > 0
-      ? pct(START)
-      : i === V3 && !still
-        ? [pct(START), pct(V3_DIP), pct(v.all)]
-        : pct(v.all);
-  return (
-    <tr className="border-b border-line last:border-b-0">
-      <th scope="row" className="py-4 pr-4 text-left align-middle">
-        <span
-          className={cn(
-            "font-display text-lg font-medium md:text-xl",
-            v.live ? "text-accent" : "text-ink",
-          )}
-        >
-          {v.name}
-          {v.live && <span className="ml-1.5 text-base">✅</span>}
-        </span>
-      </th>
-      <td
-        className={cn(
-          "hidden whitespace-nowrap py-4 pr-6 align-middle text-base md:table-cell md:text-lg",
-          v.live ? "font-semibold text-ink" : "text-ink-muted",
-        )}
-      >
-        {v.change}
-      </td>
-      <td className="w-full py-4 pr-4 align-middle">
-        <span className="block h-7 w-full rounded-md bg-paper-2">
-          <motion.span
-            initial={false}
-            animate={{ width, opacity: on ? 1 : 0.35 }}
-            transition={
-              still
-                ? { duration: 0 }
-                : i === V3 && on
-                  ? { width: { duration: 1.6, times: [0, 0.5, 1], ease: ["easeIn", "backOut"] } }
-                  : { type: "spring", stiffness: 110, damping: 20 }
-            }
-            className={cn(
-              "block h-full rounded-md",
-              v.live ? "bg-accent" : i === 0 ? "bg-ink-muted/50" : "bg-ink-muted/30",
-            )}
-          />
-        </span>
-      </td>
-      <td className="py-4 pr-4 text-right align-middle font-display text-xl font-medium tabular-nums tracking-tight md:text-2xl">
-        <span className={cn(v.live ? "text-accent" : "text-ink", !on && "opacity-0")}>
-          <CountUp to={{ value: v.all, decimals: 2, suffix: "%" }} from={START} play={on} />
-        </span>
-      </td>
-      <td className="whitespace-nowrap py-4 text-right align-middle text-sm tabular-nums text-ink-muted">
-        <span className={cn("transition-opacity duration-300", !on && "opacity-0")}>
-          {v.critical.toFixed(2)}%
-        </span>
-      </td>
-    </tr>
-  );
-}
-
-function VersionRace({ shown, bubble }: { shown: number; bubble: boolean }) {
-  const still = useStill();
-  return (
-    <div className="relative flex flex-col gap-3">
-      <table className="w-full">
-        <caption className="sr-only">
-          Share of low-quality items by version: all levels, and critical.
-        </caption>
-        <thead>
-          <tr className="border-b border-line text-left text-sm text-ink-muted">
-            <th scope="col" className="pb-3 pr-4 font-medium">
-              Version
-            </th>
-            <th
-              scope="col"
-              className="hidden whitespace-nowrap pb-3 pr-6 font-medium md:table-cell"
-            >
-              What changed
-            </th>
-            <th scope="col" className="pb-3 pr-4 font-medium">
-              <span className="sr-only">Bar</span>
-            </th>
-            <th scope="col" className="pb-3 pr-4 text-right font-medium">
-              All levels
-            </th>
-            <th scope="col" className="pb-3 text-right font-medium">
-              Critical
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {VERSIONS.map((v, i) => (
-            <RaceRow key={v.name} v={v} i={i} on={i < shown} still={still} />
-          ))}
-        </tbody>
-      </table>
-      <div className="flex min-h-14 justify-end">
-        <AnimatePresence>
-          {bubble && (
-            <motion.div
-              initial={{ opacity: 0, y: 8, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4, ease: EASE_OUT, delay: still ? 0 : 1.2 }}
-            >
-              <ThoughtBubble emoji="🤔" text="Wait, why?" tail="none" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
-// Lands on the starting point; one version per scroll; then the call; a spare.
-const RACE_STEPS = VERSIONS.length + 2;
-
-export function Improvement() {
-  return (
-    <Chapter
-      id="improvement"
-      label="11 Improvement"
-      className="border-t border-line pt-24 md:pt-32"
-    >
-      <div className={cn(wrap, "flex flex-col gap-6")}>
-        <SectionHeader label="11 IMPROVEMENT" headline="Two Fixes, Combined, Made It Worse" />
-        <Body className="max-w-[48rem]">
-          The A/B test showed the top slots matter most, so before the full rollout I went after{" "}
-          <B>low-quality items</B>, products that didn’t really fit the theme. We graded them by
-          severity, and I set one goal: <B>lower the overall share of low-quality items</B>.
-        </Body>
-        <Body className="max-w-[48rem]">
-          Starting point: <B>9.17%</B> of items were low-quality at any level, and <B>0.76%</B> were
-          critical.
-        </Body>
-      </div>
-
-      <StickyScene steps={RACE_STEPS} vh={60} label="Low-quality items, version by version">
-        {({ step, live }) => {
-          const shown = live ? Math.min(step + 1, VERSIONS.length) : VERSIONS.length;
-          const decided = !live || step >= VERSIONS.length;
-          return (
-            <div className={cn(wrap, "flex w-full flex-col gap-6")}>
-              <VersionRace shown={shown} bubble={shown > V3 && !decided} />
-              <motion.div
-                initial={false}
-                animate={decided ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-                transition={{ duration: 0.5, ease: EASE_OUT }}
-                className="flex flex-col gap-4"
-              >
-                <p className="font-display text-[1.4rem] font-medium leading-snug tracking-tight text-ink md:text-[1.75rem]">
-                  The obvious move was to combine both fixes. <B>It made things worse.</B>
-                </p>
-                <Body className="max-w-[52rem]">
-                  Critical items were rare to begin with, so the bigger win was cutting low-quality
-                  items overall. <B>v2 alone brought them from 9.17% to 2.64%</B>, so v2 went live.
-                </Body>
-              </motion.div>
-            </div>
-          );
-        }}
-      </StickyScene>
-      <div className="pb-16 md:pb-24" />
-    </Chapter>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* 12 Integration & Impact: SheetToHome                                */
+/* 11 Integration & Impact: SheetToHome                                */
 /* ------------------------------------------------------------------ */
 
 const PRESS = [
@@ -234,7 +47,11 @@ const PRESS = [
     date: "Feb 2025",
     url: "https://economist.co.kr/article/view/ecn202502140048",
   },
-  { outlet: "Viva100", date: "Feb 2025", url: "https://www.viva100.com/article/20250216500401" },
+  {
+    outlet: "Viva100",
+    date: "Feb 2025",
+    url: "https://www.viva100.com/article/20250216500401",
+  },
 ];
 
 type SheetRow = { title: string; subtitle: string; start: string; end: string };
@@ -279,7 +96,10 @@ function TypedCells({
 }: {
   children: (cells: string[], typing: boolean) => React.ReactNode;
 }) {
-  const { typed, done } = useTypewriter(NEW_TEXT, { speed: 28, startDelay: 400 });
+  const { typed, done } = useTypewriter(NEW_TEXT, {
+    speed: 28,
+    startDelay: 400,
+  });
   return <>{children(typed.split("\t"), !done)}</>;
 }
 
@@ -384,7 +204,7 @@ function SentRow({ shown }: { shown: boolean }) {
 
 function IntegrationHeader() {
   return (
-    <SectionHeader label="12 INTEGRATION & IMPACT" headline="Name a Theme, Get a Live Campaign" />
+    <SectionHeader label="11 INTEGRATION & IMPACT" headline="Name a Theme, Get a Live Campaign" />
   );
 }
 
@@ -510,10 +330,16 @@ function SystemFlow() {
 }
 
 const IMPACT: { to?: Num; text?: string; extra?: string; label: string }[] = [
-  { to: { value: 25, suffix: "%" }, label: "of key homepage campaign slots run fully by AI" },
+  {
+    to: { value: 25, suffix: "%" },
+    label: "of key homepage campaign slots run fully by AI",
+  },
   { to: { value: 200, suffix: "+" }, label: "campaigns run by AI" },
   { to: { value: 2 }, extra: "days / week", label: "of MD time saved" },
-  { text: "On par", label: "with hand-picked campaigns, with more diverse categories" },
+  {
+    text: "On par",
+    label: "with hand-picked campaigns, with more diverse categories",
+  },
 ];
 
 export function IntegrationImpact() {
@@ -525,7 +351,7 @@ export function IntegrationImpact() {
   return (
     <Chapter
       id="integration-impact"
-      label="12 Integration & Impact"
+      label="11 Integration & Impact"
       className="border-t border-line pt-10 md:pt-0"
     >
       <div ref={stage}>
@@ -630,7 +456,7 @@ export function IntegrationImpact() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 13 Reflection                                                       */
+/* 12 Reflection                                                       */
 /* ------------------------------------------------------------------ */
 
 const LESSONS: Lesson[] = [
@@ -668,6 +494,6 @@ const LESSONS: Lesson[] = [
 
 export function Reflection() {
   return (
-    <Lessons id="reflection" label="13 REFLECTION" chapter="13 Reflection" lessons={LESSONS} />
+    <Lessons id="reflection" label="12 REFLECTION" chapter="12 Reflection" lessons={LESSONS} />
   );
 }

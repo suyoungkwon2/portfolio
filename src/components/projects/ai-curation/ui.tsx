@@ -147,7 +147,7 @@ function StatusBar() {
   );
 }
 
-// The homepage in 04 and 12, rebuilt from Kurly's app (Figma, 375 wide).
+// The homepage in 04 and 11, rebuilt from Kurly's app (Figma, 375 wide).
 // Everything is sized in design pixels and converted to cqw, so the screen
 // scales with the phone. The app bar and tab bar are exports; the campaign
 // rows are live, so products can sell out.
@@ -643,7 +643,7 @@ export function MessageCard({ quote, shown }: { quote: string; shown: boolean })
 /* ------------------------------------------------------------------ */
 
 // Nine projects toward a personalized homepage. In 07 only the first is
-// lit; in 12 it's done and the light spreads to the rest (`spread`).
+// lit; in 11 it's done and the light spreads to the rest (`spread`).
 export function RoadmapGrid9({ spread = false }: { spread?: boolean }) {
   const still = useStill();
   return (

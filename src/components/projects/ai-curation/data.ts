@@ -88,7 +88,7 @@ export const PRODUCTS = {
 export type Theme = { emoji: string; title: string; products: Product[] };
 
 // The page's hero object is MATCHA: it's typed in the hero, searched in 08,
-// added to the sheet in 12 and goes live on the homepage.
+// added to the sheet in 11 and goes live on the homepage.
 export const MATCHA: Theme = {
   emoji: "🍵",
   title: "Matcha Core: Trending Now",
@@ -561,7 +561,7 @@ export const COPILOT_RESULTS: CopilotRow[] = [
   ),
 ];
 
-// The homepage feed (04 and 12), after Kurly's app: each campaign is a
+// The homepage feed (04 and 11), after Kurly's app: each campaign is a
 // titled row of product cards.
 export type HomeItem = {
   id: string;

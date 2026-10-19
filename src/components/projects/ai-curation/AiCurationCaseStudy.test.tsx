@@ -20,9 +20,8 @@ describe("AiCurationCaseStudy", () => {
       "copilot:08 Internal Copilot",
       "evaluation:09 Internal Evaluation",
       "ab-test:10 A/B Test",
-      "improvement:11 Improvement",
-      "integration-impact:12 Integration & Impact",
-      "reflection:13 Reflection",
+      "integration-impact:11 Integration & Impact",
+      "reflection:12 Reflection",
     ]);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "AI Curation: Scaling Themed Campaigns",
