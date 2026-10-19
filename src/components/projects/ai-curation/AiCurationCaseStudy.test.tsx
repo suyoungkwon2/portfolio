@@ -29,19 +29,35 @@ describe("AiCurationCaseStudy", () => {
     );
   });
 
-  it("curates the matcha theme in the Copilot demo on Submit", async () => {
+  it("curates the matcha theme in the Copilot demo on Search", async () => {
     render(<AiCurationCaseStudy />);
     const copilot = document.getElementById("copilot")!;
-    expect(within(copilot).getByDisplayValue("Matcha Core: Trending Now")).toBeInTheDocument();
+    // The pinned walkthrough types the theme in on scroll; jsdom doesn't scroll.
+    expect(within(copilot).getByLabelText("Theme Subject *")).toBeInTheDocument();
+    expect(within(copilot).getByText("Type a theme")).toBeInTheDocument();
 
-    fireEvent.click(within(copilot).getByRole("button", { name: "Submit" }));
+    fireEvent.click(within(copilot).getByRole("button", { name: "Search" }));
     expect(
       await within(copilot).findByText(
-        "8 products found for “Matcha Core: Trending Now”.",
+        "30 products found for “Matcha Core: Trending Now”.",
         {},
-        { timeout: 3000 },
+        { timeout: 5000 },
       ),
     ).toBeInTheDocument();
+
+    fireEvent.click(within(copilot).getByRole("button", { name: "Submit satisfaction" }));
+    expect(
+      within(copilot).getByText("Thanks, Suyoung Kwon. Rated 5/10 for this search."),
+    ).toBeInTheDocument();
+    expect(within(copilot).getByRole("button", { name: "CSV Download" })).toBeEnabled();
+
+    // Kurly Now carries only some of them; Beauty has no matcha at all.
+    fireEvent.click(within(copilot).getByRole("radio", { name: "Now" }));
+    expect(
+      within(copilot).getByText("12 products found for “Matcha Core: Trending Now”."),
+    ).toBeInTheDocument();
+    fireEvent.click(within(copilot).getByRole("radio", { name: "Beauty" }));
+    expect(within(copilot).getByText("No products match.")).toBeInTheDocument();
   });
 
   it("reveals the models after a blind pick", () => {

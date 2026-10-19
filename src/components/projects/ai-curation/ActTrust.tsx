@@ -1,7 +1,14 @@
 "use client";
 
-import { AnimatePresence, motion, useInView } from "framer-motion";
-import { ArrowDown, ChevronDown, Megaphone } from "lucide-react";
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useMotionValue,
+  useMotionValueEvent,
+  type MotionValue,
+} from "framer-motion";
+import { ArrowDown, ChevronDown, Download, Megaphone, MessageSquare } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, Reveal, StickyScene, useStill } from "../story/motion";
@@ -21,7 +28,16 @@ import {
   wrap,
   type Num,
 } from "../story/ui";
-import { CATEGORIES, COPILOT_RESULTS, MATCHA, PRODUCTS, YEAR_END, type Category } from "./data";
+import {
+  COPILOT_RESULTS,
+  MATCHA,
+  PRODUCTS,
+  SITE_CATEGORIES,
+  SITES,
+  YEAR_END,
+  type CopilotRow,
+  type Site,
+} from "./data";
 import { CampaignScreen, ProductImage, ProgressBeat } from "./ui";
 
 // Act 4, Earn trust: 08 Internal Copilot · 09 Internal Evaluation ·
@@ -35,13 +51,13 @@ const focusRing =
 /* 08 Internal Copilot: CopilotDemo                                    */
 /* ------------------------------------------------------------------ */
 
-const ROW_S = 0.14;
+const ROW_S = 0.06;
 // Bigger scope finds more; stricter validation keeps fewer. Staged, not the
 // real ranking: the list is fixed and only its length reacts.
 const resultCount = (scope: number, strict: number) =>
   Math.max(
     3,
-    Math.min(COPILOT_RESULTS.length, Math.round(scope / 10) + 1 - Math.floor(strict / 7)),
+    Math.min(COPILOT_RESULTS.length, Math.round((scope * 3) / 8) + 1 - Math.floor(strict / 7)),
   );
 
 function Slider({
@@ -99,32 +115,173 @@ function Field({ label, children }: { label: string; children: (id: string) => R
 const input =
   "h-9 w-full rounded-lg border border-line bg-paper px-3 text-sm text-ink placeholder:text-ink-muted/60";
 
-function CopilotDemo() {
+// The result table, after the Copilot's real columns (user manual). One row
+// per content; the price is what customers pay today.
+type Row = CopilotRow;
+const won = (n: number) => `₩${n.toLocaleString("en-US")}`;
+const priceOf = (r: Row) => Number(r.price.replace(/\D/g, ""));
+const COLUMNS: { label: string; value: (r: Row) => string; num?: boolean }[] = [
+  { label: "Price", value: (r) => r.price, num: true },
+  { label: "List price", value: (r) => won(r.listPrice), num: true },
+  { label: "Discount", value: (r) => won(r.listPrice - priceOf(r)), num: true },
+  {
+    label: "Discount rate",
+    value: (r) => ((r.listPrice - priceOf(r)) / r.listPrice).toFixed(3),
+    num: true,
+  },
+  { label: "Weekly sales", value: (r) => r.sales.toLocaleString("en-US"), num: true },
+  { label: "Deal GMV", value: (r) => won(r.sales * priceOf(r)), num: true },
+  {
+    label: "Content GMV",
+    value: (r) => won(Math.round((r.sales * priceOf(r) * r.contentDeals) / 100) * 100),
+    num: true,
+  },
+  { label: "Stock", value: (r) => r.stock.toLocaleString("en-US"), num: true },
+  { label: "In campaign", value: (r) => r.campaign },
+  { label: "Supplier", value: (r) => r.supplier },
+  { label: "Release date", value: (r) => r.released },
+  { label: "Master code", value: (r) => r.master },
+  { label: "Deal code", value: (r) => r.deal },
+  { label: "Content code", value: (r) => r.content },
+];
+
+const csvCell = (s: string) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+
+// The search and its results as a CSV. The BOM keeps Excel on Windows from
+// garbling it (Beta 1.1's fix).
+function downloadCsv(rows: Row[], search: [string, string][]) {
+  const lines = [
+    ...search.map(([k, v]) => [k, v]),
+    [],
+    ["Product", ...COLUMNS.map((c) => c.label)],
+    ...rows.map((r) => [r.name, ...COLUMNS.map((c) => c.value(r))]),
+  ].map((cells) => cells.map(csvCell).join(","));
+  const url = URL.createObjectURL(
+    new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" }),
+  );
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "campaign-copilot-matcha.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+const ROWS = COPILOT_RESULTS;
+
+// 08's walkthrough: one step per scroll, each spotlighting part of the app.
+type Spot = "theme" | "settings" | "search" | "results" | "csv" | "rate";
+const GUIDE: { spots: Spot[]; title: string; body: string }[] = [
+  { spots: ["theme"], title: "Type a theme", body: "The theme subject is all it needs." },
+  {
+    spots: ["settings"],
+    title: "Tune the search",
+    body: "Optional: must-have keywords, how widely to look, how strictly to judge, which categories.",
+  },
+  { spots: ["search", "results"], title: "Search", body: "Products come in, top to bottom." },
+  {
+    spots: ["results"],
+    title: "Scroll for the details",
+    body: "Price, discount, sales, stock, and codes for every product.",
+  },
+  { spots: ["csv"], title: "Download the CSV", body: "Ready to register in Kurly’s systems." },
+  {
+    spots: ["rate"],
+    title: "Rate the results",
+    body: "Every score showed us where the AI fell short.",
+  },
+];
+
+function GuideSteps({ step }: { step: number | null }) {
+  return (
+    <ol className="flex flex-col gap-4">
+      {GUIDE.map((g, i) => (
+        <li
+          key={g.title}
+          aria-current={step === i ? "step" : undefined}
+          className={cn(
+            "flex gap-3 transition-opacity duration-300",
+            step !== null && step !== i && "opacity-35",
+          )}
+        >
+          <span
+            className={cn(
+              "grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold",
+              step === i ? "bg-accent text-paper" : "bg-paper-2 text-ink",
+            )}
+          >
+            {i + 1}
+          </span>
+          <span className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-ink">{g.title}</span>
+            <span className="text-xs leading-relaxed text-ink-muted">{g.body}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<number> } }) {
   const still = useStill();
+  const [name, setName] = useState("Suyoung Kwon");
+  const [position, setPosition] = useState("PM");
   const [scope, setScope] = useState(80);
   const [strict, setStrict] = useState(10);
   const [keywords, setKeywords] = useState("");
-  const [cats, setCats] = useState<Category[]>([...CATEGORIES]);
+  const [site, setSite] = useState<Site>("Market");
+  const [cats, setCats] = useState<Record<Site, string[]>>({ Market: [], Beauty: [], Now: [] });
   const [run, setRun] = useState(0);
   const [revealed, setRevealed] = useState(0);
+  const [rating, setRating] = useState(5);
+  const [rated, setRated] = useState<number | null>(null);
+  const rateId = useId();
+  const [formNote, setFormNote] = useState(false);
+  const table = useRef<HTMLDivElement>(null);
+  const idle = useMotionValue(0);
+  // Guided, the theme starts empty and is typed in on scroll.
+  const [typed, setTyped] = useState(guide ? 0 : MATCHA.title.length);
+
+  // Guided: page scroll types the theme (step 1), runs down the results
+  // (step 3), then across their columns (step 4).
+  useMotionValueEvent(guide?.progress ?? idle, "change", (v) => {
+    if (!guide) return;
+    const at = v * GUIDE.length;
+    const step = Math.min(GUIDE.length - 1, Math.floor(at));
+    const local = Math.min(1, Math.max(0, at - step));
+    const ease = (from: number) => Math.min(1, Math.max(0, (local - from) / (0.9 - from)));
+    setTyped(step === 0 ? Math.round(ease(0.05) * MATCHA.title.length) : MATCHA.title.length);
+    const el = table.current;
+    if (!el) return;
+    el.scrollTop =
+      step < 2 ? 0 : (step === 2 ? ease(0.35) : 1) * (el.scrollHeight - el.clientHeight);
+    el.scrollLeft = step < 3 ? 0 : (step === 3 ? ease(0.1) : 1) * (el.scrollWidth - el.clientWidth);
+  });
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.4 });
 
-  // It runs once by itself the first time it's on screen; Submit runs it again.
-  if (inView && run === 0) setRun(1);
+  // Guided, it runs when the walkthrough reaches Search; otherwise once by
+  // itself the first time it's on screen. Search runs it again.
+  if (run === 0 && (guide ? guide.step >= 2 : inView)) setRun(1);
+  const focus = guide ? GUIDE[guide.step].spots : null;
+  const spot = (k: Spot | "other") =>
+    cn(
+      "transition-opacity duration-300",
+      focus &&
+        (focus.includes(k as Spot)
+          ? "rounded-lg ring-2 ring-accent ring-offset-4 ring-offset-paper"
+          : "opacity-25"),
+    );
   useEffect(() => {
     if (run === 0) return;
+    const timers = [setTimeout(() => setRated(null), 0)];
     if (still) {
-      const t = setTimeout(() => setRevealed(Infinity), 0);
-      return () => clearTimeout(t);
+      timers.push(setTimeout(() => setRevealed(Infinity), 0));
+      return () => timers.forEach(clearTimeout);
     }
-    const timers = [setTimeout(() => setRevealed(0), 0)];
+    timers.push(setTimeout(() => setRevealed(0), 0));
     timers.push(
-      ...Array.from({ length: COPILOT_RESULTS.length + 1 }, (_, i) =>
-        setTimeout(
-          () => setRevealed(i === COPILOT_RESULTS.length ? Infinity : i + 1),
-          400 + i * ROW_S * 1000,
-        ),
+      ...Array.from({ length: ROWS.length + 1 }, (_, i) =>
+        setTimeout(() => setRevealed(i === ROWS.length ? Infinity : i + 1), 400 + i * ROW_S * 1000),
       ),
     );
     return () => timers.forEach(clearTimeout);
@@ -134,18 +291,24 @@ function CopilotDemo() {
     .split(/[,\s]+/)
     .map((w) => w.trim().toLowerCase())
     .filter(Boolean);
-  const results = COPILOT_RESULTS.filter(
-    (p) =>
-      cats.includes(p.category!) &&
-      (words.length === 0 || words.some((w) => p.name.toLowerCase().includes(w))),
+  // No sub-category picked means the whole site.
+  const picked = cats[site];
+  const results = ROWS.filter(
+    (r) =>
+      site !== "Beauty" &&
+      (site !== "Now" || r.now) &&
+      (picked.length === 0 || picked.includes(r.category)) &&
+      (words.length === 0 ||
+        words.some((w) => `${r.name} ${r.supplier}`.toLowerCase().includes(w))),
   ).slice(0, resultCount(scope, strict));
   const shown = results.slice(0, revealed);
   const done = revealed === Infinity;
+  const canRate = run > 0 && done && rated === null;
 
   return (
     <div ref={ref} className="flex flex-col gap-2">
-      <GradioWindow title="Campaign Copilot">
-        <div className="grid gap-3 md:grid-cols-[17rem_1fr]">
+      <GradioWindow title="🎁 Campaign Copilot">
+        <div className="grid gap-3 md:grid-cols-[17rem_minmax(0,1fr)]">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -155,120 +318,321 @@ function CopilotDemo() {
             className="flex flex-col gap-4 rounded-lg border border-line bg-paper p-3"
           >
             <p className="text-sm font-semibold text-ink">Search</p>
-            <Field label="Theme Subject *">
-              {(id) => (
-                <input id={id} readOnly value={MATCHA.title} className={cn(input, focusRing)} />
-              )}
-            </Field>
-            <Field label="Mandatory Keywords">
-              {(id) => (
-                <input
-                  id={id}
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                  placeholder="e.g. latte, ice cream"
-                  className={cn(input, focusRing)}
-                />
-              )}
-            </Field>
-            <Slider
-              label="Search Scope"
-              hint="How widely to look for products"
-              value={scope}
-              min={10}
-              max={100}
-              onChange={setScope}
-            />
-            <Slider
-              label="Validation Strictness"
-              hint="How strictly each product must fit the theme"
-              value={strict}
-              min={1}
-              max={20}
-              onChange={setStrict}
-            />
-            <fieldset className="flex flex-col gap-2">
-              <legend className="pb-2 text-xs font-medium text-ink">Category</legend>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                {CATEGORIES.map((c) => (
-                  <label key={c} className="flex items-center gap-2 text-xs text-ink">
-                    <input
-                      type="checkbox"
-                      checked={cats.includes(c)}
-                      onChange={(e) =>
-                        setCats((list) =>
-                          e.target.checked ? [...list, c] : list.filter((x) => x !== c),
-                        )
-                      }
-                      className={cn("size-3.5 accent-accent", focusRing)}
-                    />
-                    {c}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
+            <div className={cn("flex flex-col gap-4", spot("other"))}>
+              <Field label="Name *">
+                {(id) => (
+                  <input
+                    id={id}
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={cn(input, focusRing)}
+                  />
+                )}
+              </Field>
+              <Field label="Position">
+                {(id) => (
+                  <input
+                    id={id}
+                    value={position}
+                    onChange={(e) => setPosition(e.target.value)}
+                    placeholder="e.g. MD, Marketer"
+                    className={cn(input, focusRing)}
+                  />
+                )}
+              </Field>
+            </div>
+            <div className={spot("theme")}>
+              <Field label="Theme Subject *">
+                {(id) => (
+                  <input
+                    id={id}
+                    readOnly
+                    value={guide ? MATCHA.title.slice(0, typed) : MATCHA.title}
+                    className={cn(input, focusRing)}
+                  />
+                )}
+              </Field>
+            </div>
+            <div className={cn("flex flex-col gap-4", spot("settings"))}>
+              <Field label="Mandatory Keywords">
+                {(id) => (
+                  <input
+                    id={id}
+                    value={keywords}
+                    onChange={(e) => setKeywords(e.target.value)}
+                    placeholder="e.g. latte, Osulloc"
+                    className={cn(input, focusRing)}
+                  />
+                )}
+              </Field>
+              <Slider
+                label="Search Scope"
+                hint="How widely to look for products"
+                value={scope}
+                min={10}
+                max={100}
+                onChange={setScope}
+              />
+              <Slider
+                label="Validation Strictness"
+                hint="How strictly each product must fit the theme"
+                value={strict}
+                min={1}
+                max={20}
+                onChange={setStrict}
+              />
+              <fieldset className="flex flex-col gap-2">
+                <legend className="pb-1 text-xs font-medium text-ink">Category</legend>
+                <span className="text-[11px] text-ink-muted">
+                  Pick none to search all of {site === "Now" ? "Kurly Now" : site}.
+                </span>
+                <div
+                  role="radiogroup"
+                  aria-label="Site"
+                  className="flex rounded-lg bg-paper-2 p-0.5"
+                >
+                  {SITES.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      role="radio"
+                      aria-checked={site === s}
+                      onClick={() => setSite(s)}
+                      className={cn(
+                        "flex-1 rounded-md py-1 text-xs font-medium transition-colors",
+                        site === s
+                          ? "bg-paper text-ink shadow-sm"
+                          : "text-ink-muted hover:text-ink",
+                        focusRing,
+                      )}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-1">
+                  {SITE_CATEGORIES[site].map((c) => (
+                    <label key={c} className="flex items-center gap-2 text-xs text-ink">
+                      <input
+                        type="checkbox"
+                        checked={picked.includes(c)}
+                        onChange={(e) =>
+                          setCats((all) => ({
+                            ...all,
+                            [site]: e.target.checked
+                              ? [...all[site], c]
+                              : all[site].filter((x) => x !== c),
+                          }))
+                        }
+                        className={cn("size-3.5 accent-accent", focusRing)}
+                      />
+                      {c}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
             <button
               type="submit"
               className={cn(
-                "grid h-9 place-items-center rounded-lg bg-ink text-sm font-medium text-paper transition-opacity hover:opacity-85",
+                "grid h-9 place-items-center rounded-lg bg-ink text-sm font-medium text-paper hover:opacity-85",
                 focusRing,
+                spot("search"),
               )}
             >
-              Submit
+              Search
             </button>
           </form>
 
-          <div className="flex min-w-0 flex-col rounded-lg border border-line bg-paper">
-            <p className="border-b border-line px-3 py-2 text-sm font-semibold text-ink">Result</p>
-            <table className="w-full text-left text-xs">
-              <thead className="text-[11px] text-ink-muted">
-                <tr className="border-b border-line">
-                  <th scope="col" className="w-14 px-3 py-1.5 font-medium">
-                    <span className="sr-only">Photo</span>
-                  </th>
-                  <th scope="col" className="py-1.5 font-medium">
-                    Product
-                  </th>
-                  <th scope="col" className="px-3 py-1.5 text-right font-medium">
-                    Price
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence initial={false}>
-                  {shown.map((p) => (
-                    <motion.tr
-                      key={p.id}
-                      initial={still ? false : { opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3, ease: EASE_OUT }}
-                      className="border-b border-line/60 last:border-b-0"
+          {/* On wide screens the results take the search form's height and scroll inside it. */}
+          <div className="min-w-0 md:relative">
+            <div className="flex flex-col gap-3 md:absolute md:inset-0">
+              {/* Rating and export, between the app's header and its results. */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-line bg-paper px-3 py-2">
+                <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-2", spot("rate"))}>
+                  <label htmlFor={rateId} className="text-xs font-medium text-ink">
+                    Satisfaction
+                  </label>
+                  <input
+                    id={rateId}
+                    type="range"
+                    min={1}
+                    max={10}
+                    value={rating}
+                    onChange={(e) => setRating(Number(e.target.value))}
+                    aria-describedby={`${rateId}-hint`}
+                    className={cn("w-28 accent-accent", focusRing)}
+                  />
+                  <span className="rounded border border-line bg-paper px-1.5 py-px text-xs tabular-nums text-ink">
+                    {rating}
+                  </span>
+                  <span id={`${rateId}-hint`} className="sr-only">
+                    1 very unsatisfied, 5 neutral, 10 very satisfied
+                  </span>
+                  <button
+                    type="button"
+                    disabled={!canRate}
+                    aria-label="Submit satisfaction"
+                    onClick={() => setRated(rating)}
+                    className={cn(
+                      "grid h-7 place-items-center rounded-md bg-ink px-3 text-xs font-medium text-paper transition-opacity hover:opacity-85 disabled:opacity-35",
+                      focusRing,
+                    )}
+                  >
+                    Submit
+                  </button>
+                  <p aria-live="polite" className="text-[11px] text-ink-muted">
+                    {rated !== null &&
+                      `Thanks, ${name || "you"}. Rated ${rated}/10 for this search.`}
+                  </p>
+                  {/* The real one took anything else through a Google Form. */}
+                  <span className="relative">
+                    <button
+                      type="button"
+                      aria-expanded={formNote}
+                      onClick={() => setFormNote((v) => !v)}
+                      onBlur={() => setFormNote(false)}
+                      className={cn(
+                        "flex items-center gap-1 text-xs text-ink-muted underline decoration-line underline-offset-2 hover:text-ink",
+                        focusRing,
+                      )}
                     >
-                      <td className="px-3 py-1.5">
-                        <ProductImage product={p} className="size-9 text-[10px]" />
-                      </td>
-                      <td className="py-1.5 pr-2 leading-snug text-ink">{p.name}</td>
-                      <td className="px-3 py-1.5 text-right tabular-nums text-ink">{p.price}</td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
-            {run > 0 && done && results.length === 0 && (
-              <p className="px-3 py-6 text-center text-xs text-ink-muted">No products match.</p>
-            )}
-            <p aria-live="polite" className="mt-auto px-3 py-2 text-[11px] text-ink-muted">
-              {done
-                ? `${results.length} products found for “${MATCHA.title}”.`
-                : run > 0
-                  ? "Curating…"
-                  : ""}
-            </p>
+                      <MessageSquare aria-hidden className="size-3.5" />
+                      Feedback form
+                    </button>
+                    {formNote && (
+                      <span
+                        role="status"
+                        className="absolute left-0 top-full z-30 mt-1.5 whitespace-nowrap rounded-md border border-line bg-paper px-2 py-1 text-[11px] text-ink-muted shadow-sm"
+                      >
+                        In the real tool, this opened the team’s Google Form.
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  disabled={!done || results.length === 0}
+                  onClick={() =>
+                    downloadCsv(results, [
+                      ["Name", name],
+                      ["Position", position],
+                      ["Theme Subject", MATCHA.title],
+                      ["Mandatory Keywords", keywords],
+                      ["Search Scope", String(scope)],
+                      ["Validation Strictness", String(strict)],
+                      ["Category", picked.length ? `${site}: ${picked.join(", ")}` : site],
+                    ])
+                  }
+                  className={cn(
+                    "ml-auto flex h-7 items-center gap-1.5 rounded-md border border-line px-3 text-xs font-medium text-ink hover:bg-paper-2 disabled:opacity-35",
+                    focusRing,
+                    spot("csv"),
+                  )}
+                >
+                  <Download aria-hidden className="size-3.5" />
+                  CSV Download
+                </button>
+              </div>
+              <div
+                className={cn(
+                  "flex min-h-0 flex-1 flex-col rounded-lg border border-line bg-paper",
+                  spot("results"),
+                )}
+              >
+                <p className="border-b border-line px-3 py-2 text-sm font-semibold text-ink">
+                  Result
+                </p>
+                {/* Scrolls through every row and column; the header and product stay put. */}
+                <div
+                  ref={table}
+                  tabIndex={0}
+                  role="region"
+                  aria-label="Result table, scrolls sideways"
+                  className={cn("max-h-[28rem] overflow-auto md:max-h-none md:flex-1", focusRing)}
+                >
+                  <table className="w-max min-w-full text-left text-xs">
+                    <thead className="sticky top-0 z-20 bg-paper text-[11px] text-ink-muted">
+                      <tr className="border-b border-line">
+                        <th
+                          scope="col"
+                          className="sticky left-0 z-10 w-[15.5rem] bg-paper px-3 py-1.5 font-medium shadow-[inset_-1px_0_0_var(--color-line)]"
+                        >
+                          Product
+                        </th>
+                        {COLUMNS.map((c) => (
+                          <th
+                            key={c.label}
+                            scope="col"
+                            className={cn(
+                              "whitespace-nowrap px-3 py-1.5 font-medium",
+                              c.num && "text-right",
+                            )}
+                          >
+                            {c.label}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <AnimatePresence initial={false}>
+                        {shown.map((r) => (
+                          <motion.tr
+                            key={r.id}
+                            initial={still ? false : { opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3, ease: EASE_OUT }}
+                            className="border-b border-line/60 last:border-b-0"
+                          >
+                            <th
+                              scope="row"
+                              className="sticky left-0 z-10 bg-paper px-3 py-1.5 font-normal shadow-[inset_-1px_0_0_var(--color-line)]"
+                            >
+                              <span className="flex w-[14.5rem] items-center gap-2.5">
+                                <ProductImage product={r} className="size-9 shrink-0 text-[10px]" />
+                                {/* Names linked to the Kurly product page (v2.3). */}
+                                <span className="leading-snug text-ink underline decoration-line underline-offset-2">
+                                  {r.name}
+                                </span>
+                              </span>
+                            </th>
+                            {COLUMNS.map((c) => (
+                              <td
+                                key={c.label}
+                                className={cn(
+                                  "whitespace-nowrap px-3 py-1.5 text-ink",
+                                  c.num && "text-right tabular-nums",
+                                )}
+                              >
+                                {c.value(r)}
+                              </td>
+                            ))}
+                          </motion.tr>
+                        ))}
+                      </AnimatePresence>
+                    </tbody>
+                  </table>
+                </div>
+                {run > 0 && done && results.length === 0 && (
+                  <p className="px-3 py-6 text-center text-xs text-ink-muted">No products match.</p>
+                )}
+                <p aria-live="polite" className="mt-auto px-3 py-2 text-[11px] text-ink-muted">
+                  {done
+                    ? `${results.length} products found for “${MATCHA.title}”.`
+                    : run > 0
+                      ? "Curating…"
+                      : ""}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </GradioWindow>
-      <DataNote />
+      <DataNote>
+        A rebuild of the real Copilot. Illustrative data. Internal figures have been changed.
+      </DataNote>
     </div>
   );
 }
@@ -501,10 +865,9 @@ function UpdateTimeline() {
 }
 
 const GLANCE = [
-  "8 weeks before the A/B test",
-  "6 updates from MD feedback",
   "Open to every employee",
-  "Tracked searches, speed, results, and satisfaction",
+  "6 updates in 8 weeks from MD feedback",
+  "Reads product descriptions, not just names",
 ];
 
 export function Copilot() {
@@ -514,31 +877,61 @@ export function Copilot() {
       label="08 Internal Copilot"
       className="border-t border-line py-24 md:py-32"
     >
-      <div className={cn(wrap, "flex flex-col gap-14")}>
-        <div className="flex flex-col gap-6">
-          <SectionHeader
-            label="08 INTERNAL COPILOT"
-            headline="Give the AI to MDs Before Giving It the Homepage"
-          />
-          <Body className="max-w-[48rem]">
-            Instead of putting AI straight on the homepage, I first gave it to the MDs as an
-            internal tool, <B>Campaign Copilot</B>. It did two jobs at once: it saved them time
-            right away, and every search they ran and rated{" "}
-            <B>showed us how to make the AI better</B>.
+      <div className={cn(wrap, "flex flex-col gap-6")}>
+        <SectionHeader label="08 INTERNAL COPILOT" headline="A Copilot That Cuts Curation Time" />
+        <div className="flex max-w-[48rem] flex-col gap-3">
+          <Body className="max-w-none">
+            I designed and delivered <B>Campaign Copilot</B>, an internal tool that supports how MDs
+            plan campaigns. Since only employees would use it, a custom front end wasn’t worth the
+            time, so I chose <B>Gradio</B> to ship it fast and clean. It had two goals:
           </Body>
-          <ul aria-label="At a glance" className="flex flex-wrap gap-2">
-            {GLANCE.map((g) => (
-              <li key={g} className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink">
-                {g}
-              </li>
-            ))}
-          </ul>
+          <ol className="flex flex-col gap-2 text-base leading-relaxed text-ink-muted md:text-lg">
+            <li>
+              1. <B>Cut the time spent finding and picking products.</B> It reads what a theme is
+              after, finds products that fit, and shows what MDs need to choose them in one view.
+            </li>
+            <li>
+              2. <B>Raise curation quality until MDs are satisfied with it.</B> Every search they
+              ran and rated showed us where the AI fell short.
+            </li>
+          </ol>
         </div>
+        <ul aria-label="At a glance" className="flex flex-wrap gap-2">
+          {GLANCE.map((g) => (
+            <li key={g} className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink">
+              {g}
+            </li>
+          ))}
+        </ul>
+      </div>
 
-        <Reveal>
-          <CopilotDemo />
-        </Reveal>
+      {/* Pins on the Copilot; scrolling on runs down its results, then moves on. */}
+      <StickyScene steps={GUIDE.length} vh={70} label="Campaign Copilot, step by step">
+        {({ step, progress, live }) => (
+          <div
+            className={cn(
+              wrap,
+              "grid w-full gap-6 xl:grid-cols-[13rem_minmax(0,1fr)] xl:items-center xl:gap-10",
+            )}
+          >
+            <div className={cn(live && "hidden xl:block")}>
+              <GuideSteps step={live ? step : null} />
+            </div>
+            {live && (
+              <p aria-live="polite" className="text-sm text-ink xl:hidden">
+                <span className="font-semibold text-accent">{step + 1}.</span> {GUIDE[step].title}.{" "}
+                <span className="text-ink-muted">{GUIDE[step].body}</span>
+              </p>
+            )}
+            {/* A touch smaller, so the whole app fits the pinned screen. */}
+            <Reveal className="md:[zoom:0.86]">
+              <CopilotDemo guide={live ? { step, progress } : undefined} />
+            </Reveal>
+          </div>
+        )}
+      </StickyScene>
 
+      <div className={cn(wrap, "mt-14 flex flex-col gap-14")}>
         <div className="flex flex-col gap-6">
           <SubHeading>How it works</SubHeading>
           <PipelineDots />
@@ -1013,16 +1406,16 @@ function TrustChip({ name, text }: { name: string; text: string }) {
 
 type Kpi = { name: string; ai: number; p: string };
 const PRIMARY: Kpi[] = [
-  { name: "Campaign click user ratio", ai: 101.7, p: "0.076" },
+  { name: "Campaign click user ratio", ai: 98.1, p: "0.076" },
   { name: "Campaign add-to-cart user ratio", ai: 100.0, p: "0.982" },
-  { name: "Campaign purchase user ratio", ai: 99.5, p: "0.937" },
+  { name: "Campaign purchase user ratio", ai: 100.5, p: "0.937" },
 ];
 const SECONDARY: Kpi[] = [
-  { name: "Add-to-cart value per user", ai: 101.1, p: "0.839" },
-  { name: "Purchase value per user", ai: 102.2, p: "0.773" },
-  { name: "Product clicks per user", ai: 100.5, p: "0.779" },
-  { name: "Add-to-cart clicks per user", ai: 96.5, p: "0.174" },
-  { name: "Purchases per user", ai: 104.5, p: "0.571" },
+  { name: "Add-to-cart value per user", ai: 98.9, p: "0.839" },
+  { name: "Purchase value per user", ai: 97.8, p: "0.773" },
+  { name: "Product clicks per user", ai: 99.5, p: "0.779" },
+  { name: "Add-to-cart clicks per user", ai: 103.7, p: "0.174" },
+  { name: "Purchases per user", ai: 95.9, p: "0.571" },
 ];
 // Bars are drawn from zero, so near-equal values look near-equal.
 const BAR_MAX = 110;
