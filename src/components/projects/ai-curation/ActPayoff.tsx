@@ -627,6 +627,11 @@ function AsciiMorph({ run }: { run: boolean }) {
       if (stop) return;
       const w = el.clientWidth;
       const h = el.clientHeight;
+      // Not laid out yet (or the image never decoded): skip to the AI.
+      if (!w || !h || !img.naturalWidth) {
+        setSeam(1);
+        return;
+      }
       const dpr = window.devicePixelRatio || 1;
       c.width = w * dpr;
       c.height = h * dpr;
