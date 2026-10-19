@@ -9,13 +9,7 @@ import {
   useMotionValueEvent,
   type MotionValue,
 } from "framer-motion";
-import {
-  ArrowDown,
-  ChevronDown,
-  Download,
-  Megaphone,
-  MessageSquare,
-} from "lucide-react";
+import { ArrowDown, Download, Megaphone, MessageSquare } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -31,7 +25,6 @@ import {
   Chapter,
   CountUp,
   DataNote,
-  Fold,
   GradioWindow,
   Kicker,
   PhoneFrame,
@@ -1936,11 +1929,31 @@ const GROUPS = [
   },
 ];
 
-function GroupPhones({ scroll }: { scroll?: MotionValue<number> }) {
+function GroupPhones({
+  scroll,
+  shift = 0,
+  scale = 1,
+}: {
+  scroll?: MotionValue<number>;
+  // How far, in px, each phone slides out to its side, and its size then.
+  shift?: number;
+  scale?: number;
+}) {
+  const still = useStill();
   return (
     <div className="flex flex-col items-center gap-10 sm:flex-row sm:items-start sm:justify-center">
-      {GROUPS.map((g) => (
-        <div key={g.label} className="flex flex-col items-center gap-4">
+      {GROUPS.map((g, i) => (
+        <motion.div
+          key={g.label}
+          initial={false}
+          animate={{ x: i ? shift : -shift, scale }}
+          transition={
+            still
+              ? { duration: 0 }
+              : { duration: 0.8, ease: [0.45, 0, 0.35, 1] }
+          }
+          className="flex flex-col items-center gap-4"
+        >
           <p className="flex h-9 items-center gap-2 rounded-full bg-paper py-1 pl-4 pr-1.5">
             <span className="font-display text-base font-medium uppercase tracking-[0.2em] text-ink-muted">
               {g.label} · {g.group}
@@ -1962,7 +1975,7 @@ function GroupPhones({ scroll }: { scroll?: MotionValue<number> }) {
               scroll={scroll}
             />
           </PhoneFrame>
-        </div>
+        </motion.div>
       ))}
     </div>
   );
@@ -2040,7 +2053,13 @@ const WALL_LOOP = 90;
 const scatter = (r: number, i: number) =>
   (((r * 31 + i * 17) * 7919) % 101) / 100;
 
-function ThemeWall({ className }: { className?: string }) {
+function ThemeWall({
+  gone = false,
+  className,
+}: {
+  gone?: boolean;
+  className?: string;
+}) {
   const still = useStill();
   const ref = useRef<HTMLDivElement>(null);
   const seen = useInView(ref, { once: true, amount: 0.3 });
@@ -2049,9 +2068,12 @@ function ThemeWall({ className }: { className?: string }) {
     AB_TITLES.filter((_, i) => i % WALL_ROWS === r),
   );
   return (
-    <div
+    <motion.div
       ref={ref}
       aria-hidden
+      initial={false}
+      animate={{ opacity: gone ? 0 : 1 }}
+      transition={{ duration: still ? 0 : 0.5 }}
       className={cn("flex flex-col gap-8 overflow-hidden", className)}
       style={{
         maskImage:
@@ -2096,19 +2118,24 @@ function ThemeWall({ className }: { className?: string }) {
           )}
         </motion.ul>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
 // 125 campaigns behind the two groups' phones; once on screen, the phones
-// scroll down their campaign pages and back, on their own.
-function GroupsScene() {
+// scroll down their campaign pages and back, on their own. Then the results:
+// the campaigns fade, the phones part, and the KPIs come up between them.
+const PHONE_W = 272;
+const RESULT_MIN = 340;
+function GroupsScene({ results, live }: { results: boolean; live: boolean }) {
   const still = useStill();
   const ref = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { amount: 0.4 });
   const scroll = useMotionValue(0);
+  const [width, setWidth] = useState(0);
   useEffect(() => {
-    if (still || !inView) return;
+    if (still || !inView || results) return;
     const run = animate(scroll, [0, 1], {
       duration: 4,
       delay: 0.8,
@@ -2118,77 +2145,88 @@ function GroupsScene() {
       repeatDelay: 1.2,
     });
     return () => run.stop();
-  }, [still, inView, scroll]);
+  }, [still, inView, results, scroll]);
+  useEffect(() => {
+    const el = stage.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Room for the results between the phones: shrink them if the stage is narrow.
+  const scale = Math.min(1, (width - RESULT_MIN) / (PHONE_W * 2));
+  const phone = PHONE_W * scale;
+  // Side by side the phones sit 40px apart; parted, they touch the stage's edges.
+  const shift = Math.max(0, width / 2 - phone / 2 - (20 + PHONE_W / 2));
+  const parted = live && results && width > 0;
   return (
     <div ref={ref} className="flex w-full flex-col items-center gap-8">
-      <div className={cn(wrap, "flex flex-col items-center gap-4 text-center")}>
-        <SubHeading>
-          <span className="text-accent">
-            <CountUp to={{ value: AB_CAMPAIGN_COUNT }} />
-          </span>{" "}
-          themed campaigns in two weeks
-        </SubHeading>
-        <Body className="text-center">
-          A new theme every day.
-          <br />
-          Group A saw each one as an MD picked it, group B as the AI did.
-        </Body>
+      {/* Both headings share one cell, so the swap never changes its height. */}
+      <div className={cn(wrap, "grid text-center")}>
+        <motion.div
+          initial={false}
+          animate={{ opacity: parted ? 0 : 1, y: parted ? -12 : 0 }}
+          transition={{ duration: still ? 0 : 0.4 }}
+          aria-hidden={parted}
+          className="col-start-1 row-start-1 flex flex-col items-center gap-4"
+        >
+          <SubHeading>
+            <span className="text-accent">
+              <CountUp to={{ value: AB_CAMPAIGN_COUNT }} />
+            </span>{" "}
+            themed campaigns in two weeks
+          </SubHeading>
+          <Body className="text-center">
+            A new theme every day.
+            <br />
+            Group A saw each one as an MD picked it, group B as the AI did.
+          </Body>
+        </motion.div>
+        {live && (
+          <motion.div
+            initial={false}
+            animate={{ opacity: parted ? 1 : 0, y: parted ? 0 : 12 }}
+            transition={{ duration: still ? 0 : 0.4, delay: parted ? 0.2 : 0 }}
+            aria-hidden={!parted}
+            className="col-start-1 row-start-1 flex flex-col items-center justify-center gap-4"
+          >
+            <SubHeading>Result: No Difference Between Human and AI</SubHeading>
+            <Body className="text-center">
+              None of the three primary KPIs moved significantly.
+            </Body>
+          </motion.div>
+        )}
       </div>
       <div className="relative w-full">
-        <ThemeWall className="absolute inset-x-0 top-1/2 -translate-y-1/2" />
-        <div className={cn(wrap, "relative")}>
-          <GroupPhones scroll={scroll} />
+        <ThemeWall
+          gone={parted}
+          className="absolute inset-x-0 top-1/2 -translate-y-1/2"
+        />
+        <div ref={stage} className={cn(wrap, "relative")}>
+          <GroupPhones
+            scroll={scroll}
+            shift={parted ? shift : 0}
+            scale={parted ? scale : 1}
+          />
+          {live && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center pt-12">
+              <div style={{ width: Math.max(0, width - phone * 2 - 48) }}>
+                <ResultBars kpis={PRIMARY} shown={parted} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
-      <DataNote>Illustrative example.</DataNote>
+      {!live && (
+        <div className={cn(wrap, "flex flex-col gap-8 pt-8")}>
+          <SubHeading className="text-center">
+            Result: No Difference Between Human and AI
+          </SubHeading>
+          <ResultBars kpis={PRIMARY} shown />
+        </div>
+      )}
+      <DataNote>KPIs are indexed to the MD-curated group (= 100).</DataNote>
     </div>
-  );
-}
-
-const TRUST = [
-  ["A/A test", "No difference between groups before the test"],
-  ["Sample ratio", "Balanced (p = 0.423)"],
-  ["Power", "0.8 at α = 0.05, MDE 0.004"],
-] as const;
-
-function TrustChip({ name, text }: { name: string; text: string }) {
-  const [open, setOpen] = useState(false);
-  const id = useId();
-  return (
-    <li className="flex flex-col items-start gap-2">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={id}
-        onClick={() => setOpen((v) => !v)}
-        className={cn(
-          "flex items-center gap-1.5 rounded-full bg-paper-2 px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-line",
-          focusRing,
-        )}
-      >
-        {name}
-        <ChevronDown
-          aria-hidden
-          className={cn(
-            "size-3.5 transition-transform duration-200",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.p
-            id={id}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden px-1 text-sm text-ink-muted"
-          >
-            {text}
-          </motion.p>
-        )}
-      </AnimatePresence>
-    </li>
   );
 }
 
@@ -2205,115 +2243,144 @@ const SECONDARY: Kpi[] = [
   { name: "Add-to-cart clicks per user", ai: 103.7, p: "0.174" },
   { name: "Purchases per user", ai: 95.9, p: "0.571" },
 ];
-// Bars are drawn from zero, so near-equal values look near-equal.
-const BAR_MAX = 110;
+// The scale runs from 0 to SCALE_MAX, so a near-tie reads as one. Each part
+// sits on its group's side: the MD's mark (▼, = 100) on the left by phone A,
+// the AI's bar growing from the right by phone B.
+const SCALE_MAX = 110;
+// The mark, from the left: the scale runs right to left.
+const MARK = `${100 - (100 / SCALE_MAX) * 100}%`;
+const AI_GRADIENT =
+  "linear-gradient(to left, color-mix(in srgb, var(--color-accent) 18%, transparent), var(--color-accent))";
 
-function ParityBars({
+function ResultBars({
   kpis,
-  grown,
+  shown,
   small = false,
 }: {
   kpis: Kpi[];
-  grown: boolean;
+  shown: boolean;
   small?: boolean;
 }) {
   const still = useStill();
-  const h = small ? 120 : 200;
-  const on = still || grown;
+  const on = still || shown;
   return (
     <ul
       className={cn(
-        "grid gap-x-6 gap-y-10",
-        small ? "grid-cols-2 md:grid-cols-5" : "md:grid-cols-3",
+        "grid",
+        small ? "gap-x-8 gap-y-10 sm:grid-cols-2 md:grid-cols-5" : "gap-9",
       )}
     >
       {kpis.map((k, i) => (
-        <li
+        <motion.li
           key={k.name}
-          className="flex flex-col items-center gap-3 text-center"
+          initial={false}
+          animate={{ opacity: on ? 1 : 0, y: on ? 0 : 8 }}
+          transition={
+            still
+              ? { duration: 0 }
+              : { duration: 0.4, delay: on ? 0.5 + i * 0.15 : 0 }
+          }
+          className="flex flex-col items-end text-right"
           aria-label={`${k.name}: MD-curated 100, AI-curated ${k.ai.toFixed(1)}, p = ${k.p}`}
         >
-          <div
-            aria-hidden
-            className="flex items-end gap-3"
-            style={{ height: h + 28 }}
-          >
-            {[
-              { v: 100, ai: false },
-              { v: k.ai, ai: true },
-            ].map((bar) => (
-              <div
-                key={String(bar.ai)}
-                className="flex flex-col items-center gap-1.5"
-              >
-                <span
-                  className={cn(
-                    "font-display font-medium tabular-nums tracking-tight",
-                    small ? "text-sm" : "text-lg md:text-xl",
-                    bar.ai ? "text-accent" : "text-ink-muted",
-                  )}
-                >
-                  <CountUp to={{ value: bar.v, decimals: 1 }} play={on} />
-                </span>
-                <motion.span
-                  initial={false}
-                  animate={{ scaleY: on ? 1 : 0 }}
-                  transition={
-                    still
-                      ? { duration: 0 }
-                      : {
-                          type: "spring",
-                          stiffness: 90,
-                          damping: 18,
-                          delay: i * 0.12 + (bar.ai ? 0.15 : 0),
-                        }
-                  }
-                  className={cn(
-                    "block origin-bottom rounded-t-md",
-                    small ? "w-7" : "w-12 md:w-14",
-                    bar.ai ? "bg-accent" : "bg-ink-muted/30",
-                  )}
-                  style={{ height: (bar.v / BAR_MAX) * h }}
-                />
-              </div>
-            ))}
+          <div aria-hidden className="relative w-full">
+            <span
+              className="absolute -top-0.5 -translate-x-1/2 -translate-y-full text-[10px] leading-none text-ink-muted"
+              style={{ left: MARK }}
+            >
+              ▼
+            </span>
+            <span
+              className={cn(
+                "relative mt-3 block overflow-hidden rounded-full bg-paper-2",
+                small ? "h-2" : "h-3",
+              )}
+            >
+              <motion.span
+                initial={false}
+                animate={{ scaleX: on ? 1 : 0 }}
+                transition={
+                  still
+                    ? { duration: 0 }
+                    : {
+                        duration: 1,
+                        ease: EASE_OUT,
+                        delay: on ? 0.6 + i * 0.15 : 0,
+                      }
+                }
+                className="absolute inset-y-0 right-0 origin-right rounded-full"
+                style={{
+                  width: `${(Math.min(k.ai, SCALE_MAX) / SCALE_MAX) * 100}%`,
+                  background: AI_GRADIENT,
+                }}
+              />
+            </span>
+            <span
+              className="absolute bottom-[-3px] top-[9px] w-px -translate-x-1/2 bg-ink/60"
+              style={{ left: MARK }}
+            />
           </div>
           <p
+            aria-hidden
             className={cn(
               "font-medium text-ink",
-              small ? "text-xs" : "text-sm md:text-base",
+              small ? "mt-3 text-sm" : "mt-4 text-base md:text-lg",
             )}
           >
             {k.name}
           </p>
-          <p className="text-xs text-ink-muted">p = {k.p}</p>
-        </li>
+          <p
+            aria-hidden
+            className={cn(
+              "flex items-baseline font-display font-medium tabular-nums tracking-tight",
+              small ? "mt-1 gap-1.5" : "mt-1 gap-2.5",
+            )}
+          >
+            <span
+              className={cn(
+                "text-ink-muted",
+                small ? "text-lg" : "text-2xl md:text-3xl",
+              )}
+            >
+              100
+            </span>
+            <span
+              className={cn(
+                "font-sans tracking-normal text-ink-muted",
+                small ? "text-xs" : "text-sm",
+              )}
+            >
+              vs
+            </span>
+            <span
+              className={cn(
+                "text-ink",
+                small ? "text-2xl" : "text-4xl md:text-5xl",
+              )}
+            >
+              <CountUp to={{ value: k.ai, decimals: 1 }} play={on} />
+            </span>
+          </p>
+          <p
+            aria-hidden
+            className={cn("mt-1 text-ink-muted", small ? "text-xs" : "text-sm")}
+          >
+            p = {k.p}
+          </p>
+        </motion.li>
       ))}
     </ul>
   );
 }
 
-function BarLegend() {
-  return (
-    <p className="flex justify-center gap-6 text-sm text-ink-muted">
-      <span className="flex items-center gap-2">
-        <span className="size-3 rounded-sm bg-ink-muted/30" />
-        MD-curated
-      </span>
-      <span className="flex items-center gap-2">
-        <span className="size-3 rounded-sm bg-accent" />
-        AI-curated
-      </span>
-    </p>
-  );
-}
-
 function SecondaryKpis() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.4 });
+  // Wait until the row is well up the screen, so the bars grow in sight.
+  const inView = useInView(ref, { once: true, margin: "0px 0px -30% 0px" });
   return (
-    <div ref={ref}>
-      <ParityBars kpis={SECONDARY} grown={inView} small />
+    <div ref={ref} className="flex flex-col gap-8">
+      <p className="text-sm font-medium text-ink-muted">Secondary KPIs</p>
+      <ResultBars kpis={SECONDARY} shown={inView} small />
     </div>
   );
 }
@@ -2369,69 +2436,19 @@ export function AbTest() {
         )}
       </StickyScene>
 
-      <StickyScene steps={3} vh={70} label="Group A and group B, side by side">
-        {() => <GroupsScene />}
-      </StickyScene>
-
-      <div className={cn(wrap, "flex flex-col gap-4 pt-16")}>
-        <p className="text-sm font-medium text-ink-muted">Trust the test</p>
-        <ul className="flex flex-wrap items-start gap-3">
-          {TRUST.map(([name, text]) => (
-            <TrustChip key={name} name={name} text={text} />
-          ))}
-        </ul>
-      </div>
-
+      {/* Two scrolls on the groups, then two on the results between the phones. */}
       <StickyScene
-        steps={3}
+        steps={5}
         vh={70}
-        label="A/B test results: AI and MD side by side"
-        className="mt-12 md:mt-0"
+        label="Group A and group B, side by side, then the results"
       >
         {({ step, live }) => (
-          <div className={cn(wrap, "flex w-full flex-col gap-10")}>
-            <SectionHeader
-              as="h3"
-              headline="Hypothesis Validated: No Significant Difference"
-              className="items-center text-center"
-            />
-            <BarLegend />
-            <ParityBars kpis={PRIMARY} grown={!live || step >= 1} />
-            <p className="text-center text-xs text-ink-muted">
-              All metrics are indexed to the MD-curated group (= 100).
-            </p>
-          </div>
+          <GroupsScene results={!live || step >= 3} live={live} />
         )}
       </StickyScene>
 
-      <div className={cn(wrap, "flex flex-col gap-16 pt-4")}>
-        <Fold label="Secondary KPIs" center>
-          <SecondaryKpis />
-        </Fold>
-
-        <div className="flex flex-col gap-5">
-          <SubHeading>What AI did differently</SubHeading>
-          <ul className="flex flex-col gap-3 text-base leading-relaxed text-ink-muted md:text-lg">
-            <li className="flex gap-3">
-              <span aria-hidden className="text-accent">
-                •
-              </span>
-              <span>
-                AI campaigns used{" "}
-                <B>fewer products but more diverse categories</B>, with similar
-                theme relevance.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <span aria-hidden className="text-accent">
-                •
-              </span>
-              <span>
-                <B>Relevance in the top slots</B> drove clicks the most.
-              </span>
-            </li>
-          </ul>
-        </div>
+      <div className={cn(wrap, "pb-12 pt-4")}>
+        <SecondaryKpis />
       </div>
 
       <Kicker tight>
