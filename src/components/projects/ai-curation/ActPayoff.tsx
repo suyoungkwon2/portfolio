@@ -2,26 +2,17 @@
 
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import {
-  EASE_OUT,
-  Reveal,
-  StickyScene,
-  scrollToStep,
-  useStill,
-  useTypewriter,
-} from "../story/motion";
+import { EASE_OUT, Reveal, StickyScene, useStill, useTypewriter } from "../story/motion";
 import {
   B,
   Body,
   CENTERED,
   Chapter,
   CountUp,
-  DataNote,
   Lessons,
   MetricCounter,
-  PhoneSplit,
   SectionHeader,
   SubHeading,
   ThoughtBubble,
@@ -30,7 +21,7 @@ import {
   type Lesson,
   type Num,
 } from "../story/ui";
-import { AFTER, BEFORE, DayBubble, DayTabs, HomePhone, LabelNote } from "./ActConflict";
+import { AiNode, DashLine, GLOW, KurlyWeb, SHOWN, webHeight } from "./ActSetup";
 import { CHINESE, MATCHA, SNACK } from "./data";
 import { ProgressBeat, RoadmapGrid9 } from "./ui";
 
@@ -91,30 +82,54 @@ function SheetsIcon({ className }: { className?: string }) {
 }
 
 // The new row, typed in cell by cell (tabs split the cells).
+const TYPE_MS = 18;
+const TYPE_DELAY_MS = 150;
 function TypedCells({
   children,
 }: {
   children: (cells: string[], typing: boolean) => React.ReactNode;
 }) {
   const { typed, done } = useTypewriter(NEW_TEXT, {
-    speed: 28,
-    startDelay: 400,
+    speed: TYPE_MS,
+    startDelay: TYPE_DELAY_MS,
   });
   return <>{children(typed.split("\t"), !done)}</>;
 }
 
-// The sheet MDs launch from. The new row types itself in once the sheet is
-// on screen.
-function CampaignSheet({ typing, folded }: { typing: boolean; folded: boolean }) {
+const SHEET_COLS = (
+  <colgroup>
+    <col className="w-[46%]" />
+    <col className="w-[30%]" />
+    <col className="w-[12%]" />
+    <col className="w-[12%]" />
+  </colgroup>
+);
+const CELL =
+  "overflow-hidden text-ellipsis whitespace-nowrap border-r border-[#e1e3e1] px-2 py-1.5 last:border-r-0";
+
+// The sheet MDs launch from: its rows roll down under the header when it
+// opens, ending in an empty row; the new row types in while `typing`.
+function CampaignSheet({ open, typing, done }: { open: boolean; typing: boolean; done: boolean }) {
+  return (
+    // An invisible open copy holds the space, so nothing around the sheet
+    // moves as it opens.
+    <div className="grid">
+      <div aria-hidden className="invisible [grid-area:1/1]">
+        <SheetBox open typing={false} done />
+      </div>
+      <div className="self-start [grid-area:1/1]">
+        <SheetBox open={open} typing={typing} done={done} />
+      </div>
+    </div>
+  );
+}
+
+function SheetBox({ open, typing, done }: { open: boolean; typing: boolean; done: boolean }) {
   const still = useStill();
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { amount: 0.6 });
-  const cellClass =
-    "overflow-hidden text-ellipsis whitespace-nowrap border-r border-[#e1e3e1] px-2 py-1.5 last:border-r-0";
   const row = (cells: string[], caretOn: boolean) => (
     <tr className="bg-[#e8f0fe]/60">
       {NEW_CELLS.map((full, k) => (
-        <td key={full} className={cn(cellClass, k === 0 && "ring-2 ring-inset ring-[#1a73e8]")}>
+        <td key={full} className={cn(CELL, k === 0 && "ring-2 ring-inset ring-[#1a73e8]")}>
           {cells[k] ?? ""}
           {caretOn && k === cells.length - 1 && (
             <span className="ml-px inline-block h-3 w-px animate-pulse bg-ink align-middle" />
@@ -126,206 +141,394 @@ function CampaignSheet({ typing, folded }: { typing: boolean; folded: boolean })
     </tr>
   );
   return (
-    <motion.div
-      ref={ref}
-      initial={false}
-      animate={folded ? { scaleY: 0.08, opacity: 0, y: -12 } : { scaleY: 1, opacity: 1, y: 0 }}
-      transition={still ? { duration: 0 } : { duration: 0.55, ease: EASE_OUT }}
-      className="origin-top"
-    >
+    <div className="relative">
+      {/* The hero's glow, while the MD writes. */}
+      <motion.div
+        aria-hidden
+        className={cn(GLOW, "inset-x-3 bottom-0 top-4")}
+        initial={false}
+        animate={{ opacity: typing ? 0.6 : 0 }}
+        transition={{ duration: still ? 0 : 0.6 }}
+      />
       <div
         role="img"
         aria-label={`The Campaign Management Sheet in Google Sheets. A new row is added: “${NEW_ROW.title}”, “${NEW_ROW.subtitle}”, running ${NEW_ROW.start} to ${NEW_ROW.end}.`}
-        className="overflow-hidden rounded-xl border border-line bg-paper shadow-[0_20px_40px_-24px_rgba(21,21,21,0.35)]"
+        className="relative overflow-hidden rounded-xl border border-line bg-paper shadow-[0_20px_40px_-24px_rgba(21,21,21,0.35)]"
       >
-        <div className="flex items-center gap-2.5 border-b border-line px-3 py-2.5">
+        <div
+          className={cn("flex items-center gap-2.5 px-3 py-2.5", open && "border-b border-line")}
+        >
           <SheetsIcon />
           <span className="text-sm font-medium text-ink">Campaign Management Sheet</span>
         </div>
-        <div aria-hidden>
-          <table className="w-full table-fixed border-collapse text-left text-[11.5px] text-[#202124]">
-            <colgroup>
-              <col className="w-[46%]" />
-              <col className="w-[30%]" />
-              <col className="w-[12%]" />
-              <col className="w-[12%]" />
-            </colgroup>
-            <thead className="bg-[#f8f9fa] text-[11px] text-[#5f6368]">
-              <tr className="border-b border-[#e1e3e1]">
-                {["Title", "Subtitle", "Start", "End"].map((h) => (
-                  <th key={h} className={cn(cellClass, "font-medium")}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {SHEET_ROWS.map((r) => (
-                <tr key={r.title} className="border-b border-[#e1e3e1]">
-                  {[r.title, r.subtitle, r.start, r.end].map((c) => (
-                    <td key={c} className={cellClass}>
-                      {c}
-                    </td>
+        <div aria-hidden className="text-left text-[11.5px] text-[#202124]">
+          {/* Closed, the sheet is just its title bar; opening rolls the
+              header and rows down. */}
+          <motion.div
+            initial={false}
+            animate={{ height: open ? "auto" : 0 }}
+            transition={still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT }}
+            className="overflow-hidden"
+          >
+            <table className="w-full table-fixed border-collapse">
+              {SHEET_COLS}
+              <thead className="bg-[#f8f9fa] text-[11px] text-[#5f6368]">
+                <tr className="border-b border-[#e1e3e1]">
+                  {["Title", "Subtitle", "Start", "End"].map((h) => (
+                    <th key={h} className={cn(CELL, "font-medium")}>
+                      {h}
+                    </th>
                   ))}
                 </tr>
-              ))}
-              {still || !typing ? (
-                row(NEW_CELLS, false)
-              ) : inView ? (
-                <TypedCells>{(cells, caretOn) => row(cells, caretOn)}</TypedCells>
-              ) : (
-                row([], false)
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {SHEET_ROWS.map((r) => (
+                  <tr key={r.title} className="border-b border-[#e1e3e1]">
+                    {[r.title, r.subtitle, r.start, r.end].map((c) => (
+                      <td key={c} className={CELL}>
+                        {c}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                {done ? (
+                  row(NEW_CELLS, false)
+                ) : typing ? (
+                  <TypedCells>{(cells, caretOn) => row(cells, caretOn)}</TypedCells>
+                ) : (
+                  row([], false)
+                )}
+              </tbody>
+            </table>
+          </motion.div>
         </div>
       </div>
-      <DataNote className="mt-2">Illustrative data.</DataNote>
+    </div>
+  );
+}
+
+// Between the sheet and the page, as in the hero: a dashed line from the
+// sheet into the AI orb, and one out of it to the page, running under the orb
+// so nothing gaps.
+const LINK_W = 190;
+const LINK_H = 64;
+const ORB_GAP = 30;
+const LINKS = [
+  `M0 ${LINK_H / 2} H${LINK_W / 2 - ORB_GAP}`,
+  `M${LINK_W / 2 + ORB_GAP} ${LINK_H / 2} H${LINK_W}`,
+];
+
+function SheetToWeb({ on }: { on: [boolean, boolean, boolean] }) {
+  const still = useStill();
+  return (
+    <div aria-hidden className="relative" style={{ width: LINK_W, height: LINK_H }}>
+      <svg
+        width={LINK_W}
+        height={LINK_H}
+        className="pointer-events-none absolute inset-0 overflow-visible"
+      >
+        {LINKS.map((d, i) => (
+          <DashLine
+            key={d}
+            d={d}
+            on={on[i === 0 ? 0 : 2]}
+            still={still}
+            w={LINK_W}
+            h={LINK_H}
+            duration={ARROW_MS / 1000}
+          />
+        ))}
+      </svg>
+      <AiNode on={on[1]} top={0} />
+    </div>
+  );
+}
+
+// Once the row is done: the line into AI, AI, the line out, then the new
+// campaign's products one by one. Times in ms from the landing.
+const ARROW_MS = 160;
+const LINE_IN_MS = 0;
+const AI_MS = ARROW_MS;
+const LINE_OUT_MS = AI_MS + 120;
+const FILL_MS = LINE_OUT_MS + ARROW_MS + 60;
+const FILL_STEP_MS = 110;
+
+function useLanding(on: boolean, still: boolean) {
+  const [t, setT] = useState(-1);
+  useEffect(() => {
+    if (!on || still) return;
+    const marks = [
+      LINE_IN_MS,
+      AI_MS,
+      LINE_OUT_MS,
+      ...Array.from({ length: SHOWN + 1 }, (_, k) => FILL_MS + k * FILL_STEP_MS),
+    ];
+    const timers = marks.map((ms) => setTimeout(() => setT(ms), ms));
+    return () => {
+      timers.forEach(clearTimeout);
+      setT(-1);
+    };
+  }, [on, still]);
+  const at = !on ? -1 : still ? Infinity : t;
+  return {
+    links: [at >= LINE_IN_MS, at >= AI_MS, at >= LINE_OUT_MS] as [boolean, boolean, boolean],
+    shown: at < FILL_MS ? -1 : Math.min(SHOWN, Math.floor((at - FILL_MS) / FILL_STEP_MS)),
+  };
+}
+
+// 1 · Launch, one step per scroll, and playing on its own once the scene
+// arrives: 0 open the sheet · 1 add the row · 2 AI turns it into a campaign
+// on the homepage · 3 spare.
+const SHEET_STEPS = 4;
+// On arrival: step 1 lights up, then the sheet opens.
+const BEGIN_MS = 200;
+const OPEN_MS = 500;
+// How long each auto beat holds before the next: the sheet opening, then
+// the row typing itself in.
+const AUTO_MS = [OPEN_MS + 800, TYPE_DELAY_MS + NEW_TEXT.length * TYPE_MS + 500];
+
+const LAUNCH_STEPS = [
+  "Open the sheet",
+  "Add a row: title, subtitle, start and end dates",
+  "Done 🎉",
+];
+const WEB_THEMES = [CHINESE, SNACK, MATCHA];
+
+function LaunchScene({ step, live }: { step: number; live: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Arrived once the scene's bottom edge is on screen.
+  const arrived = useInView(ref, { amount: 1 });
+  const [begun, setBegun] = useState(false);
+  const [opened, setOpened] = useState(false);
+  const [auto, setAuto] = useState(0);
+  // Scrolling back up takes the auto play back with it.
+  const [prevStep, setPrevStep] = useState(step);
+  if (step !== prevStep) {
+    setPrevStep(step);
+    if (step < prevStep) setAuto(Math.min(auto, step));
+  }
+  const at = live ? Math.max(step, auto) : SHEET_STEPS - 1;
+
+  // On arrival the sheet opens; leaving resets it for the next visit.
+  useEffect(() => {
+    if (!live || !arrived) return;
+    const timers = [
+      setTimeout(() => setBegun(true), BEGIN_MS),
+      setTimeout(() => setOpened(true), OPEN_MS),
+    ];
+    return () => {
+      timers.forEach(clearTimeout);
+      setBegun(false);
+      setOpened(false);
+      setAuto(0);
+    };
+  }, [live, arrived]);
+
+  // Then each beat hands on to the next without a scroll.
+  useEffect(() => {
+    if (!live || !arrived || at >= 2 || (at === 0 && !opened)) return;
+    const t = setTimeout(() => setAuto(at + 1), at === 0 ? AUTO_MS[0] - OPEN_MS : AUTO_MS[1]);
+    return () => clearTimeout(t);
+  }, [live, arrived, at, opened]);
+
+  const landed = at >= 2;
+  const { links, shown } = useLanding(landed, !live);
+  return (
+    <div
+      className={cn(
+        wrap,
+        "relative grid w-full items-end gap-10 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:gap-x-0 lg:gap-y-8",
+      )}
+    >
+      <SubHeading className="lg:col-span-3">1 · Launch from the sheet MDs already use</SubHeading>
+      {/* Text at the top, the sheet level with the bottom of the page. */}
+      <div className="flex flex-col gap-7 self-stretch lg:justify-between">
+        <div className="flex flex-col gap-7">
+          <Body className="max-w-[44rem]">
+            To keep MDs from having to learn a new tool, I kept the launch in the{" "}
+            <B>Google Sheets</B> they already use. They add one row, and the AI fills the campaign
+            and puts it on the homepage.
+          </Body>
+          <ol className="flex flex-col gap-2">
+            {LAUNCH_STEPS.map((s, i) => (
+              <motion.li
+                key={s}
+                initial={false}
+                // All three wait, dimmed, and light up in turn.
+                animate={{ opacity: !live || i < at || (i === at && (at > 0 || begun)) ? 1 : 0.3 }}
+                transition={{ duration: 0.4 }}
+                className="flex items-baseline gap-3"
+              >
+                <span className="font-display text-lg font-medium text-accent">{i + 1}</span>
+                <span className="text-base leading-relaxed text-ink">{s}</span>
+              </motion.li>
+            ))}
+          </ol>
+        </div>
+        <CampaignSheet open={!live || at > 0 || opened} typing={live && at === 1} done={at >= 2} />
+      </div>
+      {/* Level with the middle of the sheet. */}
+      <div className="hidden pb-[3.25rem] lg:block">
+        <SheetToWeb on={links} />
+      </div>
+      <div
+        role="img"
+        aria-label="Kurly’s homepage with the Spicy Chinese Takeout Vibe and The Ultimate Snack Drop campaigns. Once the row is added, AI turns it into Matcha Core: Trending Now, which appears below them, filled with matcha products."
+        className="relative mx-auto w-[300px] md:[zoom:1.1]"
+      >
+        {/* The hero's glow, as the new campaign arrives. */}
+        <motion.div
+          aria-hidden
+          className={cn(GLOW, "inset-x-2 bottom-2 top-4")}
+          initial={false}
+          animate={{ opacity: shown >= 0 ? 0.7 : 0 }}
+          transition={shown >= 0 && live ? { duration: 0.8 } : { duration: 0 }}
+        />
+        <div className="relative rounded-xl shadow-[0_20px_40px_-24px_rgba(21,21,21,0.35)]">
+          <KurlyWeb
+            themes={WEB_THEMES}
+            filled={[SHOWN, SHOWN, shown]}
+            height={webHeight(WEB_THEMES.length)}
+          />
+        </div>
+      </div>
+      <div ref={ref} aria-hidden className="absolute inset-x-0 bottom-0 h-px" />
+    </div>
+  );
+}
+
+// 2 · Rules: the pipeline behind the sheet, one policy per stop. The fifth
+// rides the loop back from the homepage to the MD.
+const STOPS = [
+  {
+    node: "Campaign sheet",
+    rule: "Read every night",
+    why: "New and edited rows go in at midnight, and every live product list is rebuilt weekly as stock changes.",
+  },
+  {
+    node: "AI builds the list",
+    rule: "20 products, or it stays off",
+    why: "A thin campaign looks broken, so it isn’t shown. Products with mostly bad reviews in the past 2 weeks are left out.",
+  },
+  {
+    node: "Kurly’s CMS",
+    rule: "New code registers, known code updates",
+    why: "An edit updates the live campaign in place, so its link never breaks. To end one, the MD sets an end date.",
+  },
+  {
+    node: "Homepage",
+    rule: "Cached for 1 day, not 7",
+    why: "An ended or edited campaign leaves the app within a day.",
+  },
+];
+const LOOP = {
+  rule: "Under 2.3% CTR, it comes down",
+  why: "MDs track each campaign’s numbers in the same sheet, and a weak one is taken off the homepage.",
+};
+// 0 the bare flow · 1–5 one rule each · 6 spare.
+const RULE_STEPS = STOPS.length + 3;
+
+function RuleCard({
+  n,
+  rule,
+  why,
+  shown,
+  current,
+  className,
+}: {
+  n: number;
+  rule: string;
+  why: string;
+  shown: boolean;
+  current: boolean;
+  className?: string;
+}) {
+  const still = useStill();
+  return (
+    <motion.div
+      initial={false}
+      animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+      transition={still ? { duration: 0 } : { duration: 0.45, ease: EASE_OUT }}
+      className={cn(
+        "flex flex-col gap-1.5 rounded-xl border bg-paper p-4 transition-colors duration-300",
+        current ? "border-accent" : "border-line",
+        className,
+      )}
+    >
+      <p className="flex items-baseline gap-2 text-base font-semibold leading-snug text-ink">
+        <span className="font-display text-accent">{n}</span>
+        {rule}
+      </p>
+      <p className="text-sm leading-relaxed text-ink-muted">{why}</p>
     </motion.div>
   );
 }
 
-// What's left of the sheet once it has folded away: its one new row, sent on.
-function SentRow({ shown }: { shown: boolean }) {
+function RulesScene({ step, live }: { step: number; live: boolean }) {
+  const shown = (i: number) => !live || step >= i + 1;
+  const current = (i: number) => live && step === i + 1;
   return (
-    <motion.p
-      initial={false}
-      animate={shown ? { opacity: 1, x: 0 } : { opacity: 0, x: -12 }}
-      transition={{ duration: 0.45, ease: EASE_OUT, delay: shown ? 0.35 : 0 }}
-      className="flex w-fit items-center gap-2.5 rounded-full border border-line bg-paper px-4 py-2 text-sm text-ink shadow-sm"
-    >
-      <SheetsIcon className="h-4" />
-      {NEW_ROW.title}
-      <ArrowRight aria-hidden className="size-4 text-accent" />
-      <span className="text-accent">Live</span>
-    </motion.p>
-  );
-}
-
-function IntegrationHeader() {
-  return (
-    <SectionHeader label="11 INTEGRATION & IMPACT" headline="Name a Theme, Get a Live Campaign" />
-  );
-}
-
-function IntegrationBody() {
-  return (
-    <Body>
-      MDs already worked in spreadsheets, so I designed the launch to happen there. They add a
-      campaign to <B>a Google Sheet</B>, and the AI fills it, ranks it, and refreshes it every hour
-      on the live homepage. Behind it, I designed how the AI connects to Kurly’s{" "}
-      <B>inventory and content management tools</B>, so every campaign stays in stock and on brand.
-    </Body>
-  );
-}
-
-// 0 the row types in (the phone still shows 04's stale Friday) · 1 the sheet
-// folds and the matcha campaign lands · 2 Wed · 3 Fri · 4 spare.
-const SHEET_STEPS = 5;
-
-function SheetScene({
-  step,
-  live,
-  goTo,
-}: {
-  step: number;
-  live: boolean;
-  goTo: (i: number) => void;
-}) {
-  const sent = !live || step >= 1;
-  const day = live ? Math.max(0, Math.min(step - 1, 2)) : 2;
-  return (
-    <PhoneSplit
-      header={<IntegrationHeader />}
-      copy={
-        <>
-          <IntegrationBody />
-          <div className="grid">
-            <div className="[grid-area:1/1]">
-              <CampaignSheet typing={live && step === 0} folded={live && sent} />
-            </div>
-            {live && (
-              <div className="[grid-area:1/1]">
-                <SentRow shown={sent} />
-              </div>
-            )}
-          </div>
-        </>
-      }
-      phone={
-        sent ? <HomePhone variant={AFTER} day={day} /> : <HomePhone variant={BEFORE} day={2} />
-      }
-      side={
-        <>
-          <motion.div
-            initial={false}
-            animate={{ opacity: sent ? 1 : 0.35 }}
-            transition={{ duration: 0.4 }}
-          >
-            <DayTabs day={sent ? day : -1} onPick={live ? (i) => goTo(i + 1) : undefined} />
-          </motion.div>
-          <DayBubble bubble={AFTER.bubbles[day]} shown={sent && (!live || step >= 3)} />
-          {!sent && <LabelNote />}
-        </>
-      }
-    />
-  );
-}
-
-const LAUNCH = [
-  "Open the sheet",
-  "Add the campaign: title, subtitle, start and end dates",
-  "Done 🎉",
-];
-const FLOW = [
-  "MD",
-  "Campaign Management Sheet",
-  "Business logic + AI model",
-  "Kurly frontend & backend (with inventory and content management)",
-  "Monitoring",
-];
-
-function SystemFlow() {
-  return (
-    <figure
-      role="img"
-      aria-label="System flow: MD, Campaign Management Sheet, business logic and AI model, Kurly frontend and backend with inventory and content management, monitoring, and back to the MD."
-      className="flex flex-col gap-0"
-    >
-      <ol
-        aria-hidden
-        className="flex flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0"
-      >
-        {FLOW.map((node, i) => (
-          <li key={node} className="flex flex-col items-center md:flex-1 md:flex-row">
-            <span
-              className={cn(
-                "w-full rounded-xl border px-3 py-3 text-center text-sm leading-snug md:min-h-[4.5rem] md:content-center",
-                i === 2 ? "border-accent bg-accent text-paper" : "border-line bg-paper text-ink",
-              )}
-            >
-              {node}
-            </span>
-            {i < FLOW.length - 1 && (
-              <ArrowRight className="my-1 size-4 shrink-0 rotate-90 text-ink-muted md:mx-1.5 md:my-0 md:rotate-0" />
-            )}
-          </li>
-        ))}
-      </ol>
-      {/* Back to the MD: a return line under the row. */}
-      <div
-        aria-hidden
-        className="relative mx-[9%] hidden h-8 rounded-b-xl border-x border-b border-ink-muted/40 md:block"
-      >
-        <span className="absolute -left-[5px] -top-1 size-0 border-x-[5px] border-b-[7px] border-x-transparent border-b-ink-muted/60" />
-        <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-paper px-2 text-xs text-ink-muted">
-          back to MD
-        </span>
+    <div className={cn(wrap, "flex w-full flex-col gap-10")}>
+      <div className="flex flex-col gap-5">
+        <SubHeading>2 · The rules behind the sheet</SubHeading>
+        <Body className="max-w-[48rem]">
+          Engineers connected the AI to Kurly’s content management system. I set{" "}
+          <B>every rule it runs on</B>, so a campaign stays full and fresh with no one watching it.
+        </Body>
       </div>
-      <p aria-hidden className="pt-2 text-center text-xs text-ink-muted md:hidden">
-        ↺ back to MD
-      </p>
-    </figure>
+      <figure aria-label="From the sheet to the homepage, with the rule at each stop">
+        <ol className="grid gap-4 md:grid-cols-4 md:gap-8">
+          {STOPS.map((s, i) => (
+            <li key={s.node} className="flex flex-col gap-3">
+              <div className="relative">
+                <p
+                  className={cn(
+                    "rounded-xl border px-3 py-3 text-center text-sm font-medium leading-snug transition-colors duration-300",
+                    current(i)
+                      ? "border-accent bg-accent text-paper"
+                      : shown(i)
+                        ? "border-accent bg-paper text-ink"
+                        : "border-line bg-paper text-ink",
+                  )}
+                >
+                  {s.node}
+                </p>
+                {i < STOPS.length - 1 && (
+                  <ArrowRight
+                    aria-hidden
+                    className="absolute -right-6 top-1/2 hidden size-4 -translate-y-1/2 text-ink-muted md:block"
+                  />
+                )}
+              </div>
+              <RuleCard
+                n={i + 1}
+                rule={s.rule}
+                why={s.why}
+                shown={shown(i)}
+                current={current(i)}
+                className="md:min-h-[9.5rem]"
+              />
+            </li>
+          ))}
+        </ol>
+        {/* Back to the MD: a return line from the homepage to the sheet. */}
+        <div
+          aria-hidden
+          className="relative mx-[12.5%] mt-4 hidden h-8 rounded-b-xl border-x border-b border-ink-muted/40 md:block"
+        >
+          <span className="absolute -left-[5px] -top-1 size-0 border-x-[5px] border-b-[7px] border-x-transparent border-b-ink-muted/60" />
+        </div>
+        <RuleCard
+          n={STOPS.length + 1}
+          rule={LOOP.rule}
+          why={LOOP.why}
+          shown={shown(STOPS.length)}
+          current={current(STOPS.length)}
+          // Sits on the return line, covering it.
+          className="relative mx-auto mt-4 max-w-[30rem] md:-mt-6"
+        />
+      </figure>
+    </div>
   );
 }
 
@@ -343,52 +546,40 @@ const IMPACT: { to?: Num; text?: string; extra?: string; label: string }[] = [
 ];
 
 export function IntegrationImpact() {
-  const stage = useRef<HTMLDivElement>(null);
-  const goTo = (i: number) => {
-    const scene = stage.current?.firstElementChild;
-    if (scene instanceof HTMLElement) scrollToStep(scene, i, SHEET_STEPS);
-  };
   return (
     <Chapter
       id="integration-impact"
       label="11 Integration & Impact"
-      className="border-t border-line pt-10 md:pt-0"
+      className="border-t border-line pt-24 md:pt-32"
     >
-      <div ref={stage}>
-        <StickyScene
-          steps={SHEET_STEPS}
-          vh={90}
-          label="A row in the Google Sheet becomes a live campaign on the homepage"
-        >
-          {({ step, live }) => <SheetScene step={step} live={live} goTo={goTo} />}
-        </StickyScene>
+      <div className={cn(wrap, "flex flex-col gap-6")}>
+        <SectionHeader
+          label="11 INTEGRATION & IMPACT"
+          headline="Name a Theme, Get a Live Campaign"
+        />
+        <Body className="max-w-[48rem]">
+          Going live had two sides:
+          <br />a launch MDs could run on their own,
+          <br />
+          and the rules that keep every campaign full and fresh once it’s live.
+        </Body>
       </div>
 
-      <div className={cn(wrap, "flex flex-col gap-20 pt-16")}>
-        <div className="grid gap-12 md:grid-cols-[1fr_1.6fr] md:gap-16">
-          <div className="flex flex-col gap-5">
-            <SubHeading>How to launch</SubHeading>
-            <ol className="flex flex-col gap-3">
-              {LAUNCH.map((s, i) => (
-                <Reveal as="li" key={s} delay={i * 0.1} className="flex items-baseline gap-3">
-                  <span className="font-display text-lg font-medium text-accent">{i + 1}</span>
-                  <span className="text-base leading-relaxed text-ink md:text-lg">{s}</span>
-                </Reveal>
-              ))}
-            </ol>
-            <Reveal delay={0.3}>
-              <p className="text-base leading-relaxed text-ink-muted">
-                There’s no proposal or approval step. The tests had shown the AI curated as well as
-                MDs, so theme campaigns <B>no longer needed a manager’s sign-off</B>.
-              </p>
-            </Reveal>
-          </div>
-          <div className="flex flex-col gap-5">
-            <SubHeading>System flow</SubHeading>
-            <SystemFlow />
-          </div>
-        </div>
-      </div>
+      <StickyScene
+        steps={SHEET_STEPS}
+        vh={80}
+        label="A row in the Google Sheet becomes a live campaign on the homepage"
+      >
+        {({ step, live }) => <LaunchScene step={step} live={live} />}
+      </StickyScene>
+
+      <StickyScene
+        steps={RULE_STEPS}
+        vh={55}
+        label="The rules from the sheet to the homepage, one at a time"
+      >
+        {({ step, live }) => <RulesScene step={step} live={live} />}
+      </StickyScene>
 
       <ProgressBeat from={4} lit={5} label="AI now runs the core homepage slots" />
 

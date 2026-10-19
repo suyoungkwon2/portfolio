@@ -112,11 +112,13 @@ const WEB_BAR_H = 22;
 const HEADER_H = Math.round((196 * SCENE_W) / VIEW_W);
 // A campaign row: its title, then a row of product cards (about 111px).
 const SECTION_H = 120;
+// A window tall enough to show `rows` campaigns without scrolling.
+export const webHeight = (rows: number) => WEB_BAR_H + HEADER_H + rows * SECTION_H;
 
 // A lavender from Kurly's purple family, for the dashes.
 export const LAVENDER = "#b9a2f2";
 // The AI Search hero's glow: violet into sky blue, blurred, under a card.
-const GLOW =
+export const GLOW =
   "pointer-events-none absolute rounded-[1.5rem] bg-[linear-gradient(90deg,rgba(176,114,255,0.75),rgba(91,225,255,0.75))] blur-xl";
 
 export function TitleCard({
@@ -353,14 +355,23 @@ function WebCampaign({ theme, shown }: { theme: Theme; shown: number }) {
   );
 }
 
-function KurlyWeb({ filled }: { filled: number[] }) {
+// 300 wide. 11 reuses it with its own campaigns and a taller window.
+export function KurlyWeb({
+  filled,
+  themes = HERO_THEMES,
+  height = WEB_H,
+}: {
+  filled: number[];
+  themes?: Theme[];
+  height?: number;
+}) {
   const sections = filled.filter((n) => n >= 0).length;
   // As campaigns pile up, the page scrolls to keep the newest one in view.
-  const y = Math.min(0, WEB_H - WEB_BAR_H - HEADER_H - sections * SECTION_H);
+  const y = Math.min(0, height - WEB_BAR_H - HEADER_H - sections * SECTION_H);
   return (
     <div
-      className="absolute inset-x-0 overflow-hidden rounded-xl border border-line bg-paper"
-      style={{ top: WEB_TOP, height: WEB_H }}
+      className="relative overflow-hidden rounded-xl border border-line bg-paper"
+      style={{ height }}
     >
       <div
         className="relative z-10 flex items-center gap-1 border-b border-line bg-paper-2 px-2.5"
@@ -386,7 +397,7 @@ function KurlyWeb({ filled }: { filled: number[] }) {
             }}
           />
         </div>
-        {HERO_THEMES.map(
+        {themes.map(
           (theme, i) =>
             filled[i] >= 0 && <WebCampaign key={theme.title} theme={theme} shown={filled[i]} />,
         )}
@@ -445,7 +456,9 @@ function ThemeToCampaigns() {
         <TitleCard typed={shown.typed} caret={caret} />
         <Connectors on={[shown.lineIn, shown.lineOut]} still={still} />
         <AiNode on={shown.ai} />
-        <KurlyWeb filled={shown.filled} />
+        <div className="absolute inset-x-0" style={{ top: WEB_TOP }}>
+          <KurlyWeb filled={shown.filled} />
+        </div>
       </motion.div>
     </div>
   );

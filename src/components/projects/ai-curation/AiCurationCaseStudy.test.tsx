@@ -77,6 +77,21 @@ describe("AiCurationCaseStudy", () => {
     expect(within(abTest).queryByRole("button", { name: /picked by AI/ })).toBeNull();
   });
 
+  it("splits integration into the sheet launch and the rules behind it", () => {
+    render(<AiCurationCaseStudy />);
+    const integration = document.getElementById("integration-impact")!;
+    expect(
+      within(integration).getByRole("heading", {
+        name: "1 · Launch from the sheet MDs already use",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(integration).getByRole("heading", { name: "2 · The rules behind the sheet" }),
+    ).toBeInTheDocument();
+    expect(within(integration).getByText("20 products, or it stays off")).toBeInTheDocument();
+    expect(within(integration).queryByText(/Sold Out/)).toBeNull();
+  });
+
   it("labels staged and paraphrased material", () => {
     render(<AiCurationCaseStudy />);
     // 05's pinned scene shows one of its two quotes at a time.

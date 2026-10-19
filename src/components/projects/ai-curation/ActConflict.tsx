@@ -24,16 +24,7 @@ import {
   ThoughtBubble,
   wrap,
 } from "../story/ui";
-import {
-  CHINESE,
-  HOLIDAY,
-  MATCHA,
-  PRODUCTS,
-  SNACK,
-  STALE_SECTIONS,
-  YEAR_END,
-  toSection,
-} from "./data";
+import { HOLIDAY, PRODUCTS, STALE_SECTIONS } from "./data";
 import { FEED_END, HomeScreen, MessageCard, ProductImage, QuoteCard, type HomeDay } from "./ui";
 
 // Act 2, Conflict: 04 User Problem · 05 Company's Problem (spec §5.5–5.6).
@@ -41,8 +32,6 @@ import { FEED_END, HomeScreen, MessageCard, ProductImage, QuoteCard, type HomeDa
 /* ------------------------------------------------------------------ */
 /* StaleHomeScene (04, and 12's After)                                 */
 /* ------------------------------------------------------------------ */
-
-const { yearend, snack } = PRODUCTS;
 
 type Bubble = { emoji: string; text: string } | null;
 export type HomeVariant = { days: HomeDay[]; bubbles: Bubble[] };
@@ -68,25 +57,6 @@ export const BEFORE: HomeVariant = {
     { emoji: "😐", text: "Didn’t I see this already?" },
     { emoji: "🥱", text: "Same old." },
   ],
-};
-
-const MATCHA_ROW = toSection(MATCHA, "Creamy, earthy and everywhere right now");
-const SNACK_ROW = toSection(SNACK, "Sweet and salty picks for any break", snack.slice(0, 3));
-const CHINESE_ROW = toSection(CHINESE, "Takeout favorites, ready at home");
-const yearEndRow = (products = yearend) =>
-  toSection(YEAR_END, "Stollen, tarts and treats for the holidays", products);
-
-export const AFTER: HomeVariant = {
-  days: [
-    {
-      sections: [MATCHA_ROW, yearEndRow([yearend[0], yearend[2], yearend[4]]), CHINESE_ROW],
-    },
-    { sections: [CHINESE_ROW, SNACK_ROW, MATCHA_ROW] },
-    {
-      sections: [SNACK_ROW, yearEndRow([yearend[1], yearend[3], yearend[5]]), CHINESE_ROW],
-    },
-  ],
-  bubbles: [null, null, { emoji: "😍", text: "Oh, I didn’t know they had this." }],
 };
 
 export const DAYS = ["Mon", "Wed", "Fri"];
