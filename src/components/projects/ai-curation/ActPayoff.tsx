@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Database } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, Reveal, StickyScene, useStill, useTypewriter } from "../story/motion";
@@ -397,51 +397,67 @@ function LaunchScene({ step, live }: { step: number; live: boolean }) {
   );
 }
 
+// A small AI orb, in the same colors as the big one in 01.
+function AiOrb() {
+  return (
+    <span
+      aria-hidden
+      className="grid size-7 place-items-center rounded-full font-display text-[10px] font-bold text-white"
+      style={{ background: "radial-gradient(circle at 40% 30%, #FDE6FF, #9B5CF6 70%)" }}
+    >
+      AI
+    </span>
+  );
+}
+
 // 2 · Rules: the pipeline behind the sheet, one policy per stop. The fifth
 // rides the loop back from the homepage to the MD.
 const STOPS = [
   {
+    icon: <SheetsIcon />,
     node: "Campaign sheet",
     rule: "Read every night",
     why: "New and edited rows go in at midnight, and every live product list is rebuilt weekly as stock changes.",
   },
   {
+    icon: <AiOrb />,
     node: "AI builds the list",
-    rule: "20 products, or it stays off",
+    rule: "At least 20 products",
     why: "A thin campaign looks broken, so it isn’t shown. Products with mostly bad reviews in the past 2 weeks are left out.",
   },
   {
+    icon: <Database aria-hidden className="size-6 text-[#5f0080]" strokeWidth={1.75} />,
     node: "Kurly’s CMS",
-    rule: "New code registers, known code updates",
-    why: "An edit updates the live campaign in place, so its link never breaks. To end one, the MD sets an end date.",
+    rule: "Registered on its own",
+    why: "The AI is linked to Kurly’s content management tool, so each campaign is registered and kept up to date with no manual entry.",
   },
   {
+    // eslint-disable-next-line @next/next/no-img-element -- static export
+    icon: <img src="/images/ai-curation/app/kurly-logo.svg" alt="" className="h-5 w-auto" />,
     node: "Homepage",
-    rule: "Cached for 1 day, not 7",
-    why: "An ended or edited campaign leaves the app within a day.",
+    rule: "A fresh lineup every day",
+    why: "Campaigns share the homepage’s theme slots, and each day the slots show a new mix, led by what customers click.",
   },
 ];
 const LOOP = {
-  rule: "Under 2.3% CTR, it comes down",
-  why: "MDs track each campaign’s numbers in the same sheet, and a weak one is taken off the homepage.",
+  rule: "Miss the click target, and it comes down",
+  why: "MDs track each campaign’s numbers in the same sheet, and a weak one leaves the homepage.",
 };
 // 0 the bare flow · 1–5 one rule each · 6 spare.
 const RULE_STEPS = STOPS.length + 3;
 
-function RuleCard({
-  n,
-  rule,
-  why,
+// One stop's card: it appears when the flow reaches it, and its border goes
+// back to gray once the flow moves on.
+function StopCard({
   shown,
   current,
   className,
+  children,
 }: {
-  n: number;
-  rule: string;
-  why: string;
   shown: boolean;
   current: boolean;
   className?: string;
+  children: React.ReactNode;
 }) {
   const still = useStill();
   return (
@@ -450,83 +466,80 @@ function RuleCard({
       animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
       transition={still ? { duration: 0 } : { duration: 0.45, ease: EASE_OUT }}
       className={cn(
-        "flex flex-col gap-1.5 rounded-xl border bg-paper p-4 transition-colors duration-300",
-        current ? "border-accent" : "border-line",
+        "relative flex flex-col gap-4 rounded-xl border bg-paper p-4 transition-[border-color,box-shadow] duration-300",
+        current
+          ? "border-accent shadow-[0_0_0_1px_var(--color-accent),0_10px_24px_-14px_rgba(21,21,21,0.4)]"
+          : "border-line",
         className,
       )}
     >
-      <p className="flex items-baseline gap-2 text-base font-semibold leading-snug text-ink">
-        <span className="font-display text-accent">{n}</span>
-        {rule}
-      </p>
-      <p className="text-sm leading-relaxed text-ink-muted">{why}</p>
+      {children}
     </motion.div>
+  );
+}
+
+function Rule({ rule, why }: { rule: string; why: string }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <p className="text-base font-semibold leading-snug text-ink">{rule}</p>
+      <p className="text-sm leading-relaxed text-ink-muted">{why}</p>
+    </div>
   );
 }
 
 function RulesScene({ step, live }: { step: number; live: boolean }) {
   const shown = (i: number) => !live || step >= i + 1;
   const current = (i: number) => live && step === i + 1;
+  const still = useStill();
   return (
     <div className={cn(wrap, "flex w-full flex-col gap-10")}>
       <div className="flex flex-col gap-5">
         <SubHeading>2 · The rules behind the sheet</SubHeading>
         <Body className="max-w-[48rem]">
-          Engineers connected the AI to Kurly’s content management system. I set{" "}
-          <B>every rule it runs on</B>, so a campaign stays full and fresh with no one watching it.
+          To fit the AI system into Kurly’s platform without putting the live homepage at risk, I
+          set <B>every rule it runs on</B>, so each campaign stays full, fresh, and stable
+          automatically.
         </Body>
       </div>
       <figure aria-label="From the sheet to the homepage, with the rule at each stop">
         <ol className="grid gap-4 md:grid-cols-4 md:gap-8">
           {STOPS.map((s, i) => (
-            <li key={s.node} className="flex flex-col gap-3">
-              <div className="relative">
-                <p
-                  className={cn(
-                    "rounded-xl border px-3 py-3 text-center text-sm font-medium leading-snug transition-colors duration-300",
-                    current(i)
-                      ? "border-accent bg-accent text-paper"
-                      : shown(i)
-                        ? "border-accent bg-paper text-ink"
-                        : "border-line bg-paper text-ink",
-                  )}
-                >
-                  {s.node}
-                </p>
-                {i < STOPS.length - 1 && (
+            <li key={s.node} className="flex">
+              <StopCard shown={shown(i)} current={current(i)} className="flex-1">
+                {/* The arrow in comes with the card. */}
+                {i > 0 && (
                   <ArrowRight
                     aria-hidden
-                    className="absolute -right-6 top-1/2 hidden size-4 -translate-y-1/2 text-ink-muted md:block"
+                    className="absolute -left-6 top-6 hidden size-4 text-ink-muted md:block"
                   />
                 )}
-              </div>
-              <RuleCard
-                n={i + 1}
-                rule={s.rule}
-                why={s.why}
-                shown={shown(i)}
-                current={current(i)}
-                className="md:min-h-[9.5rem]"
-              />
+                <div className="flex h-8 items-center gap-2.5">
+                  <span className="grid min-w-8 shrink-0 place-items-center">{s.icon}</span>
+                  <p className="text-sm font-medium leading-snug text-ink">{s.node}</p>
+                </div>
+                <Rule rule={s.rule} why={s.why} />
+              </StopCard>
             </li>
           ))}
         </ol>
-        {/* Back to the MD: a return line from the homepage to the sheet. */}
-        <div
+        {/* Back to the MD: a return line from the homepage to the sheet,
+            drawn with the card that sits on it. */}
+        <motion.div
+          initial={false}
+          animate={{ opacity: shown(STOPS.length) ? 1 : 0 }}
+          transition={still ? { duration: 0 } : { duration: 0.45 }}
           aria-hidden
           className="relative mx-[12.5%] mt-4 hidden h-8 rounded-b-xl border-x border-b border-ink-muted/40 md:block"
         >
           <span className="absolute -left-[5px] -top-1 size-0 border-x-[5px] border-b-[7px] border-x-transparent border-b-ink-muted/60" />
-        </div>
-        <RuleCard
-          n={STOPS.length + 1}
-          rule={LOOP.rule}
-          why={LOOP.why}
+        </motion.div>
+        <StopCard
           shown={shown(STOPS.length)}
           current={current(STOPS.length)}
-          // Sits on the return line, covering it.
-          className="relative mx-auto mt-4 max-w-[30rem] md:-mt-6"
-        />
+          className="mx-auto mt-4 max-w-[27rem] md:-mt-6"
+        >
+          <Rule rule={LOOP.rule} why={LOOP.why} />
+        </StopCard>
       </figure>
     </div>
   );

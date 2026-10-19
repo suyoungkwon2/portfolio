@@ -88,7 +88,7 @@ describe("AiCurationCaseStudy", () => {
     expect(
       within(integration).getByRole("heading", { name: "2 · The rules behind the sheet" }),
     ).toBeInTheDocument();
-    expect(within(integration).getByText("20 products, or it stays off")).toBeInTheDocument();
+    expect(within(integration).getByText("At least 20 products")).toBeInTheDocument();
     expect(within(integration).queryByText(/Sold Out/)).toBeNull();
   });
 
