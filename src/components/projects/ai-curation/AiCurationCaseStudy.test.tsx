@@ -70,14 +70,12 @@ describe("AiCurationCaseStudy", () => {
     expect(within(evaluation).getByText("Our algorithm won 68% of 56 votes.")).toBeInTheDocument();
   });
 
-  it("answers “Can you tell?” once a campaign is picked", () => {
+  it("says up front which group is the MD's and which is the AI's", () => {
     render(<AiCurationCaseStudy />);
     const abTest = document.getElementById("ab-test")!;
-    expect(within(abTest).queryByText("Customers couldn’t tell either.")).toBeNull();
-
-    fireEvent.click(within(abTest).getByRole("button", { name: /Campaign 2: this one/ }));
-    expect(within(abTest).getByText("Customers couldn’t tell either.")).toBeInTheDocument();
+    expect(within(abTest).getByText("Picked by an MD")).toBeInTheDocument();
     expect(within(abTest).getByText("Picked by AI")).toBeInTheDocument();
+    expect(within(abTest).queryByRole("button", { name: /picked by AI/ })).toBeNull();
   });
 
   it("labels staged and paraphrased material", () => {

@@ -6,6 +6,8 @@ import {
   useInView,
   useMotionValue,
   useMotionValueEvent,
+  useScroll,
+  useTransform,
   type MotionValue,
 } from "framer-motion";
 import { ArrowDown, ChevronDown, Download, Megaphone, MessageSquare } from "lucide-react";
@@ -35,11 +37,14 @@ import {
   PRODUCTS,
   SITE_CATEGORIES,
   SITES,
+  AB_CAMPAIGN_COUNT,
+  AB_TITLES,
   YEAR_END,
   type CopilotRow,
+  type HomeItem,
   type Site,
 } from "./data";
-import { CampaignScreen, ProductImage, ProgressBeat } from "./ui";
+import { CampaignPage, ProductImage, ProgressBeat } from "./ui";
 
 // Act 4, Earn trust: 08 Internal Copilot · 09 Internal Evaluation ·
 // 10 A/B Test, the climax (spec §5.9–5.11). Inside first, then experts,
@@ -1064,8 +1069,8 @@ function UpdatesScene({ step, live }: { step: number; live: boolean }) {
         <div className="flex flex-col gap-4">
           <SubHeading>6 updates to make it MD-ready</SubHeading>
           <Body>
-            MDs’ ratings, feedback, and follow-up interviews drove every update. I announced
-            each one and trained MDs on how to use it.
+            MDs’ ratings, feedback, and follow-up interviews drove every update. I announced each
+            one and trained MDs on how to use it.
           </Body>
         </div>
         <UpdateTimeline />
@@ -1084,9 +1089,7 @@ function UpdatesScene({ step, live }: { step: number; live: boolean }) {
           <ul className="flex flex-col gap-5">
             {KEY_UPDATES.map((u) => (
               <li key={u.v} className="flex gap-4">
-                <span className="w-7 shrink-0 pt-0.5 text-xs font-semibold text-accent">
-                  {u.v}
-                </span>
+                <span className="w-7 shrink-0 pt-0.5 text-xs font-semibold text-accent">{u.v}</span>
                 <span className="flex flex-col gap-1">
                   <span className="text-base font-medium text-ink">{u.title}</span>
                   <span className="text-sm leading-relaxed text-ink-muted">{u.body}</span>
@@ -1162,8 +1165,8 @@ export function Copilot() {
               </div>
               {live && (
                 <p aria-live="polite" className="text-sm text-ink xl:hidden">
-                  <span className="font-semibold text-accent">{step + 1}.</span>{" "}
-                  {GUIDE[step].title}. <span className="text-ink-muted">{GUIDE[step].body}</span>
+                  <span className="font-semibold text-accent">{step + 1}.</span> {GUIDE[step].title}
+                  . <span className="text-ink-muted">{GUIDE[step].body}</span>
                 </p>
               )}
               {/* A touch smaller, so the whole app fits the pinned screen. */}
@@ -1417,12 +1420,11 @@ function BlindTest({ revealed }: { revealed: boolean }) {
           Our algorithm won 68% of 56 votes.
         </p>
         <p className="text-base leading-relaxed text-ink-muted">
-          On plain themes the two were close. On themes that needed reasoning, ours won{" "}
-          <B>77%</B>: keyword search can’t tell what a theme leaves out or puts first.
+          On plain themes the two were close. On themes that needed reasoning, ours won <B>77%</B>:
+          keyword search can’t tell what a theme leaves out or puts first.
         </p>
         <DataNote>
-          A’s picks are from the test. B is illustrative: Kurly’s keyword search for the same
-          theme.
+          A’s picks are from the test. B is illustrative: Kurly’s keyword search for the same theme.
         </DataNote>
       </motion.div>
     </div>
@@ -1573,8 +1575,8 @@ export function Evaluation() {
           headline="Earning the MDs’ Trust, One Test at a Time"
         />
         <Body className="max-w-[48rem]">
-          Before asking customers to see AI picks, I needed proof that the people who know
-          curation best trusted them. I ran two checks.
+          Before asking customers to see AI picks, I needed proof that the people who know curation
+          best trusted them. I ran two checks.
         </Body>
       </div>
 
@@ -1659,69 +1661,202 @@ const SETUP = [
     </>,
   ],
   ["Method", "Same homepage slot, same theme; only who picked the products changed"],
-  ["Target", "24,455 users (AI) vs 24,278 users (MD)"],
+  ["Target", "24,278 users in A (MD) vs 24,455 in B (AI)"],
   ["Conditions", "20 slots, at least 30 products per campaign, a new theme every day"],
   ["Duration", "2 weeks"],
 ] as const;
 
-// Same theme, two pickers. Campaign 2 is the AI's.
-const TELL = [
-  { label: "Campaign 1", ai: false, products: [0, 2, 3, 5, 1, 4].map((i) => yearend[i]) },
-  { label: "Campaign 2", ai: true, products: [2, 4, 0, 1, 5, 3].map((i) => yearend[i]) },
+// The year-end products as they'd sit on a campaign page, badges and all.
+const SALE: Omit<HomeItem, "id" | "src" | "name" | "price">[] = [
+  { was: "₩39,000", off: "10%", coupon: "+10% Coupon", reviews: "999+" },
+  { was: "₩33,000", off: "10%", kurlyOnly: true },
+  { was: "₩9,900", off: "10%", member: true, reviews: "999+" },
+  { coupon: "+Up to 15% Coupon" },
+  { was: "₩17,900", off: "11%", reviews: "999+" },
+  { kurlyOnly: true },
+];
+const sale = (i: number): HomeItem => {
+  const { id, src, name, price } = yearend[i];
+  return { id, src, name, price, ...SALE[i] };
+};
+
+// Same theme, two pickers: A, the control, is the MD's; B, the test, the AI's.
+const GROUPS = [
+  { label: "A", group: "Control", who: "Picked by an MD", ai: false, items: [0, 2, 3, 5, 1, 4] },
+  { label: "B", group: "Test", who: "Picked by AI", ai: true, items: [2, 4, 0, 1, 5, 3] },
 ];
 
-function CanYouTell() {
-  const [pick, setPick] = useState<number | null>(null);
-  const revealed = pick !== null;
+function GroupPhones({ scroll }: { scroll?: MotionValue<number> }) {
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="flex flex-col items-center gap-10 sm:flex-row sm:items-start sm:justify-center">
-        {TELL.map((c, i) => (
-          <div key={c.label} className="flex flex-col items-center gap-4">
-            <p className="flex h-7 items-center gap-2">
-              <span className="font-display text-base font-medium uppercase tracking-[0.2em] text-ink-muted">
-                {c.label}
-              </span>
-              {revealed && (
-                <motion.span
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className={cn(
-                    "rounded-full px-2.5 py-1 text-xs font-semibold",
-                    c.ai ? "bg-accent text-paper" : "bg-paper-2 text-ink",
-                  )}
-                >
-                  {c.ai ? "Picked by AI" : "Picked by an MD"}
-                </motion.span>
-              )}
-            </p>
-            <PhoneFrame>
-              <CampaignScreen theme={YEAR_END} products={c.products} />
-            </PhoneFrame>
-            <button
-              type="button"
-              aria-pressed={pick === i}
-              aria-label={`${c.label}: this one was picked by AI`}
-              onClick={() => setPick(i)}
+    <div className="flex flex-col items-center gap-10 sm:flex-row sm:items-start sm:justify-center">
+      {GROUPS.map((g) => (
+        <div key={g.label} className="flex flex-col items-center gap-4">
+          <p className="flex h-9 items-center gap-2 rounded-full bg-paper py-1 pl-4 pr-1.5">
+            <span className="font-display text-base font-medium uppercase tracking-[0.2em] text-ink-muted">
+              {g.label} · {g.group}
+            </span>
+            <span
               className={cn(
-                "rounded-full border px-5 py-2.5 text-sm font-medium transition-colors",
-                pick === i
-                  ? "border-accent bg-accent text-paper"
-                  : "border-line text-ink hover:border-accent",
-                focusRing,
+                "rounded-full px-2.5 py-1 text-xs font-semibold",
+                g.ai ? "bg-accent text-paper" : "bg-paper-2 text-ink",
               )}
             >
-              This one was picked by AI
-            </button>
-          </div>
-        ))}
+              {g.who}
+            </span>
+          </p>
+          <PhoneFrame>
+            <CampaignPage
+              title={`${YEAR_END.emoji} ${YEAR_END.title}`}
+              items={g.items.map(sale)}
+              total={64}
+              scroll={scroll}
+            />
+          </PhoneFrame>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Kurly's homepage, top to bottom, boiled down. The test ran in the themed
+// campaigns at the bottom: 20 slots.
+const HOMEPAGE = [
+  { name: "Promotional Banners", h: "h-11" },
+  { name: "Limited-Time Offers", h: "h-11" },
+  { name: "Best Sellers", h: "h-11" },
+  { name: "Special Campaigns", h: "h-12" },
+] as const;
+const SLOTS = 20;
+
+function SlotMap({ lit }: { lit: boolean }) {
+  const still = useStill();
+  return (
+    <div
+      role="img"
+      aria-label="Kurly’s homepage from top to bottom: promotional banners, limited-time offers, best sellers, special campaigns, then themed campaigns. The test ran in the 20 themed-campaign slots at the bottom."
+      className="flex w-full max-w-[300px] flex-col gap-2 rounded-2xl border border-line bg-paper p-3 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.18)]"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- static export */}
+      <img src="/images/ai-curation/app/kurly-logo.svg" alt="" className="mx-1 mb-1 h-7 w-auto" />
+      {HOMEPAGE.map((b) => (
+        <span
+          key={b.name}
+          className={cn(
+            "grid place-items-center rounded-lg border border-[#e3c8ff] bg-paper-2 text-sm text-ink-muted",
+            b.h,
+          )}
+        >
+          {b.name}
+        </span>
+      ))}
+      <span className="flex flex-col gap-2.5 rounded-lg border border-[#d4a9ff] bg-[#f5ecff] p-3">
+        <span className="text-center text-sm font-semibold text-ink">Themed Campaigns</span>
+        <span className="grid grid-cols-5 gap-1.5">
+          {Array.from({ length: SLOTS }, (_, i) => (
+            <motion.span
+              key={i}
+              initial={false}
+              animate={{ opacity: lit ? 1 : 0.25, scale: lit ? 1 : 0.85 }}
+              transition={still ? { duration: 0 } : { duration: 0.3, delay: 0.2 + i * 0.04 }}
+              className="h-5 rounded-[4px] bg-[#a35ee8]"
+            />
+          ))}
+        </span>
+        <span className="text-center text-xs font-medium text-[#5f0080]">20 test slots</span>
+      </span>
+    </div>
+  );
+}
+
+// All the campaigns the test ran, behind the phones. On the way in they
+// dissolve in, row by row from the top, in a scattered order; after that the
+// rows drift slowly with the scroll, every other one the other way.
+const WALL_ROWS = 7;
+// How far a row travels, in px, over the whole pass through the screen.
+const WALL_DRIFT = 240;
+// A fixed scatter (0 to 1) per chip, so every visit plays the same.
+const scatter = (r: number, i: number) => (((r * 31 + i * 17) * 7919) % 101) / 100;
+
+function ThemeWall({
+  progress,
+  className,
+}: {
+  // Drives the drift when the wall is pinned (its own scroll position isn't).
+  progress?: MotionValue<number>;
+  className?: string;
+}) {
+  const still = useStill();
+  const ref = useRef<HTMLDivElement>(null);
+  const seen = useInView(ref, { once: true, amount: 0.3 });
+  const shown = still || seen;
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const drift = useTransform(progress ?? scrollYProgress, (v) =>
+    still ? 0 : (v - 0.5) * WALL_DRIFT,
+  );
+  const back = useTransform(drift, (x) => -x);
+  const rows = Array.from({ length: WALL_ROWS }, (_, r) =>
+    AB_TITLES.filter((_, i) => i % WALL_ROWS === r),
+  );
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      className={cn("flex flex-col gap-8", className)}
+      style={{
+        maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+      }}
+    >
+      {rows.map((row, r) => (
+        <div key={r} className="flex justify-center overflow-hidden">
+          <motion.ul style={{ x: r % 2 ? back : drift }} className="flex shrink-0 gap-2">
+            {row.map((t, i) => (
+              <motion.li
+                key={t}
+                initial={false}
+                animate={{ opacity: shown ? 1 : 0 }}
+                transition={
+                  still
+                    ? { duration: 0 }
+                    : { duration: 0.6, delay: r * 0.18 + scatter(r, i) * 0.7, ease: "easeOut" }
+                }
+                className="shrink-0 whitespace-nowrap rounded-full border border-line bg-paper px-3.5 py-2 text-sm text-ink-muted"
+              >
+                {t}
+              </motion.li>
+            ))}
+          </motion.ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// 125 campaigns behind the two groups' phones; while pinned, the phones
+// scroll down their campaign pages.
+function GroupsScene({ progress }: { progress?: MotionValue<number> }) {
+  const idle = useMotionValue(0);
+  const scroll = useTransform(progress ?? idle, (v) => Math.min(1, Math.max(0, (v - 0.15) / 0.65)));
+  return (
+    <div className="flex w-full flex-col items-center gap-8">
+      <div className={cn(wrap, "flex flex-col items-center gap-4 text-center")}>
+        <SubHeading>
+          <span className="text-accent">
+            <CountUp to={{ value: AB_CAMPAIGN_COUNT }} />
+          </span>{" "}
+          themed campaigns in two weeks
+        </SubHeading>
+        <Body className="text-center">
+          A new theme every day.
+          <br />
+          Group A saw each one as an MD picked it, group B as the AI did.
+        </Body>
       </div>
-      <p
-        aria-live="polite"
-        className="min-h-8 font-display text-xl font-medium text-ink md:text-2xl"
-      >
-        {revealed && "Customers couldn’t tell either."}
-      </p>
+      <div className="relative w-full">
+        <ThemeWall progress={progress} className="absolute inset-x-0 top-1/2 -translate-y-1/2" />
+        <div className={cn(wrap, "relative")}>
+          <GroupPhones scroll={progress ? scroll : undefined} />
+        </div>
+      </div>
       <DataNote>Illustrative example.</DataNote>
     </div>
   );
@@ -1897,9 +2032,34 @@ export function AbTest() {
         <TermList rows={SETUP} />
       </div>
 
-      <div className={cn(wrap, "pt-20")}>
-        <CanYouTell />
-      </div>
+      {/* Each holds for a scroll: the slots light up, then the phones scroll. */}
+      <StickyScene steps={2} vh={60} label="Where the test ran on Kurly’s homepage">
+        {({ step, live }) => (
+          <div
+            className={cn(
+              wrap,
+              "grid w-full items-center gap-12 md:grid-cols-[1fr_1.2fr] md:gap-16",
+            )}
+          >
+            <div className="flex justify-center">
+              <SlotMap lit={!live || step >= 1} />
+            </div>
+            <div className="flex max-w-[26rem] flex-col gap-5">
+              <SubHeading>Where it ran</SubHeading>
+              <Body>
+                The test ran in the <B>20 themed-campaign slots</B> at the bottom of Kurly’s
+                homepage. Both groups saw the same slots and the same themes.
+                <br />
+                Only the products changed: group A got the MD’s picks, group B got the AI’s.
+              </Body>
+            </div>
+          </div>
+        )}
+      </StickyScene>
+
+      <StickyScene steps={3} vh={70} label="Group A and group B, side by side">
+        {({ progress, live }) => <GroupsScene progress={live ? progress : undefined} />}
+      </StickyScene>
 
       <div className={cn(wrap, "flex flex-col gap-4 pt-16")}>
         <p className="text-sm font-medium text-ink-muted">Trust the test</p>

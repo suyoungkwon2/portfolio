@@ -1,7 +1,22 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronDown, ChevronLeft, ChevronRight, Home, ShoppingCart } from "lucide-react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
+import { useEffect, useRef } from "react";
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  ShoppingCart,
+  SlidersHorizontal,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EASE_OUT, StickyScene, useStill } from "../story/motion";
 import { ProcessFlow, type ProcessStep } from "../story/ProcessFlow";
@@ -132,73 +147,6 @@ function StatusBar() {
   );
 }
 
-// A campaign page: title bar, count, filter chips and a two-column grid.
-export function CampaignScreen({
-  theme,
-  products = theme.products,
-  shown = products.length,
-  className,
-}: {
-  theme: Theme;
-  products?: Product[];
-  // How many products have landed (the rest are empty slots).
-  shown?: number;
-  className?: string;
-}) {
-  const still = useStill();
-  return (
-    <div aria-hidden className={cn("@container relative size-full bg-white", className)}>
-      <StatusBar />
-      <div className="flex h-[12cqw] items-center gap-[2cqw] px-[3cqw] text-[#333]">
-        <ChevronLeft className="size-[5cqw] shrink-0" strokeWidth={2} />
-        <span className="min-w-0 flex-1 truncate text-[4.4cqw] font-semibold">
-          {theme.emoji} {theme.title}
-        </span>
-        <Home className="size-[5cqw] shrink-0" strokeWidth={1.75} />
-        <ShoppingCart className="size-[5cqw] shrink-0" strokeWidth={1.75} />
-      </div>
-      <div className="flex items-center justify-between px-[4cqw] py-[1.5cqw] text-[3.2cqw] text-[#666]">
-        <span>Total {products.length * 18}</span>
-        <span className="flex items-center gap-[0.5cqw]">
-          Recommended <ChevronDown className="size-[3cqw]" />
-        </span>
-      </div>
-      <div className="flex gap-[1.5cqw] px-[4cqw] pb-[2.5cqw] text-[3.1cqw]">
-        <span
-          className="rounded-full border border-[#b072ff] px-[2.6cqw] py-[0.8cqw]"
-          style={{ color: KURLY }}
-        >
-          Kurly Only
-        </span>
-        <span className="rounded-full border border-[#ddd] px-[2.6cqw] py-[0.8cqw] text-[#333]">
-          New
-        </span>
-        <span className="rounded-full border border-[#ddd] px-[2.6cqw] py-[0.8cqw] text-[#333]">
-          Category
-        </span>
-      </div>
-      <ul className="grid grid-cols-2 gap-x-[2.5cqw] gap-y-[4cqw] px-[4cqw] text-[3.1cqw]">
-        {products.map((product, i) => (
-          <motion.li
-            key={product.id}
-            initial={false}
-            animate={i < shown ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 8, scale: 0.96 }}
-            transition={still ? { duration: 0 } : { duration: 0.35, ease: EASE_OUT }}
-            className="flex flex-col gap-[1.2cqw]"
-          >
-            <ProductImage product={product} className="text-[3.6cqw]" />
-            <span className="grid h-[6.5cqw] place-items-center rounded-[0.8cqw] border border-[#ddd] text-[3cqw] text-[#333]">
-              Add to cart
-            </span>
-            <span className="line-clamp-2 leading-snug text-[#333]">{product.name}</span>
-            <span className="text-[3.5cqw] font-semibold text-ink">{product.price}</span>
-          </motion.li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 // The homepage in 04 and 12, rebuilt from Kurly's app (Figma, 375 wide).
 // Everything is sized in design pixels and converted to cqw, so the screen
 // scales with the phone. The app bar and tab bar are exports; the campaign
@@ -253,12 +201,26 @@ function CardButton({ kind }: { kind: number }) {
   );
 }
 
-function HomeCard({ item, kind, state }: { item: HomeItem; kind: number; state: CardState }) {
+// A product card. On the homepage rows it's 150 wide; on a campaign page it
+// fills half the screen and says how it's delivered.
+function HomeCard({
+  item,
+  kind,
+  state,
+  width = 150,
+  delivery = false,
+}: {
+  item: HomeItem;
+  kind: number;
+  state?: CardState;
+  width?: number;
+  delivery?: boolean;
+}) {
   return (
-    <div className="flex shrink-0 flex-col" style={{ width: px(150) }}>
+    <div className="flex shrink-0 flex-col" style={{ width: px(width) }}>
       <span
         className="relative block overflow-hidden bg-[#f4f1ea]"
-        style={{ height: px(195), borderRadius: px(4) }}
+        style={{ height: px((width * 195) / 150), borderRadius: px(4) }}
       >
         {item.src ? (
           // eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP
@@ -276,9 +238,12 @@ function HomeCard({ item, kind, state }: { item: HomeItem; kind: number; state: 
             {item.emoji}
           </span>
         )}
-        {item.coupon && (
+        {(item.coupon || item.member) && (
           <span
-            className="absolute bg-[#bd76ff] font-bold leading-none text-white"
+            className={cn(
+              "absolute font-bold leading-none text-white",
+              item.member ? "bg-[#6fbfdc]" : "bg-[#bd76ff]",
+            )}
             style={{
               left: px(8),
               top: px(8),
@@ -287,7 +252,7 @@ function HomeCard({ item, kind, state }: { item: HomeItem; kind: number; state: 
               fontSize: px(12),
             }}
           >
-            {item.coupon}
+            {item.member ? "Member Price" : item.coupon}
           </span>
         )}
         <AnimatePresence>
@@ -309,10 +274,18 @@ function HomeCard({ item, kind, state }: { item: HomeItem; kind: number; state: 
       <span style={{ marginTop: px(6) }}>
         <CardButton kind={kind} />
       </span>
+      {delivery && (
+        <span
+          className="text-[#999]"
+          style={{ marginTop: px(8), fontSize: px(12), lineHeight: px(16) }}
+        >
+          Dawn Delivery
+        </span>
+      )}
       <span
         className="line-clamp-2 text-[#222]"
         style={{
-          marginTop: px(8),
+          marginTop: delivery ? px(2) : px(8),
           fontSize: px(14),
           lineHeight: px(20),
           height: px(40),
@@ -353,8 +326,126 @@ function HomeCard({ item, kind, state }: { item: HomeItem; kind: number; state: 
           {/* eslint-disable-next-line @next/next/no-img-element -- static export */}
           <img src={`${APP}/icon-review.svg`} alt="" style={{ width: px(11.5), height: px(11) }} />
         </span>
-        9,999+
+        {item.reviews ?? "9,999+"}
       </span>
+      {item.kurlyOnly && (
+        <span
+          className="w-fit bg-[#f2f2f4] font-bold"
+          style={{
+            marginTop: px(8),
+            padding: `${px(3)} ${px(6)}`,
+            borderRadius: px(4),
+            fontSize: px(11),
+            color: KURLY,
+          }}
+        >
+          Kurly Only
+        </span>
+      )}
+    </div>
+  );
+}
+
+// A campaign page in Kurly's app, rebuilt from screenshots: title bar,
+// count with sort and filter, chips, then the products two to a row. The
+// bars up top stay put; `scroll` (0 to 1) scrolls the rest to its end.
+export function CampaignPage({
+  title,
+  items,
+  total,
+  scroll,
+}: {
+  title: string;
+  items: HomeItem[];
+  total: number;
+  scroll?: MotionValue<number>;
+}) {
+  const view = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLDivElement>(null);
+  // How far the list reaches past the screen, in px.
+  const room = useMotionValue(0);
+  const idle = useMotionValue(0);
+  const y = useTransform([scroll ?? idle, room], ([v, r]: number[]) => -v * r);
+  useEffect(() => {
+    const v = view.current;
+    const l = list.current;
+    if (!v || !l || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => room.set(Math.max(0, l.offsetHeight - v.clientHeight)));
+    ro.observe(v);
+    ro.observe(l);
+    return () => ro.disconnect();
+  }, [room]);
+  const chip = "flex shrink-0 items-center rounded-full border bg-white";
+  const chipStyle = { height: px(32), padding: `0 ${px(12)}`, gap: px(4), fontSize: px(13) };
+  return (
+    <div
+      aria-hidden
+      className="@container absolute inset-0 flex flex-col overflow-hidden bg-white font-sans"
+    >
+      <StatusBar />
+      <div
+        className="flex shrink-0 items-center text-[#222]"
+        style={{ height: px(48), padding: `0 ${px(14)}`, gap: px(10) }}
+      >
+        <ChevronLeft className="shrink-0" style={{ width: px(22), height: px(22) }} />
+        <span
+          className="min-w-0 flex-1 truncate font-semibold"
+          style={{ fontSize: px(16), lineHeight: px(22) }}
+        >
+          {title}
+        </span>
+        <Home className="shrink-0" style={{ width: px(22), height: px(22) }} strokeWidth={1.75} />
+        <ShoppingCart
+          className="shrink-0"
+          style={{ width: px(22), height: px(22) }}
+          strokeWidth={1.75}
+        />
+      </div>
+      <div ref={view} className="relative min-h-0 flex-1 overflow-hidden">
+        <motion.div
+          ref={list}
+          style={{ y, paddingBottom: px(24) }}
+          className="absolute inset-x-0 top-0"
+        >
+          <div
+            className="flex items-center justify-between text-[#333]"
+            style={{ height: px(44), padding: `0 ${px(16)}`, fontSize: px(13) }}
+          >
+            <span className="text-[#666]">Total {total}</span>
+            <span className="flex items-center" style={{ gap: px(14) }}>
+              <span className="flex items-center" style={{ gap: px(2) }}>
+                Recommended <ChevronDown style={{ width: px(14), height: px(14) }} />
+              </span>
+              <span className="flex items-center" style={{ gap: px(4) }}>
+                Filter <SlidersHorizontal style={{ width: px(13), height: px(13) }} />
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center" style={{ padding: `0 ${px(16)}`, gap: px(6) }}>
+            <span className={cn(chip, "border-[#b072ff]")} style={{ ...chipStyle, color: KURLY }}>
+              Kurly Only
+            </span>
+            <span className={cn(chip, "border-[#a9c4f5]")} style={{ ...chipStyle, color: KURLY }}>
+              Member Deals
+            </span>
+            <span className={cn(chip, "border-[#b072ff]")} style={{ ...chipStyle, color: KURLY }}>
+              Coupons
+            </span>
+            <span aria-hidden className="shrink-0 bg-[#ddd]" style={{ width: 1, height: px(18) }} />
+            <span className={cn(chip, "border-[#ddd] text-[#333]")} style={chipStyle}>
+              Category <ChevronDown style={{ width: px(13), height: px(13) }} />
+            </span>
+          </div>
+          <div
+            className="grid grid-cols-2"
+            style={{ padding: `${px(16)} ${px(16)} 0`, columnGap: px(8), rowGap: px(28) }}
+          >
+            {items.map((item) => (
+              <HomeCard key={item.id} item={item} kind={0} width={167.5} delivery />
+            ))}
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
