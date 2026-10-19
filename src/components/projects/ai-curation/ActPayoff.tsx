@@ -23,7 +23,6 @@ import {
 } from "../story/ui";
 import { AiNode, DashLine, GLOW, KurlyWeb, SHOWN, webHeight } from "./ActSetup";
 import { CHINESE, MATCHA, SNACK } from "./data";
-import { RoadmapGrid9 } from "./ui";
 
 // Act 5, Payoff: 11 Integration & Impact · 12 Reflection
 // (spec §5.13–5.14).
@@ -547,15 +546,15 @@ function RulesScene({ step, live }: { step: number; live: boolean }) {
 
 const IMPACT: { to?: Num; text?: string; extra?: string; label: string }[] = [
   {
+    text: "On par",
+    label: "with hand-picked campaigns, with more diverse categories",
+  },
+  {
     to: { value: 25, suffix: "%" },
     label: "of key homepage campaign slots run fully by AI",
   },
   { to: { value: 200, suffix: "+" }, label: "campaigns run by AI" },
   { to: { value: 2 }, extra: "days / week", label: "of MD time saved" },
-  {
-    text: "On par",
-    label: "with hand-picked campaigns, with more diverse categories",
-  },
 ];
 
 export function Integration() {
@@ -595,71 +594,248 @@ export function Integration() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 12 Impact                                                           */
+/* 12 Results                                                          */
 /* ------------------------------------------------------------------ */
 
-export function LiveImpact() {
+// The MD turns into the AI: a band of ASCII sweeps left to right across her,
+// whitening her into characters, and the AI (flipped to face the same way,
+// on the same spot) is left behind it.
+const MORPH_MS = 1200;
+const BAND = 0.24;
+const GLYPH = 8;
+const RAMP = " .:-=+*#%@";
+
+function AsciiMorph({ run }: { run: boolean }) {
+  const box = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const md = useRef<HTMLImageElement>(null);
+  const still = useStill();
+  // Where the AI's edge is, 0–1 across the figure.
+  const [seam, setSeam] = useState(still ? 1 : 0);
+
+  useEffect(() => {
+    if (!run || still) return;
+    const c = canvas.current;
+    const img = md.current;
+    const el = box.current;
+    if (!c || !img || !el) return;
+    const ctx = c.getContext("2d");
+    if (!ctx) return;
+    let raf = 0;
+    let stop = false;
+    const go = () => {
+      if (stop) return;
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      const dpr = window.devicePixelRatio || 1;
+      c.width = w * dpr;
+      c.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // One sample of the MD per character cell: her shape and shade.
+      const cols = Math.ceil(w / GLYPH);
+      const rows = Math.ceil(h / GLYPH);
+      const probe = document.createElement("canvas");
+      probe.width = cols;
+      probe.height = rows;
+      const pctx = probe.getContext("2d", { willReadFrequently: true });
+      if (!pctx) return;
+      pctx.drawImage(img, 0, 0, cols, rows);
+      const px = pctx.getImageData(0, 0, cols, rows).data;
+      ctx.font = `${GLYPH + 1}px ui-monospace, Menlo, monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const t0 = performance.now();
+      const frame = (now: number) => {
+        const p = Math.min(1, (now - t0) / MORPH_MS);
+        const ease = p < 0.5 ? 2 * p * p : 1 - (-2 * p + 2) ** 2 / 2;
+        const front = ease * (1 + BAND);
+        setSeam(front - BAND / 2);
+        ctx.clearRect(0, 0, w, h);
+        for (let y = 0; y < rows; y++) {
+          for (let x = 0; x < cols; x++) {
+            const t = (front - x / cols) / BAND;
+            if (t <= 0 || t >= 1) continue;
+            const i = (y * cols + x) * 4;
+            if (px[i + 3] < 60) continue;
+            const strength = Math.sin(Math.PI * t);
+            // Whiten the figure under the band, then type her in characters.
+            ctx.fillStyle = `rgba(255,255,255,${0.92 * strength})`;
+            ctx.fillRect(x * GLYPH, y * GLYPH, GLYPH, GLYPH);
+            const dark = 1 - (px[i] + px[i + 1] + px[i + 2]) / 765;
+            const k = Math.min(
+              RAMP.length - 1,
+              Math.max(1, Math.round(dark * (RAMP.length - 1) + Math.random() * 3)),
+            );
+            ctx.fillStyle = `rgba(135,80,230,${strength})`;
+            ctx.fillText(RAMP[k], x * GLYPH + GLYPH / 2, y * GLYPH + GLYPH / 2);
+          }
+        }
+        if (p < 1) raf = requestAnimationFrame(frame);
+        else ctx.clearRect(0, 0, w, h);
+      };
+      raf = requestAnimationFrame(frame);
+    };
+    if (img.complete) go();
+    else img.addEventListener("load", go, { once: true });
+    return () => {
+      stop = true;
+      cancelAnimationFrame(raf);
+      img.removeEventListener("load", go);
+    };
+  }, [run, still]);
+
+  const at = Math.max(0, Math.min(100, seam * 100));
   return (
-    <Chapter id="live-impact" label="12 Impact" className="border-t border-line pt-24 md:pt-32">
-      <div className={cn(wrap, "flex flex-col gap-20 pb-8")}>
-        <SectionHeader label="12 IMPACT" headline="AI Now Runs a Quarter of Key Slots" />
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+    <div
+      ref={box}
+      role="img"
+      aria-label="A Kurly MD turns into the AI, in the same pose"
+      className="relative aspect-[560/751] w-full max-w-[300px]"
+    >
+      {/* The desk from 02: its edge at her lowest fingertips, fading at the ends.
+          From md up the scene draws a longer one, under the numbers too. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-x-[15%] bottom-0 h-[20.5%] md:hidden"
+        style={{
+          background:
+            "linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 5%, transparent), transparent)",
+          maskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
+        }}
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+      <img
+        ref={md}
+        src="/images/ai-curation/impact/md.webp"
+        alt=""
+        width={560}
+        height={751}
+        className="absolute inset-0 size-full"
+        // Only ahead of the seam: her hair and pen reach past the AI's outline.
+        style={{ clipPath: `inset(0 0 0 ${at}%)` }}
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-sized WebP */}
+      <img
+        src="/images/ai-curation/impact/ai.webp"
+        alt=""
+        width={560}
+        height={751}
+        className="absolute inset-0 size-full -scale-x-100"
+        // Mirrored, so the inset's right edge is the figure's left.
+        style={{ clipPath: `inset(0 0 0 ${100 - at}%)` }}
+      />
+      <canvas ref={canvas} aria-hidden className="pointer-events-none absolute inset-0 size-full" />
+    </div>
+  );
+}
+
+// The MD alone until the scene has fully arrived; then, after a beat, she
+// turns into the AI on her own and the numbers follow. The next scroll moves
+// on (it also turns her, if it comes first).
+const ARRIVE_MS = 400;
+function ImpactMorphScene({ step, live }: { step: number; live: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const end = useRef<HTMLDivElement>(null);
+  const still = useStill();
+  const inView = useInView(ref, { once: true, amount: 0.5 });
+  const arrived = useInView(end, { amount: 1 });
+  // Once turned, it stays turned, even scrolling back up.
+  const [turned, setTurned] = useState(false);
+  if (!turned && (live ? step >= 1 : inView)) setTurned(true);
+  useEffect(() => {
+    if (!live || !arrived || turned) return;
+    const t = setTimeout(() => setTurned(true), ARRIVE_MS);
+    return () => clearTimeout(t);
+  }, [live, arrived, turned]);
+  const [counted, setCounted] = useState(still);
+  useEffect(() => {
+    if (!turned || counted) return;
+    const t = setTimeout(() => setCounted(true), MORPH_MS * 0.85);
+    return () => clearTimeout(t);
+  }, [turned, counted]);
+  return (
+    // Fully arrived = the whole scene, heading to press links, is on screen.
+    <div ref={end} className={cn(wrap, "flex w-full flex-col gap-12")}>
+      <div className="flex flex-col gap-6">
+        <SectionHeader label="12 RESULTS" headline="Trusted With Kurly’s Homepage" />
+        <Body className="max-w-[48rem]">
+          Despite Kurly’s doubts about automating curation, AI Curation{" "}
+          <B>now runs 25% of key homepage campaign slots fully on its own</B>. Proven on the
+          homepage, it was rolled out to other parts of Kurly, such as <B>Beauty Kurly</B>.
+        </Body>
+      </div>
+      <div
+        ref={ref}
+        className="relative -mt-10 grid items-center gap-10 md:grid-cols-[minmax(0,240px)_1fr] lg:grid-cols-[minmax(0,280px)_1fr] lg:gap-14"
+      >
+        {/* One desk under the figure and on under the numbers, its edge at her
+            lowest fingertips; the figure is the row's tallest, so 20.5% of it. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-[4%] bottom-0 right-0 hidden h-[20.5%] md:block"
+          style={{
+            background:
+              "linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 5%, transparent), transparent)",
+            maskImage: "linear-gradient(to right, transparent, black 8%, black 85%, transparent)",
+          }}
+        />
+        <AsciiMorph run={turned} />
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
           {IMPACT.map((m, i) => (
-            <Reveal key={m.label} delay={i * 0.08}>
+            <motion.div
+              key={m.label}
+              // In from the left, one after another, as the sweep runs out.
+              initial={still ? false : { opacity: 0, x: -20 }}
+              animate={counted ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+              transition={{ duration: 0.5, ease: EASE_OUT, delay: counted ? i * 0.2 : 0 }}
+            >
               {m.to ? (
                 <MetricCounter
-                  size="lg"
                   to={m.to}
                   extra={m.extra}
                   label={m.label}
-                  className={CENTERED}
+                  countFrom={0}
+                  play={counted}
                 />
               ) : (
-                <div className={cn("flex flex-col gap-2", CENTERED)}>
-                  <p className="font-display text-[2.75rem] font-medium leading-none tracking-tight text-accent md:text-[3.5rem]">
+                <div className="flex flex-col gap-2">
+                  <p className="font-display text-[2rem] font-medium leading-none tracking-tight text-accent md:text-[2.4rem]">
                     {m.text}
                   </p>
                   <p className="text-sm font-medium text-ink-muted">{m.label}</p>
                 </div>
               )}
-            </Reveal>
+            </motion.div>
           ))}
         </div>
-        <Reveal>
-          <Body className="mx-auto max-w-[44rem] text-center">
-            The same logic was requested for the search tab and for Beauty Kurly, and{" "}
-            <B>went live on Beauty Kurly in 2025</B>, after I left.
-          </Body>
-          <div className="mt-4 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-2">
-            <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
-              In the press
-            </span>
-            {PRESS.map((p) => (
-              <a
-                key={p.url}
-                href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={textLink}
-              >
-                {p.outlet} ({p.date}) ↗
-              </a>
-            ))}
-          </div>
-        </Reveal>
-
-        <div className="grid items-center gap-10 rounded-2xl bg-paper-2/60 p-6 md:grid-cols-[1fr_auto] md:gap-14 md:p-10">
-          <div className="flex flex-col gap-4">
-            <SubHeading>The First Step Toward a Personal Homepage</SubHeading>
-            <Body>
-              Once campaigns could run themselves, the only limit on how many we could have was
-              ideas. And with enough campaigns, plus a sense of each customer’s taste, the homepage
-              could <B>show every customer the campaigns that fit them</B>.
-            </Body>
-          </div>
-          <RoadmapGrid9 spread />
-        </div>
       </div>
+      {/* Under the figure. */}
+      <div className="-mt-9 flex flex-wrap items-baseline gap-x-5 gap-y-2">
+        <span className="text-xs font-medium uppercase tracking-[0.15em] text-ink-muted">
+          In the press
+        </span>
+        {PRESS.map((p) => (
+          <a
+            key={p.url}
+            href={p.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={textLink}
+          >
+            {p.outlet} ({p.date}) ↗
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function LiveImpact() {
+  return (
+    <Chapter id="results" label="12 Results" className="border-t border-line pt-24 md:pt-32">
+      <StickyScene steps={2} vh={80} label="The MD turns into the AI, and the results follow">
+        {({ step, live }) => <ImpactMorphScene step={step} live={live} />}
+      </StickyScene>
       <div className="pb-16 md:pb-24" />
     </Chapter>
   );

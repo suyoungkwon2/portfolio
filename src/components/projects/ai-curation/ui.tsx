@@ -9,7 +9,6 @@ import {
 } from "framer-motion";
 import { useEffect, useRef } from "react";
 import {
-  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -635,60 +634,6 @@ export function MessageCard({ quote, shown }: { quote: string; shown: boolean })
         </div>
       </motion.div>
     </figure>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Roadmap                                                             */
-/* ------------------------------------------------------------------ */
-
-// Nine projects toward a personalized homepage. In 07 only the first is
-// lit; in 11 it's done and the light spreads to the rest (`spread`).
-export function RoadmapGrid9({ spread = false }: { spread?: boolean }) {
-  const still = useStill();
-  return (
-    <ol
-      aria-label={
-        spread
-          ? "Roadmap of nine projects: AI Curation, project 1, is done, and the next ones are lit up."
-          : "Roadmap of nine projects: AI Curation is project 1 of 9."
-      }
-      className="grid w-full max-w-[26rem] grid-cols-3 gap-2"
-    >
-      {Array.from({ length: 9 }, (_, i) => {
-        const first = i === 0;
-        // Distance from the first cell, for the spreading light.
-        const hop = Math.floor(i / 3) + (i % 3);
-        return (
-          <li
-            key={i}
-            className={cn(
-              "relative grid h-14 place-items-center overflow-hidden rounded-xl border text-sm font-medium",
-              first ? "border-accent bg-accent text-paper" : "border-line text-ink-muted",
-            )}
-          >
-            {!first && spread && (
-              <motion.span
-                aria-hidden
-                initial={still ? false : { opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true, amount: 0.6 }}
-                transition={{
-                  duration: 0.6,
-                  ease: EASE_OUT,
-                  delay: 0.4 + hop * 0.22,
-                }}
-                className="absolute inset-0 bg-accent/[0.09]"
-              />
-            )}
-            <span className="relative flex items-center gap-1.5">
-              {first && spread && <Check aria-hidden className="size-4" strokeWidth={2.5} />}
-              {first ? "AI Curation" : `Project ${i + 1}`}
-            </span>
-          </li>
-        );
-      })}
-    </ol>
   );
 }
 

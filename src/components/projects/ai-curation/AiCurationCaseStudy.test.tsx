@@ -21,7 +21,7 @@ describe("AiCurationCaseStudy", () => {
       "evaluation:09 Internal Evaluation",
       "ab-test:10 A/B Test",
       "integration:11 Integration",
-      "live-impact:12 Impact",
+      "results:12 Results",
       "reflection:13 Reflection",
     ]);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
