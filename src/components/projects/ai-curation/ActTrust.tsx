@@ -452,9 +452,13 @@ function CopilotDemo({ guide }: { guide?: { step: number; progress: MotionValue<
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-1">
+                {/* Kurly's full list, scrolling inside a short box. */}
+                <div className="flex max-h-[8.5rem] flex-wrap gap-1.5 overflow-y-auto pt-1">
                   {SITE_CATEGORIES[site].map((c) => (
-                    <label key={c} className="flex items-center gap-2 text-xs text-ink">
+                    <label
+                      key={c}
+                      className="flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-xs text-ink"
+                    >
                       <input
                         type="checkbox"
                         checked={picked.includes(c)}
@@ -918,8 +922,8 @@ function UpdateTimeline() {
 const KEY_UPDATES = [
   {
     v: "1.2",
-    title: "Categories shape the search",
-    body: "A picked category now guides the search, not just filters it.",
+    title: "CSV ready for the CMS",
+    body: "Downloads match the CMS upload format, so a list goes straight in.",
   },
   {
     v: "2.0",
@@ -928,10 +932,63 @@ const KEY_UPDATES = [
   },
   {
     v: "2.1",
-    title: "Brand search by keyword",
-    body: "Mandatory keywords match deal, content, and supplier names.",
+    title: "Include and exclude keywords",
+    body: "Must-have and must-not words, which also made brand search work.",
   },
 ];
+
+// Fades in on the updates' second beat; its numbers count up once it's in.
+// While it counts, the page holds still so the numbers can land.
+const COUNT_MS = 400 + 1100;
+const SCROLL_KEYS = ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "];
+
+function Performance({ shown, hold }: { shown: boolean; hold: boolean }) {
+  const still = useStill();
+  const [play, setPlay] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setPlay(shown), shown ? 400 : 0);
+    return () => clearTimeout(t);
+  }, [shown]);
+  useEffect(() => {
+    if (!shown || !hold || still) return;
+    const block = (e: Event) => {
+      if (
+        e instanceof KeyboardEvent &&
+        (!SCROLL_KEYS.includes(e.key) || e.target instanceof HTMLInputElement)
+      )
+        return;
+      e.preventDefault();
+    };
+    const opts = { passive: false } as const;
+    window.addEventListener("wheel", block, opts);
+    window.addEventListener("touchmove", block, opts);
+    window.addEventListener("keydown", block);
+    const release = () => {
+      window.removeEventListener("wheel", block);
+      window.removeEventListener("touchmove", block);
+      window.removeEventListener("keydown", block);
+    };
+    const t = setTimeout(release, COUNT_MS);
+    return () => {
+      clearTimeout(t);
+      release();
+    };
+  }, [shown, hold, still]);
+  return (
+    <motion.div
+      initial={false}
+      animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+      transition={still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT }}
+      className="flex flex-col gap-5"
+    >
+      <SubSubHeading>Performance</SubSubHeading>
+      <p className="text-sm leading-relaxed text-ink-muted">
+        Not just features: searches got faster, more accurate, and cheaper too.
+      </p>
+      <TechTable play={play} />
+    </motion.div>
+  );
+}
 
 // The first release against the last.
 const TECH: { metric: string; first: string; final: Num; from?: number }[] = [
@@ -1063,19 +1120,32 @@ export function Copilot() {
           <div className={cn(wrap, "flex w-full flex-col gap-6")}>
             <div className="flex flex-col gap-4">
               <SubHeading>How it works</SubHeading>
-              <Body className="max-w-[48rem]">
-                From nothing but a short theme subject, the algorithm finds the products that fit.
-                Three steps do most of the work: <B>refining the request</B> into what the theme is
-                after, <B>generating candidate products and keywords</B> over several rounds, and{" "}
-                <B>ranking</B> what comes back.
-              </Body>
+              <div className="flex max-w-[48rem] flex-col gap-3">
+                <Body className="max-w-none">
+                  From nothing but a short theme subject, the algorithm finds the products that fit.
+                  <br />
+                  Three steps do most of the work:
+                </Body>
+                <ol className="flex flex-col gap-1 text-base leading-relaxed text-ink-muted md:text-lg">
+                  <li>
+                    1. <B>Refining the request</B> into what the theme is after
+                  </li>
+                  <li>
+                    2. <B>Generating candidate products and keywords</B> over several rounds
+                  </li>
+                  <li>
+                    3. <B>Ranking</B> what comes back
+                  </li>
+                </ol>
+              </div>
             </div>
             <PipelineDots />
           </div>
         )}
       </StickyScene>
 
-      <StickyScene steps={2} vh={60} label="Six updates to the Copilot">
+      {/* Features first; Performance comes in on the next scroll. */}
+      <StickyScene steps={3} vh={50} label="Six updates to the Copilot">
         {({ step, live }) => (
           <div className={cn(wrap, "flex w-full flex-col gap-12")}>
             <div className="grid items-end gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
@@ -1089,8 +1159,12 @@ export function Copilot() {
               <UpdateTimeline />
             </div>
             <div className="grid gap-12 md:grid-cols-2 md:gap-16">
-              <div className="flex flex-col gap-5">
+              {/* Comes in once the timeline has. */}
+              <Reveal delay={1.1} className="flex flex-col gap-5">
                 <SubSubHeading>Features</SubSubHeading>
+                <p className="text-sm leading-relaxed text-ink-muted">
+                  New features that made MDs’ work easier and the results more satisfying.
+                </p>
                 <ul className="flex flex-col gap-5">
                   {KEY_UPDATES.map((u) => (
                     <li key={u.v} className="flex gap-4">
@@ -1104,14 +1178,8 @@ export function Copilot() {
                     </li>
                   ))}
                 </ul>
-              </div>
-              <div className="flex flex-col gap-5">
-                <SubSubHeading>Performance</SubSubHeading>
-                <p className="text-sm leading-relaxed text-ink-muted">
-                  Not just features: searches got faster, more accurate, and cheaper too.
-                </p>
-                <TechTable play={!live || step >= 1} />
-              </div>
+              </Reveal>
+              <Performance shown={!live || step >= 1} hold={live} />
             </div>
           </div>
         )}
