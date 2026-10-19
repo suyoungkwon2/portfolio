@@ -1320,8 +1320,8 @@ function BlindTest({ revealed }: { revealed: boolean }) {
   const still = useStill();
   const fade = still ? { duration: 0 } : { duration: 0.5, ease: EASE_OUT };
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-5">
         <SubHeading>1 · Which AI? A blind test</SubHeading>
         <Body className="max-w-[48rem]">
           To choose the model, I tested whether <B>our own algorithm</B>, built around how MDs
@@ -1336,14 +1336,14 @@ function BlindTest({ revealed }: { revealed: boolean }) {
         </ul>
       </div>
 
-      <div className="grid gap-x-8 gap-y-6 md:grid-cols-[10rem_1fr_1fr]">
+      <div className="grid gap-x-8 gap-y-8 md:grid-cols-[10rem_1fr_1fr]">
         {/* The pick: Model A's column gets a box and a check. */}
         <motion.span
           aria-hidden
           initial={false}
           animate={revealed ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
           transition={fade}
-          className="pointer-events-none relative -mx-4 -my-3 hidden rounded-2xl border-2 border-pass md:block md:[grid-area:1/2/4/3]"
+          className="pointer-events-none relative -mx-4 -my-4 hidden rounded-2xl border-2 border-pass md:block md:[grid-area:1/2/4/3]"
         >
           <span className="absolute -right-3 -top-3 grid size-6 place-items-center rounded-full bg-pass text-[13px] font-bold text-paper">
             ✓
@@ -1411,7 +1411,7 @@ function BlindTest({ revealed }: { revealed: boolean }) {
         initial={false}
         animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
         transition={fade}
-        className="flex max-w-[48rem] flex-col gap-2"
+        className="flex max-w-[48rem] flex-col gap-3"
       >
         <p className="font-display text-xl font-medium text-ink md:text-2xl">
           Our algorithm won 68% of 56 votes.
@@ -1441,6 +1441,11 @@ const SCORES = [
   ...Array(12).fill(30),
 ].map((thirds: number) => thirds / 3);
 const MEAN = 8.95;
+const PANEL = ["A PM, the MD lead, and the marketing lead", "21 test campaigns", "Scored 0 to 10"];
+const PANEL_SCORES = [
+  { value: "8.95", label: "Average score, out of 10" },
+  { value: "9.4", label: "Without the one theme that returned no products" },
+];
 const AXIS_W = 640;
 const AXIS_X0 = 20;
 const unitX = (v: number) => AXIS_X0 + (v / 10) * (AXIS_W - AXIS_X0 * 2);
@@ -1585,15 +1590,32 @@ export function Evaluation() {
       <StickyScene steps={2} vh={60} label="Expert panel scores">
         {() => (
           <div className={cn(wrap, "w-full")}>
-            <section className="grid items-center gap-10 md:grid-cols-[1fr_1.2fr] md:gap-14">
-              <div className="flex flex-col gap-4">
-                <SubHeading>2 · Would experts ship it?</SubHeading>
-                <Body>
-                  An expert panel, a PM, the MD lead, and the marketing lead, scored{" "}
-                  <B>21 test campaigns</B> out of 10. Most got a 10. The average was{" "}
-                  <B>8.95 / 10</B> only because one theme returned no products and scored 0; the
-                  other 20 averaged <B>9.4</B>.
-                </Body>
+            <section className="grid items-center gap-12 md:grid-cols-[1fr_1.2fr] md:gap-14">
+              <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-5">
+                  <SubHeading>2 · Would experts ship it?</SubHeading>
+                  <Body>
+                    A homepage-wide A/B test was a big call, so first I ran one last subjective
+                    review with the leads.
+                  </Body>
+                  <ul aria-label="Review conditions" className="flex flex-wrap gap-2">
+                    {PANEL.map((c) => (
+                      <li key={c} className="rounded-full bg-paper-2 px-3 py-1.5 text-sm text-ink">
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <dl className="grid grid-cols-2 gap-6 border-t border-line pt-6">
+                  {PANEL_SCORES.map((m) => (
+                    <div key={m.label} className="flex flex-col gap-1">
+                      <dt className="order-2 text-sm leading-snug text-ink-muted">{m.label}</dt>
+                      <dd className="order-1 font-display text-[2rem] font-medium leading-none tracking-tight text-accent md:text-[2.5rem]">
+                        {m.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
               <ScoreDots />
             </section>
