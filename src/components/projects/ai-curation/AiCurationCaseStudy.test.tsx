@@ -20,8 +20,9 @@ describe("AiCurationCaseStudy", () => {
       "copilot:08 Internal Copilot",
       "evaluation:09 Internal Evaluation",
       "ab-test:10 A/B Test",
-      "integration-impact:11 Integration & Impact",
-      "reflection:12 Reflection",
+      "integration:11 Integration",
+      "live-impact:12 Impact",
+      "reflection:13 Reflection",
     ]);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "AI Curation: Scaling Themed Campaigns",
@@ -79,7 +80,7 @@ describe("AiCurationCaseStudy", () => {
 
   it("splits integration into the sheet launch and the rules behind it", () => {
     render(<AiCurationCaseStudy />);
-    const integration = document.getElementById("integration-impact")!;
+    const integration = document.getElementById("integration")!;
     expect(
       within(integration).getByRole("heading", {
         name: "1 · Launch from the sheet MDs already use",

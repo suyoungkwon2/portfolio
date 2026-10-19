@@ -18,8 +18,8 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, StickyScene, useStill } from "../story/motion";
-import { ProcessFlow, type ProcessStep } from "../story/ProcessFlow";
+import { EASE_OUT, useStill } from "../story/motion";
+import { type ProcessStep } from "../story/ProcessFlow";
 import { wrap } from "../story/ui";
 import type { HomeItem, HomeSection, Product, Theme } from "./data";
 
@@ -720,42 +720,3 @@ export const STRATEGY: ProcessStep[] = [
     text: "Let AI run the core homepage slots, from registration to hourly refresh.",
   },
 ];
-
-// Where the plan stands at the end of a chapter: it lands on `from` steps
-// lit, and one scroll lights up to `lit`, ringing `current`. A spare step
-// holds it.
-export function ProgressBeat({
-  from,
-  lit,
-  current,
-  label,
-}: {
-  from: number;
-  lit: number;
-  current?: number;
-  label: string;
-}) {
-  return (
-    <StickyScene steps={3} vh={100} label={label}>
-      {({ step, live }) => {
-        const done = !live || step >= 1;
-        return (
-          <div className={cn(wrap, "flex w-full flex-col items-center gap-14")}>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">
-              Strategic Process
-            </p>
-            <div className="w-full">
-              <ProcessFlow
-                steps={STRATEGY}
-                animate={false}
-                lit={done ? lit : from}
-                from={from}
-                current={done ? current : from}
-              />
-            </div>
-          </div>
-        );
-      }}
-    </StickyScene>
-  );
-}

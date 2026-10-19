@@ -1,7 +1,7 @@
 import { ReadingProgress } from "../story/ReadingProgress";
 import { CompanyProblem, UserProblem } from "./ActConflict";
 import { Define, Interview } from "./ActListen";
-import { IntegrationImpact, Reflection } from "./ActPayoff";
+import { Integration, LiveImpact, Reflection } from "./ActPayoff";
 import { AbTest, Copilot, Evaluation } from "./ActTrust";
 import { Context, Hero, Hook, Impact, Roles } from "./ActSetup";
 
@@ -26,7 +26,8 @@ export function AiCurationCaseStudy() {
       <Copilot />
       <Evaluation />
       <AbTest />
-      <IntegrationImpact />
+      <Integration />
+      <LiveImpact />
       <Reflection />
     </>
   );

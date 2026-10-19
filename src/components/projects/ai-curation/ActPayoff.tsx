@@ -23,13 +23,13 @@ import {
 } from "../story/ui";
 import { AiNode, DashLine, GLOW, KurlyWeb, SHOWN, webHeight } from "./ActSetup";
 import { CHINESE, MATCHA, SNACK } from "./data";
-import { ProgressBeat, RoadmapGrid9 } from "./ui";
+import { RoadmapGrid9 } from "./ui";
 
 // Act 5, Payoff: 11 Integration & Impact · 12 Reflection
 // (spec §5.13–5.14).
 
 /* ------------------------------------------------------------------ */
-/* 11 Integration & Impact: SheetToHome                                */
+/* 11 Integration: SheetToHome                                          */
 /* ------------------------------------------------------------------ */
 
 const PRESS = [
@@ -558,18 +558,15 @@ const IMPACT: { to?: Num; text?: string; extra?: string; label: string }[] = [
   },
 ];
 
-export function IntegrationImpact() {
+export function Integration() {
   return (
     <Chapter
-      id="integration-impact"
-      label="11 Integration & Impact"
+      id="integration"
+      label="11 Integration"
       className="border-t border-line pt-24 md:pt-32"
     >
       <div className={cn(wrap, "flex flex-col gap-6")}>
-        <SectionHeader
-          label="11 INTEGRATION & IMPACT"
-          headline="Name a Theme, Get a Live Campaign"
-        />
+        <SectionHeader label="11 INTEGRATION" headline="Name a Theme, Get a Live Campaign" />
         <Body className="max-w-[48rem]">
           Going live had two sides:
           <br />a launch MDs could run on their own,
@@ -593,11 +590,20 @@ export function IntegrationImpact() {
       >
         {({ step, live }) => <RulesScene step={step} live={live} />}
       </StickyScene>
+    </Chapter>
+  );
+}
 
-      <ProgressBeat from={4} lit={5} label="AI now runs the core homepage slots" />
+/* ------------------------------------------------------------------ */
+/* 12 Impact                                                           */
+/* ------------------------------------------------------------------ */
 
+export function LiveImpact() {
+  return (
+    <Chapter id="live-impact" label="12 Impact" className="border-t border-line pt-24 md:pt-32">
       <div className={cn(wrap, "flex flex-col gap-20 pb-8")}>
-        <div className="grid gap-10 border-t border-line pt-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        <SectionHeader label="12 IMPACT" headline="AI Now Runs a Quarter of Key Slots" />
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {IMPACT.map((m, i) => (
             <Reveal key={m.label} delay={i * 0.08}>
               {m.to ? (
@@ -660,7 +666,7 @@ export function IntegrationImpact() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 12 Reflection                                                       */
+/* 13 Reflection                                                       */
 /* ------------------------------------------------------------------ */
 
 const LESSONS: Lesson[] = [
@@ -698,6 +704,6 @@ const LESSONS: Lesson[] = [
 
 export function Reflection() {
   return (
-    <Lessons id="reflection" label="12 REFLECTION" chapter="12 Reflection" lessons={LESSONS} />
+    <Lessons id="reflection" label="13 REFLECTION" chapter="13 Reflection" lessons={LESSONS} />
   );
 }
