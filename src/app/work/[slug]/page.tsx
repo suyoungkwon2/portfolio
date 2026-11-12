@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { IntroVideo } from "@/components/project/IntroVideo";
 import { ProjectFooterNav } from "@/components/project/ProjectFooterNav";
 import { ProjectHero } from "@/components/project/ProjectHero";
 import { RelatedLinks } from "@/components/project/RelatedLinks";
 import { SlideDeck } from "@/components/project/SlideDeck";
 import { TenSecondSummary } from "@/components/project/TenSecondSummary";
 import { MarsHeroVideo, MarsOverview } from "@/components/projects/MarsOverview";
-import { SleepviceVideo } from "@/components/projects/SleepviceVideo";
 import { PhonitaleDetail, PhonitaleHeroVideos } from "@/components/projects/PhonitaleDetail";
 import { AiCurationCaseStudy } from "@/components/projects/ai-curation/AiCurationCaseStudy";
 import { AiSearchCaseStudy } from "@/components/projects/ai-search/AiSearchCaseStudy";
@@ -32,8 +32,11 @@ const storyComponents: Record<string, React.ComponentType> = {
 // detail page is still the portfolio PDF.
 const introComponents: Record<string, React.ComponentType> = {
   mars: MarsOverview,
-  sleepvice: SleepviceVideo,
 };
+
+// Projects with an intro film (/images/<slug>/vid_intro.mp4) shown right
+// above their slides.
+const introVideos = new Set(["sleepvice", "asleeptrack"]);
 
 // Static export: only the published slugs exist; anything else is the 404 page.
 export const dynamicParams = false;
@@ -108,6 +111,7 @@ export default async function ProjectPage({
         }
       />
       {Detail ? <Detail /> : Intro && <Intro />}
+      {introVideos.has(slug) && <IntroVideo slug={slug} title={meta.title} />}
       {meta.slides && <SlideDeck slug={slug} title={meta.title} count={meta.slides} />}
       <RelatedLinks links={meta.relatedLinks} />
       {footerNav}
